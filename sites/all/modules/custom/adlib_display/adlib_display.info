@@ -1,0 +1,6 @@
+name = Adlib Display
+description = Provides a view mode for displaying items imported with the Adlib_test feature
+package = Adlib
+core = 7.x
+
+files[] = adlib_display.module

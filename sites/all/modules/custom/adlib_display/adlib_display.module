@@ -1,0 +1,11 @@
+<?php 
+
+/**
+* Implements hook_entity_info_alter().
+*/
+function adlib_display_entity_info_alter(&$entity_info) {
+	$entity_info['node']['view modes']['adlib_object'] = array(
+    'label' => t('Adlib object list view'),
+    'custom settings' => FALSE,
+	);
+}
