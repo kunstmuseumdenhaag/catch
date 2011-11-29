@@ -1,0 +1,37 @@
+<?php
+/**
+ * @file
+ * Create database tables for references update module
+ */
+
+function adlib_references_schema() {
+
+  $schema = array();
+  $schema['adlib_objects'] = array(
+    'description' => 'Nodes to update',
+    'fields' => array(
+    'pid' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'Primary ID field for the table. Not used for anything except internal lookups.',
+        'no export' => TRUE,
+      ),
+       'nid' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'unsigned' => TRUE,
+        'description' => 'Numeric identifier of the node to update.',
+      ),
+     'created' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Timestamp when node was added to table.',
+      ),
+    ),
+    'primary key' => array('pid'),
+  );
+  return $schema;
+}

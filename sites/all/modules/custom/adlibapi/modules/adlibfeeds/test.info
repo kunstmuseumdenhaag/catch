@@ -1,0 +1,3 @@
+
+files[] = adlibapi_feeds.module
+files[] = plugins/AdlibFetcher.inc

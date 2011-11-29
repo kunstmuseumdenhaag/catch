@@ -1,0 +1,155 @@
+<?php
+/**
+ * @file
+ * Module for creating references between imported Adlib objects
+ */
+/**
+ * Implements hook_form_alter(), define fields on which the nodes must be linked
+ */
+function adlib_references_form_alter(&$form, &$form_state, $form_id) {
+  if ($form_id == 'node_type_form') {
+    $form['adlib_references'] = array(
+      '#type' => 'fieldset',
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#title' => 'Adlib reference settings',
+      '#description' => 'Enable automatically referencing of Adlib objects',
+      '#group' => 'additional_settings',
+      '#weight' => 30,
+    );
+    $fields = field_info_fields('', $form['#node_type']->type);
+    $source_fields = array('0' => t('-- Select reference text field --'));
+    // Error message
+    foreach ($fields as $field) {
+      // LN20110222  $field['multiple'] is in Drupal 7 $field['cardinality'] with value = -1
+      if ($field['type'] == 'text' && $field['cardinality'] == -1) {
+        $source_fields[$field['field_name']] = $field['field_name'];
+      }
+    }
+    $field_name = 'adlib_reference_source_field_' . $form['#node_type']->type;
+    $form['adlib_references'][$field_name] = array(
+      '#title' => t('Field in the current object which contains the text by which the reference is determined'),
+      '#type' => 'select',
+      '#options' => $source_fields,
+      '#default_value' => variable_get($field_name, 0),
+    );
+
+    $target_fields = array('0' => t('-- Select field in referenced object--'));
+    foreach ($fields as $field) {
+      $target_fields[$field['field_name']] = $field['field_name'];
+    }
+
+    $field_name = 'adlib_reference_target_field_' . $form['#node_type']->type;
+    $form['adlib_references'][$field_name] = array(
+      '#title' => t('Field in the referenced object in which text must be found'),
+      '#type' => 'select',
+      '#options' => $target_fields,
+      '#default_value' => variable_get($field_name, 0),
+    );
+
+    $reference_fields = array('0' => t('-- Select field to store reference --'));
+    // Error message
+    foreach ($fields as $field) {
+      if ($field['type'] == 'node_reference' && $field['cardinality'] == -1) {
+        $reference_fields[$field['field_name']] = $field['field_name'];
+      }
+    }
+    $field_name = 'adlib_reference_field_' . $form['#node_type']->type;
+    $form['adlib_references'][$field_name] = array(
+      '#title' => t('Field in the current object to store node reference'),
+      '#type' => 'select',
+      '#options' => $reference_fields,
+      '#default_value' => variable_get($field_name, 0),
+    );
+  }
+}
+
+
+/*
+ * Implements hook_menu
+ */
+function adlib_references_menu() {
+
+  $items = array();
+
+  $items['admin/content/update_adlib_objects'] = array(
+    'title' => 'Update references in Adlib objects',
+    'description' => 'Update references in Adlib objects in a batch-operation',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('adlib_references_form'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'adlib_references.admin.inc',
+    'file path' => drupal_get_path('module', 'adlib_references') . '/includes',
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+
+/*
+ * Implements hook_node_insert
+ */
+
+function adlib_references_node_insert($node) {
+  if ( _adlib_references_check_fields($node)) {
+    _adlib_references_insert($node->nid);
+  }
+}
+
+/*
+ * Implements hook_node_update
+ */
+
+function adlib_references_node_update($node) {
+  if ( _adlib_references_check_fields($node)) {
+    _adlib_references_insert($node->nid);
+  }
+}
+
+/*
+ * Helper function to check if the current node has the fiedls defined in the settings
+ * @param the current node
+ * @return boolean to indicate if current node has the Adlib-objectfields
+ */
+function _adlib_references_check_fields($node) {
+  $hasFields= FALSE;
+  // get the names of the fields from the config
+  $reference_source_field=variable_get('adlib_reference_source_field_' . $node->type, 0);
+  $reference_field=variable_get('adlib_reference_field_' . $node->type, 0);
+  $hasSrc= FALSE;
+  $hasRef = FALSE;
+  // get all fields of the curent node type
+  $fields = field_info_fields('', $node->type);
+  // check for the 2 fields which are necessary for
+  foreach ($fields as $field) {
+    if ($field['field_name'] == $reference_source_field) {
+      $hasSrc = TRUE;
+    }
+    if ($field['field_name'] == $reference_field) {
+      $hasRef = TRUE;
+    }
+  }
+  // check if both fields are present
+  $hasFields = ($hasSrc && $hasRef);
+  return $hasFields;
+}
+
+/*
+ * Helper function to add node id to databse
+ * @param $node_id the ide of the node
+ */
+function _adlib_references_insert($node_id) {
+  // check if node is already in database
+  $result = db_query('SELECT n.nid FROM {adlib_objects} n WHERE n.nid = :nid', array(':nid' => $node_id));
+  $found = FALSE;
+  foreach ($result as $record) {
+    $found = TRUE;
+  }
+  if (!$found) {
+    $record = new stdClass();
+    $record->nid = $node_id;
+    $record->created = REQUEST_TIME;
+    drupal_write_record('adlib_objects', $record);
+    watchdog('adlib_references', 'Added node with id %id to update table', array('%id' => $node_id));
+  }
+}

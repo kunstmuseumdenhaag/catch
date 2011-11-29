@@ -1,0 +1,202 @@
+<?php
+/**
+ * @file
+ * All adlibapi functions that are realy meant as api functions can be found in this file
+ */
+
+define("ADLIBAPI_DATABASE_SCHEMA", "adlibapi_databases");
+// Define the minimum adlib api version
+define("ADLIBAPI_MINIMUM_WWWOPAC_VERSION", "3.6.1034.0");
+// Define error strings
+define("ADLIBAPI_WATCHDOG_ERROR", "adlibapi");
+/*
+ * Include the api and the library
+ */
+
+//include_once DRUPAL_ROOT . '/sites/all/modules/custom/adlibapi/' . 'adlibapi.api.inc';
+include_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'adlibapi')  . '/adlibapi.api.inc';
+
+require_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'adlibapi') .'/library/AdlibConnector.php';
+// require_once DRUPAL_ROOT . '/' . libraries_get_path('adlib', FALSE) . '/AdlibConnector.php';
+
+/**
+ * Implements hook_theme().
+ */
+function adlibapi_theme() {
+  return array(
+    'adlibapi_render_database_info' => array(
+      'variables' => array(
+        'versioninfo' => NULL,
+        'fieldinfo' => NULL,
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_help().
+ */
+function adlibapi_help($path, $arg) {
+  $output = '';
+  switch ($path) {
+    case "admin/help#adlibapi":
+      $output = '<h3>' . t('Adlibapi') . '</h3>';
+      $output .= '<p>' . t('Set of modules which provide drupal integration with the AdlibSoft adlib museum software.') . '</p>';
+      $output .= '<h4>' . t('Installation:') . '</h4>';
+      $output .= '<p>';
+      $output .= t('To import an adlib database to Drupal, take the following steps:');
+      $output .= '<ol>';
+      $output .= '<li>' . t('Enable adlibapi and adlibapi_feeds') . '</li>';
+      $output .= '<li>' . t('Create a new adlib database setting at \'admin/build/adlibapi\', or use the supplied adlib_sandbox setting') . '</li>';
+      $output .= '<li>' . t('Create a new Feed importer at \'admin/build/feeds\'') . '</li>';
+      $output .= '<li>' . t('Change the fetcher to \'Adlib Fetcher\'') . '</li>';
+      $output .= '<li>' . t('Go to the settings of the \'Adlib Fetcher\'') . '</li>';
+      $output .= '<li>' . t('Select an adlib database') . '</li>';
+      $output .= '<li>' . t('In order to use the adlib parser select the unstructered xml type.') . '</li>';
+      $output .= '<li>' . t('Select the fields to retrieve from the adlib database') . '</li>';
+      $output .= '<li>' . t('Change the parser to the adlib parser (alternatively the xpath parser can be used)') . '</li>';
+      $output .= '<li>' . t('Now first create the mappings at the processor (select an adlib expression)') . '</li>';
+      $output .= '<li>' . t('At the parser settings, map one or more adlib fields to the drupal fields using the tokens.') . '</li>';
+      $output .= '<li>' . t('The progress of an import/update can be tracked at the fetcher settings.') . '</li>';
+      $output .= '</ol>';
+      break;
+    case "admin/structure/adlibapi":
+      $output = '<p>' . t('Create new database settings here. Look at the adlib_sandbox settings for an example. You need to know the opac url and the database name (e.g. ChoiceCollect).') . '</p>';
+      break;
+  }
+  return $output;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function adlibapi_permission() {
+   return array(
+    'administer adlibapi databases' => array(
+      'title' => t('Administer adlibapi databases'),
+      'description' => t('Administer the central adlib databases. The databases can be used by other modules.'),
+    ),
+  );
+}
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function adlibapi_enable() {
+  //clear the cache to display in Feeds as available plugin.
+  cache_clear_all('plugins:feeds:plugins', 'cache');
+}
+
+/**
+ * Implements hook_ctools_plugin_api().
+ *
+ * Tell CTools that we support the default_adlibapi_presets API.
+ */
+function adlibapi_ctools_plugin_api($owner, $api) {
+  if ($owner == 'adlibapi' && $api == 'default_adlibapi_presets') {
+    return array('version' => 1);
+  }
+}
+
+/**
+ * Implements hook_default_adlibapi_presets().
+ *
+ * Provide a couple of default presets.
+ */
+function adlibapi_default_adlibapi_preset() {
+  $export = array();
+
+  $preset = new stdClass;
+  $preset->api_version = 1;
+  $preset->name = 'adlib_sandbox';
+  $preset->description = 'Sandbox database provided by adlibsoft';
+  $config = array(
+    'url' => 'http://test2.adlibsoft.com/api/wwwopac.ashx',
+    'require_login' => 1,
+    'username' => '',
+    'password' => '',
+    'imageserver' => 'adlibimages',
+  );
+  $preset->config = serialize($config);
+  $export['default_adlib_database'] = $preset;
+
+  return $export;
+}
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function adlibapi_ctools_plugin_directory($module, $type) {
+
+  // Load the export_ui plugin.
+  if ($type == 'export_ui') {
+    return 'plugins/export_ui';
+  }
+}
+
+/**
+ *
+ * Get all the available databases on an url.
+ * To get usefull information about the database, use adlibapi_get_database_metadata
+ * @param string $url
+ */
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function adlibapi_get_available_databases_at_url($url) {
+  // Get a connector instance
+  $adlibcon = new AdLibConnector($url);
+  // Do the qeury
+  $response = $adlibcon->listDatabases();
+  if ($response->getError()) {
+    watchdog('adlibapi', $response->getErrorMessage(), NULL, WATCHDOG_ERROR);
+  }
+  $db_list = $response->getXMLObject();
+  // Parse the results
+  $databases = array();
+  if (isset($db_list->recordList->record)) {
+    foreach ($db_list->recordList->record as $dbrecord) {
+      $databases[] = array(
+        'database' => (string) $dbrecord->database,
+        'writeAllowed' => (string) $dbrecord->writeAllowed,
+      );
+    }
+  }
+  return $databases;
+}
+
+
+/************** private functions **********************/
+function _adlibapi_deserialize_config(&$preset) {
+  if (isset($preset->config)) {
+    $config = unserialize($preset->config);
+    // Put the config in the class
+    foreach ($config as $key => $value) {
+      $preset->$key = $value;
+    }
+  }
+}
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function theme_adlibapi_render_database_info($variables) {
+  $versioninfo = $variables['versioninfo'];
+  $fieldinfo = $variables['fieldinfo'];
+  $dummy = 'dummy';
+  $output = '<div><h2>' . t('Version information') . '</h2>';
+  $output .= '<p>' . $versioninfo['rawtext'] . '</p>';
+  $output .= '<h2>' . t('Field information') . '</h2>';
+  $output .= '<div class="adlib_field_info"><ul>';
+  if (is_array($fieldinfo)) {
+    foreach ($fieldinfo as $field) {
+      $output .= '<li>' . $field['fieldName'] . '</li>';
+    }
+  }
+  $output .= '</ul></div></div>';
+  return $output;
+}

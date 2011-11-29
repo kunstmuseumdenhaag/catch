@@ -1,0 +1,13 @@
+name = Adlib Feeds
+description = Provides feeds integration for adlib
+package = Adlib
+core = 7.x
+
+dependencies[] = feeds
+dependencies[] = adlibapi
+dependencies[] = date_popup
+
+files[] = adlib_feeds.module
+files[] = AdlibFetcher.inc
+files[] = plugins/AdlibFetcher.inc
+files[] = plugins/AdlibParser.inc

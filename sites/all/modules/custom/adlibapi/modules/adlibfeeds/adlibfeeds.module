@@ -1,0 +1,109 @@
+<?php
+/**
+ * Implements hook_feeds_plugins().
+ */
+function adlibfeeds_feeds_plugins() {
+  $info = array();
+  $path = drupal_get_path('module', 'adlibfeeds') . '/plugins';
+  $info['AdlibFetcher'] = array(
+      'name' => 'Adlib Fetcher',
+      'description' => 'Fetches documents from adlib museum software api.',
+      'handler' => array(
+      'parent' => 'FeedsFetcher', // A plugin needs to derive either directly or indirectly from FeedsFetcher, FeedsParser or FeedsProcessor.
+      'class' => 'AdlibFetcher',
+      'file' => 'AdlibFetcher.inc',
+      'path' => $path,
+    ),
+  );
+  $info['FeedsAdlibParser'] = array(
+      'name'        => t('Adlib parser'),
+      'description' => t('Parse Adlib responses using adlib query language.'),
+      'handler'     => array(
+      'parent' => 'FeedsParser',
+      'class'  => 'AdlibParser',
+      'file'   => 'AdlibParser.inc',
+      'path'   => $path,
+    ),
+  );
+  return $info;
+}
+
+/**
+ * Implements hook_help().
+ */
+function adlibfeeds_help($path, $arg) {
+  $output = '';
+  switch ($path) {
+    case "admin/help#adlibfeeds":
+      $output = '<h3>' . t('Adlibfeeds module') . '</h3>';
+      $output .= '<p>' . t('The adlibapi feeds module provides integration with the feeds module. Adlib documents can be imported using the adlibfetcher and the adlibparser. Keep in mind that first at least one adlib database needs to be configured.') . '</p>';
+      break;
+  }
+  return $output;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function adlibfeeds_theme() {
+  return array(
+    'adlibfeeds_fetcher_info' => array(
+      'variables' => array('vars' => array()),
+    ),
+  );
+}
+
+
+
+function adlibfeeds_feeds_processor_targets_alter(&$targets, $type, $content_type) {
+  $dummy = 'dummy';
+}
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function theme_adlibfeeds_fetcher_info($variables) {
+  $vars = $variables['vars'];
+  /*
+   * Determine the status
+   */
+  switch ($vars['status']) {
+    case 0:
+      $status = t('Not started yet');
+      break;
+    case 1:
+      $status = t('busy');
+      break;
+    case 2:
+      $status = t('Ready');
+      break;
+    default:
+      $status = t('Unknown');
+      break;
+  }
+  /*
+   * Determine percentage done
+   */
+  if ($vars['batch_results'] > 0) {
+    $done = round(($vars['batch_startfrom'] / $vars['batch_results']) * 100, 0);
+  }
+  else {
+    $done = 0;
+  }
+  $output = '<table><tr>';
+  $output .= '<td>' . t('Status') . '</td>';
+  $output .= '<td>' . $status . '</td>';
+  $output .= '</tr><tr>';
+  $output .= '<td>' . t('Total results for batch') . '</td>';
+  $output .= '<td>' . $vars['batch_results'] . '</td>';
+  $output .= '</tr><tr>';
+  $output .= '<td>' . t('Now processing from') . '</td>';
+  $output .= '<td>' . $vars['batch_startfrom'] . '</td>';
+  $output .= '</tr><tr>';
+  $output .= '<td>' . t('Percentage done') . '</td>';
+  $output .= '<td>' . $done . ' %</td>';
+  $output .= '</tr>';
+  $output .= '</table>';
+  return $output;
+}

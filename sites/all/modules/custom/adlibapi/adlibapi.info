@@ -1,0 +1,14 @@
+name = Adlib API	
+description = Provides an api for the adlibsoft museum software api
+package = Adlib
+core = 7.x
+configure = admin/structure/adlibapi
+
+dependencies[] = ctools
+
+files[] = adlibapi.api.inc
+files[] = adlibapi.install
+files[] = adlibapi.module
+files[] = export_ui/adlibapi_ctools_export_ui.inc
+files[] = plugins/export_ui/adlibapi_ctools_export_ui.inc
+
