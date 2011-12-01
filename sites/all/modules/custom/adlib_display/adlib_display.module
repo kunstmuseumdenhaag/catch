@@ -6,7 +6,7 @@
 function adlib_display_entity_info_alter(&$entity_info) {
 	$entity_info['node']['view modes']['adlib_object'] = array(
     'label' => t('Adlib object list view'),
-    'custom settings' => FALSE,
+    	'custom settings' => TRUE,
 	);
 }
 
@@ -19,4 +19,92 @@ function adlib_display_preprocess_node(&$vars) {
 		
 		$vars['theme_hook_suggestions'][] = 'node__' . $vars['type'] . '__adlib_object';
 	}
+}
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function adlib_display_field_formatter_info() {
+  return array(
+    'adlib_display_grouped_adlib_field' => array(
+      'label' => t('Grouped Adlib field'),
+      'field types' => array('text', 'text_long'),
+      'settings' => array('adlib_display_grouped_fields' => ''),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_formatter_settings_form().
+ */
+function adlib_display_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+
+  $element = array();
+
+  if ($display['type'] == 'adlib_display_grouped_adlib_field') {
+    $element['adlib_display_grouped_fields'] = array(
+      '#title' => t('Fields to group'),
+      '#description' => t('Add all the fields that should be grouped. Each field on a new line'),
+      '#type' => 'textarea',
+      '#default_value' => $settings['adlib_display_grouped_fields'],
+      '#required' => TRUE,
+    );
+  }
+
+  return $element;
+}
+
+/**
+ * Implements hook_field_formatter_settings_summary().
+ */
+function adlib_display_field_formatter_settings_summary($field, $instance, $view_mode) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+
+  $summary = '';
+
+  if ($display['type'] == 'adlib_display_grouped_adlib_field') {
+    $summary = t('Fields to group') . ': ' . $settings['adlib_display_grouped_fields'];
+  }
+
+  return $summary;
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function adlib_display_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $element = array();
+
+  switch ($display['type']) {
+    case 'adlib_display_grouped_adlib_field':
+      foreach ($items as $delta => $item) {
+          // Get all the fields that should be grouped with this one
+          $fields = array_filter(explode("\n", trim($display['settings']['adlib_display_grouped_fields'])));
+          if (empty($item['value'])) {
+            foreach($fields as $field) {
+              $field_content = $entity->$field;
+              if (!empty($field_content['und'][0]['value'])) {
+                // Get the info of the field instance that should be shown
+                $field_info = field_info_instance($entity_type, $field, $entity->type);
+                $element[$delta] = array(
+              	  '#markup' => check_plain($field_content['und'][0]['value']),
+                );
+                $element['#title'] = $field_info['label'];    
+              }
+              // We found our match, break
+              break;
+            }
+          }
+          else {
+            $element[$delta] = array(
+              '#markup' => check_plain($item['value']),
+            );
+          }
+        }
+      break;
+  }
+  return $element;
 }

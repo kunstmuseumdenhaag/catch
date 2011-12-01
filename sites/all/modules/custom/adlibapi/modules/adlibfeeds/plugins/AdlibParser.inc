@@ -390,11 +390,21 @@ class AdlibParser extends FeedsParser {
           }
         }
       }
-      // if we have any more [<tags>] remove them here
-      $value = preg_replace('/\[.*?\]/', '' , $value);
-      // remove redundant spaces
-      $value = trim($value);
-      // all fields are replaced, no more [<tag>]
+       if (is_array($value)) {
+       foreach ($value as $key => $val) {
+         // if we have any more [<tags>] remove them here
+         $value[$key] = preg_replace('/\[.*?\]/', '' , $val);
+         // remove redundant spaces
+         $value[$key] = trim($value[$key]);
+       }
+     }
+     else {
+     // if we have any more [<tags>] remove them here
+       $value = preg_replace('/\[.*?\]/', '' , $value);
+       // remove redundant spaces
+       $value = trim($value);
+     }
+ 
       $item[$source_key] = $value;
     }
     return $item;
