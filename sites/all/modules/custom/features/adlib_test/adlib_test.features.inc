@@ -5,7 +5,7 @@
  */
 
 /**
- * Implements hook_ctools_plugin_api().
+ * Implementation of hook_ctools_plugin_api().
  */
 function adlib_test_ctools_plugin_api() {
   list($module, $api) = func_get_args();
@@ -16,10 +16,14 @@ function adlib_test_ctools_plugin_api() {
   if ($module == "feeds" && $api == "feeds_importer_default") {
     return array("version" => "1");
   }
+  list($module, $api) = func_get_args();
+  if ($module == "field_group" && $api == "field_group") {
+    return array("version" => "1");
+  }
 }
 
 /**
- * Implements hook_views_api().
+ * Implementation of hook_views_api().
  */
 function adlib_test_views_api() {
   list($module, $api) = func_get_args();
@@ -29,7 +33,7 @@ function adlib_test_views_api() {
 }
 
 /**
- * Implements hook_node_info().
+ * Implementation of hook_node_info().
  */
 function adlib_test_node_info() {
   $items = array(

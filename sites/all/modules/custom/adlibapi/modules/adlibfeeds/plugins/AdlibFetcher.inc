@@ -114,7 +114,6 @@ class AdlibFetcher extends FeedsFetcher {
    * Implementation of FeedsFetcher::fetch().
    */
   public function fetch(FeedsSource $source) {
-    $source_config = $source->getConfigFor($this);
     return new FeedsAdlibBatch($this, $source->feed_nid);
   }
 

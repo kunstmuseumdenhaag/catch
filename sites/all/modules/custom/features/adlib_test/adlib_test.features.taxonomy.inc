@@ -5,7 +5,7 @@
  */
 
 /**
- * Implements hook_taxonomy_default_vocabularies().
+ * Implementation of hook_taxonomy_default_vocabularies().
  */
 function adlib_test_taxonomy_default_vocabularies() {
   return array(
