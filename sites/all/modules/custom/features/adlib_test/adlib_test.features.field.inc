@@ -129,7 +129,7 @@ function adlib_test_field_default_fields() {
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
-          'weight' => '13',
+          'weight' => '14',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -832,7 +832,7 @@ field_adlib_institution_name',
   $fields['node-adlib_object-field_adlib_image'] = array(
     'field_config' => array(
       'active' => '1',
-      'cardinality' => '1',
+      'cardinality' => '-1',
       'deleted' => '0',
       'entity_types' => array(),
       'field_name' => 'field_adlib_image',
@@ -874,7 +874,7 @@ field_adlib_institution_name',
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
-          'weight' => '1',
+          'weight' => '2',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -2444,7 +2444,7 @@ field_adlib_acquisition_place
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
-          'weight' => '2',
+          'weight' => '3',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -2592,7 +2592,7 @@ field_adlib_acquisition_place
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
-          'weight' => '11',
+          'weight' => '1',
         ),
         'teaser' => array(
           'label' => 'above',

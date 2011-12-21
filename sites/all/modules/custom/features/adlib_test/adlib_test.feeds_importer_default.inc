@@ -22,7 +22,7 @@ function adlib_test_feeds_importer_default() {
       'config' => array(
         'database' => 'gemeentemuseum_algemeen',
         'changed' => '2009-01-01 01:01',
-        'items' => '1',
+        'items' => '100',
         'fields' => array(
           0 => 'object_number',
           1 => 'object_name',
@@ -59,8 +59,8 @@ function adlib_test_feeds_importer_default() {
           32 => 'tags',
         ),
         'datesort' => 'modification',
-        'batch_results' => 158045,
-        'batch_startfrom' => 4,
+        'batch_results' => 158241,
+        'batch_startfrom' => 13605,
         'status' => 1,
         'xmltype' => 'unstructured',
       ),
@@ -309,7 +309,7 @@ function adlib_test_feeds_importer_default() {
     ),
     'content_type' => '',
     'update' => 0,
-    'import_period' => '900',
+    'import_period' => '-1',
     'expire_period' => 3600,
     'import_on_create' => 1,
     'process_in_background' => 0,

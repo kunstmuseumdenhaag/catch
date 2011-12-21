@@ -21,7 +21,7 @@ function adlib_test_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'How',
-    'weight' => '7',
+    'weight' => '8',
     'children' => array(
       0 => 'field_adlib_dim_presentation',
       1 => 'field_adlib_material',
@@ -80,7 +80,7 @@ function adlib_test_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Ranking',
-    'weight' => '10',
+    'weight' => '11',
     'children' => array(
       0 => 'field_adlib_edit_date',
     ),
@@ -106,7 +106,7 @@ function adlib_test_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Relations',
-    'weight' => '8',
+    'weight' => '9',
     'children' => array(
       0 => 'field_adlib_chronicle_title',
       1 => 'field_adlib_doc_title_lref',
@@ -176,11 +176,12 @@ function adlib_test_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'What',
-    'weight' => '3',
+    'weight' => '4',
     'children' => array(
       0 => 'field_adlib_description',
       1 => 'field_adlib_object_name',
-      2 => 'field_adlib_title_short_desc',
+      2 => 'field_adlib_title',
+      3 => 'field_adlib_title_short_desc',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
@@ -235,7 +236,7 @@ function adlib_test_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'When',
-    'weight' => '6',
+    'weight' => '7',
     'children' => array(
       0 => 'field_adlib_acquisition_date',
       1 => 'field_adlib_inscription_date',
@@ -298,7 +299,7 @@ function adlib_test_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Where',
-    'weight' => '5',
+    'weight' => '6',
     'children' => array(
       0 => 'field_adlib_acquisition_place',
       1 => 'field_adlib_prod_place_present',
@@ -355,7 +356,7 @@ function adlib_test_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Who',
-    'weight' => '4',
+    'weight' => '5',
     'children' => array(
       0 => 'field_adlib_acquisition_source',
       1 => 'field_adlib_creation_present',
@@ -416,7 +417,7 @@ function adlib_test_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Raw xml',
-    'weight' => '9',
+    'weight' => '10',
     'children' => array(
       0 => 'field_adlib_raw_xml',
     ),
