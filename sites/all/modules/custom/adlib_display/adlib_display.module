@@ -108,3 +108,13 @@ function adlib_display_field_formatter_view($entity_type, $entity, $field, $inst
   }
   return $element;
 }
+
+function adlib_display_preprocess_field(&$vars) {
+  if ($vars['element']['#field_name'] == 'field_adlib_image') {
+    $url = $vars['items'][0]['#markup'];
+    // replace https with http
+    $url = str_replace('https:', 'http:', $url);
+    $vars['items'][0]['#markup'] =  theme('image', array('path' => $url, 'width' => '150'));  
+  }
+  
+}
