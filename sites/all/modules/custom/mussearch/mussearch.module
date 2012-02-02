@@ -10,9 +10,15 @@
 function mussearch_menu() {
   $items = array();
 
-  $items['service/mus'] = array(
+  $items['service/mus/search'] = array(
     'title' => 'Mus service',
     'page callback' => 'mussearch_search_callback',
+    'access arguments' => array('access content')
+  );
+  $items['service/mus/detail/%'] = array(
+    'title' => 'Mus service',
+    'page callback' => 'mussearch_detail_callback',
+    'page arguments' => array(3),
     'access arguments' => array('access content')
   );
 
@@ -51,6 +57,29 @@ function mussearch_search_callback() {
   drupal_add_http_header('Content-type', 'text/xml');
   print $response->getRaw();
   exit();
+}
+
+/**
+ * Detail callback of the service
+ * Writes out xml and exits
+ */
+function mussearch_detail_callback($id) {
+  $server_info = mussearch_get_server_info();
+  // Create a new mus sorl request alterator
+  $alterator = new MuSSolrRequestAlterator($server_info->host, $server_info->port, $server_info->path);
+  $query = 'item_id:' . check_plain($id);
+  try {
+    $alterator->addParam('q', $query);
+    $alterator->addParam('qt', 'detail');
+    $response = $alterator->doSolrRequest();
+    drupal_add_http_header('Content-type', 'text/xml');
+    print $response->getRaw();
+    exit();
+  } catch (Exception $e) {
+    // TODO: write error document
+    watchdog('mussearch', $e->getMessage(), WATCHDOG_ERROR);
+    return 'error';
+  }
 }
 
 /**
