@@ -38,6 +38,21 @@ class MuSSolrRequestAlterator {
   }
 
   /**
+   * Add a simple parameter
+   * @param $name
+   * @param $value
+   * @throws Exception
+   */
+  public function addParam($name, $value) {
+    // Only add simple parameters for now, and don't overwrite
+    if (!isset($this->params[$name])) {
+      $this->params[$name] = $value;
+    } else {
+      throw new Exception('Param is already set!');
+    }
+  }
+
+  /**
    * Generate a query string from the params
    * @return $querystring
    */
@@ -108,20 +123,24 @@ class MuSSolrRequestAlterator {
    * @param $querystring
    */
   protected function parseQeuryString($querystring) {
-    $query = explode('&', $querystring);
-    $params = array();
+    if ($querystring != '') {
+      $query = explode('&', $querystring);
+      $params = array();
 
-    foreach ($query as $param) {
-      list($name, $value) = explode('=', $param);
-      $params[urldecode($name)][] = urldecode($value);
-    }
-    // Now set each parameter containing only 1 value to just a string instead of array
-    foreach ($params as $name => $param) {
-      if (sizeof($param) == 1) {
-        $params[$name] = $param[0];
+      if (sizeof($query) > 0) {
+        foreach ($query as $param) {
+          list($name, $value) = explode('=', $param);
+          $params[urldecode($name)][] = urldecode($value);
+        }
+        // Now set each parameter containing only 1 value to just a string instead of array
+        foreach ($params as $name => $param) {
+          if (sizeof($param) == 1) {
+            $params[$name] = $param[0];
+          }
+        }
       }
+      $this->params = $params;
     }
-    $this->params = $params;
   }
 
 
