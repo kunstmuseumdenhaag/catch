@@ -1,0 +1,3 @@
+[submodule "sites/all/modules/contrib/adlibapi"]
+	path = sites/all/modules/contrib/adlibapi
+	url = http://git.triquanta.nl/adlibapi-mm
