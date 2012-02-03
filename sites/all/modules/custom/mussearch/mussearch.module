@@ -10,9 +10,15 @@
 function mussearch_menu() {
   $items = array();
 
-  $items['service/mus'] = array(
+  $items['service/mus/search'] = array(
     'title' => 'Mus service',
     'page callback' => 'mussearch_search_callback',
+    'access arguments' => array('access content')
+  );
+  $items['service/mus/detail/%'] = array(
+    'title' => 'Mus service',
+    'page callback' => 'mussearch_detail_callback',
+    'page arguments' => array(3),
     'access arguments' => array('access content')
   );
 
@@ -48,12 +54,65 @@ function mussearch_search_callback() {
   // Create a new mus sorl request alterator
   $alterator = new MuSSolrRequestAlterator($server_info->host, $server_info->port, $server_info->path, $_SERVER['QUERY_STRING']);
   $response = $alterator->doSolrRequest();
-  return check_plain($response->getRaw());
+  drupal_add_http_header('Content-type', 'text/xml');
+  print $response->getRaw();
+  exit();
 }
 
 /**
+ * Detail callback of the service
+ * Writes out xml and exits
+ */
+function mussearch_detail_callback($id) {
+  $server_info = mussearch_get_server_info();
+  // Create a new mus sorl request alterator
+  $alterator = new MuSSolrRequestAlterator($server_info->host, $server_info->port, $server_info->path);
+  $query = 'item_id:' . check_plain($id);
+  try {
+    $alterator->addParam('q', $query);
+    $alterator->addParam('qt', 'detail');
+    $response = $alterator->doSolrRequest();
+    drupal_add_http_header('Content-type', 'text/xml');
+    print $response->getRaw();
+    exit();
+  } catch (Exception $e) {
+    // TODO: write error document
+    watchdog('mussearch', $e->getMessage(), WATCHDOG_ERROR);
+    return 'error';
+  }
+}
+
+/**
+ * Change the way the index's field names are mapped to Solr field names.
+ *
+ * @param $index
+ *   The index whose field mappings are altered.
+ * @param array $fields
+ *   An associative array containing the index field names mapped to their Solr
+ *   counterparts. The special fields 'search_api_id' and 'search_api_relevance'
+ *   are also included.
+ */
+function mussearch_search_api_solr_field_mapping_alter(SearchApiIndex $index, array &$fields) {
+  $field_mappings = mussearch_get_solr_fieldmappings();
+  if ($index->item_type == 'node' && is_array($field_mappings)) {
+    foreach ($field_mappings as $key => $value) {
+      if (isset($fields[$key])) {
+        $fields[$key] = $value;
+      }
+    }
+  }
+}
+/**
  * Utility functions
  */
+
+/**
+ * Get the solr field mappings
+ */
+function mussearch_get_solr_fieldmappings() {
+  $field_mappings = parse_ini_file('fieldmappings.map');
+  return $field_mappings;
+}
 
 /**
  * Get the server to use
