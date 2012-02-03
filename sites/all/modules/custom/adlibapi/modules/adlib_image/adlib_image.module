@@ -1,0 +1,158 @@
+<?php
+/**
+ * @file
+ * Module for retrieving images from adlib based on a node text field containing image name.
+ */
+/**
+ * Implements hook_form_alter().
+ */
+function adlib_image_form_alter(&$form, &$form_state, $form_id) {
+  if ($form_id == 'node_type_form') {
+    $form['adlib'] = array(
+      '#type' => 'fieldset',
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#title' => t('Adlib image settings'),
+      '#description' => t('Enable lazy loading of images and select fields to use'),
+      '#group' => 'additional_settings',
+      '#weight' => 30,
+    );
+    $form['adlib']['adlib_image_enabled'] = array(
+      '#title' => t('Enable lazy loading of adlib images'),
+      '#type' => 'checkbox',
+      '#default_value' => variable_get('adlib_image_enabled_' . $form['#node_type']->type, 0),
+    );
+    /*
+     * Get field options for image filename and file field.
+     */
+    /* LN20110222
+     * content_fields() is now field_info_fields();
+     */
+    $fields = field_info_fields('', $form['#node_type']->type);
+    $filename_fields = array('0' => t('-- Select filename field --'));
+    $file_fields = array('0' => t('-- Select file field --'));
+    // foutmelding als vinkje aanstaat maar er geen veld gevonden wordt
+    $validFieldsFound = 0;
+    foreach ($fields as $field) {
+      // LN20110222  $field['multiple'] is in Drupal 7 $field['cardinality'] with value = -1
+      if ($field['type'] == 'text' && $field['cardinality'] == -1) {
+        $validFieldsFound++;
+        $filename_fields[$field['field_name']] = $field['field_name'];
+      }
+      if ($field['type'] == 'file' && $field['cardinality'] == -1) {
+        $file_fields[$field['field_name']] = $field['field_name'];
+      }
+      if ($field['type'] == 'image' && $field['cardinality'] == -1) {
+        $file_fields[$field['field_name']] = $field['field_name'];
+      }
+    }
+    if ($validFieldsFound == 0) {
+      drupal_set_message(t('No valid image fields found. Imagefield must be a text field with unlimited number of values.'), 'warning');
+    }
+    $form['adlib']['adlib_imagename_field'] = array(
+      '#title' => t('Text field in which image filename is stored'),
+      '#description' => t('This is realy a text field, and not an image or file field. The image filename will be used later to get an image. This field must be multivalued.'),
+      '#type' => 'select',
+      '#options' => $filename_fields,
+      '#default_value' => variable_get('adlib_imagename_field_' . $form['#node_type']->type, 0),
+    );
+    $form['adlib']['adlib_file_field'] = array(
+      '#title' => t('Filefield field in which image will be stored'),
+      '#description' => t('The filefield must be multivalued, because there are many adlib documents containing more than one image.'),
+      '#type' => 'select',
+      '#options' => $file_fields,
+      '#default_value' => variable_get('adlib_file_field_' . $form['#node_type']->type, 0),
+    );
+  }
+}
+
+/**
+ * Implements hook_node_view().
+ */
+function adlib_image_node_view($node, $view_mode = 'full') {
+  /*
+   * Check if lazy loading is needed and if so, get fields
+   */
+  $enabled = variable_get('adlib_image_enabled_' . $node->type, 0);
+  if ($enabled == 1) {
+    $imagename_field = variable_get('adlib_imagename_field_' . $node->type, 0);
+    $file_field = variable_get('adlib_file_field_' . $node->type, 0);
+    $rows = db_query("SELECT id FROM {feeds_item} WHERE entity_id = :nid", array(':nid' => $node->nid));
+    $result = $rows->fetch();
+    if ($imagename_field != '0' && $file_field != '0' && $result) {
+      // Get the fetcher settings
+      $importer = feeds_importer($result->id);
+      $database_settings = adlibapi_api_get_database_settings($importer->fetcher->config['database']);
+      // Get the image name
+      // for each image
+      $fileFieldCtr = -1;
+      foreach ($node->{$imagename_field} as $field) {
+        $fileFieldCtr++;
+        $image_name = $field[0]['value'];
+        if (!empty($image_name)) {
+          // Retrieve the image if not already retrieved
+          if (! isset($node->{$file_field}['und'][$fileFieldCtr]['fid'])) {
+            $conn = adlibapi_api_get_connection($database_settings);
+            $imagequery = adlibapi_api_get_image_query(urlencode($image_name));
+            $response = $conn->getImage($imagequery);
+            // Save the image
+            if (! $response->getError()) {
+              // LN20100222 file_create_path is obsolete:   $path = file_create_path('adlib_images');
+              $pathname = file_build_uri('adlib_images');
+              if (file_prepare_directory($pathname, FILE_CREATE_DIRECTORY)) {
+                // add Adlib image server and node id to image name to make it unique
+                $fullname = $database_settings->imageserver . '_' . $node->nid . '_' . $image_name;
+                $imageSize = strlen($response->getRaw());
+                // LN20110222 File API changed heavily in Drupal 7
+                $fullpath = $pathname . '/' . $fullname;
+                $fileobj = file_save_data($response->getRaw(), $fullpath, FILE_EXISTS_REPLACE);
+                // $test = file_put_contents($filename, $response->getRaw());
+                if ($fileobj) {
+                  // Put the file in the node
+                  $node->{$file_field}['und'][$fileFieldCtr] = array(
+                      'fid' => $fileobj->fid,
+                      'title' => $node->title . ' ' . $image_name,
+                      'alt' => $node->title . ' ' . $image_name,
+                      'uri' => $fileobj->uri,
+                      'filename' => $fileobj->filename,
+                      'filemime' => $fileobj->filemime,
+                      'filesize' => $fileobj->filesize,
+                      'uid' => $fileobj->uid,
+                      'status' => FILE_STATUS_PERMANENT,
+                      'timestamp' => REQUEST_TIME,
+                  );
+                  // check for empty titles
+                  if (empty($node->title)) {
+                    $node->title = 'Untitled: ';
+                  }
+                  // Save the node, check if we are already rebuilding the node to prevent endless recursion
+                  if (empty($node->node_adlib_rebuild)) {
+                    // set the check variable
+                    $node->node_adlib_rebuild = "rebuilding";
+                    node_save($node);
+                    node_build_content($node);
+                  }
+                }
+                else {
+                  watchdog("adlib_image", "An error occured, directory 'adlib_images' is not writable");
+                  drupal_set_message(t("An error occured, directory 'adlib_images' is not writable"), 'error');
+                }
+              }
+              else {
+                // something went wrong while writing the file
+                watchdog("adlib_image", "An error occured while saving the remote file to $fullpath");
+                drupal_set_message(t('An error occured while saving the remote file to %path', array('%path' => $fullpath)), 'error');
+              }
+            }
+            else {
+              // errorhandling
+              watchdog("adlib_image", "Adlib server returned error: " . $response->getErrorMessage());
+              drupal_set_message(t('Adlib server returned error: %resp', array('%resp' =>  $response->getErrorMessage()), 'error'));
+            }
+          }
+        }
+      }
+      $node->node_adlib_rebuild = "rebuilding";
+    }
+  }
+}

@@ -5,6 +5,8 @@ sites/*/settings*.php
 sites/*/files
 sites/*/private
 
+.DS_Store
+
 #eclipse files
 .buildpath
 .project

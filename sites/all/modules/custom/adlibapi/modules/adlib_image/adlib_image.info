@@ -1,0 +1,7 @@
+name = Adlib Image
+description = Provides image integration for adlib
+package = Adlib
+core = 7.x
+
+dependencies[] = adlibapi
+files[] = adlib_image.module

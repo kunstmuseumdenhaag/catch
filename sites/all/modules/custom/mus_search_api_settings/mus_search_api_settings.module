@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the MuS Search api settings feature.
+ */
+
+include_once('mus_search_api_settings.features.inc');

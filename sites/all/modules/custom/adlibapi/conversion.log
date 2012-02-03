@@ -1,0 +1,176 @@
+*************************
+Pre-processing the directory => /var/www/drupal7dev.local/sites/default/files/coder_upgrade/old/adlibapi
+*************************
+Calling hook_upgrade_begin_alter
+Completed hook_upgrade_begin_alter
+
+*************************
+Converting the directory => /var/www/drupal7dev.local/sites/default/files/coder_upgrade/old/adlibapi
+*************************
+
+*************************
+Converting the file => adlibapi.api.inc
+*************************
+Calling hook_upgrade_regex_alter
+Completed hook_upgrade_regex_alter
+Calling hook_upgrade_call_alter
+Completed hook_upgrade_call_alter
+Calling hook_upgrade_hook_alter
+Completed hook_upgrade_hook_alter
+Calling hook_upgrade_file_alter
+Completed hook_upgrade_file_alter
+Replaced the file
+
+*************************
+Converting the file => adlibapi.info
+*************************
+Calling hook_upgrade_regex_info_alter
+Completed hook_upgrade_regex_info_alter
+Replaced the file
+
+*************************
+Converting the file => adlibapi.install
+*************************
+Calling hook_upgrade_regex_install_alter
+Completed hook_upgrade_regex_install_alter
+Calling hook_upgrade_regex_alter
+Completed hook_upgrade_regex_alter
+Calling hook_upgrade_call_alter
+Completed hook_upgrade_call_alter
+Calling hook_upgrade_hook_alter
+Completed hook_upgrade_hook_alter
+Calling hook_upgrade_file_alter
+Completed hook_upgrade_file_alter
+Calling hook_upgrade_parser_install_alter
+Completed hook_upgrade_parser_install_alter
+Replaced the file
+
+*************************
+Converting the file => adlibapi.module
+*************************
+Calling hook_upgrade_regex_alter
+Completed hook_upgrade_regex_alter
+Calling hook_upgrade_call_alter
+Completed hook_upgrade_call_alter
+Calling hook_upgrade_hook_alter
+Ignoring function '_adlibapi_deserialize_config' as its name does not begin with the module name or 'theme_'
+Completed hook_upgrade_hook_alter
+Calling hook_upgrade_file_alter
+Completed hook_upgrade_file_alter
+Replaced the file
+
+*************************
+Converting the directory => /var/www/drupal7dev.local/sites/default/files/coder_upgrade/old/adlibapi/modules
+*************************
+
+*************************
+Converting the directory => /var/www/drupal7dev.local/sites/default/files/coder_upgrade/old/adlibapi/modules/adlibapi_feeds
+*************************
+
+*************************
+Converting the file => adlibapi_feeds.info
+*************************
+Calling hook_upgrade_regex_info_alter
+Completed hook_upgrade_regex_info_alter
+Replaced the file
+
+*************************
+Converting the file => adlibapi_feeds.module
+*************************
+Calling hook_upgrade_regex_alter
+Completed hook_upgrade_regex_alter
+Calling hook_upgrade_call_alter
+Completed hook_upgrade_call_alter
+Calling hook_upgrade_hook_alter
+Completed hook_upgrade_hook_alter
+Calling hook_upgrade_file_alter
+Completed hook_upgrade_file_alter
+Replaced the file
+
+*************************
+Converting the directory => /var/www/drupal7dev.local/sites/default/files/coder_upgrade/old/adlibapi/modules/adlibapi_feeds/plugins
+*************************
+
+*************************
+Converting the file => AdlibFetcher.inc
+*************************
+Calling hook_upgrade_regex_alter
+Completed hook_upgrade_regex_alter
+Calling hook_upgrade_call_alter
+Completed hook_upgrade_call_alter
+Calling hook_upgrade_hook_alter
+Ignoring function '__construct' as its name does not begin with the module name or 'theme_'
+Ignoring function 'getRaw' as its name does not begin with the module name or 'theme_'
+Ignoring function 'updateFetcher' as its name does not begin with the module name or 'theme_'
+Ignoring function 'fetch' as its name does not begin with the module name or 'theme_'
+Ignoring function 'configDefaults' as its name does not begin with the module name or 'theme_'
+Ignoring function 'configForm' as its name does not begin with the module name or 'theme_'
+Ignoring function 'configFormValidate' as its name does not begin with the module name or 'theme_'
+Ignoring function 'configFormSubmit' as its name does not begin with the module name or 'theme_'
+Ignoring function 'getDateFormat' as its name does not begin with the module name or 'theme_'
+Completed hook_upgrade_hook_alter
+Calling hook_upgrade_file_alter
+Completed hook_upgrade_file_alter
+Replaced the file
+
+*************************
+Converting the file => test.info
+*************************
+Calling hook_upgrade_regex_info_alter
+Completed hook_upgrade_regex_info_alter
+
+*************************
+Converting the directory => /var/www/drupal7dev.local/sites/default/files/coder_upgrade/old/adlibapi/modules/adlibapi_image
+*************************
+
+*************************
+Converting the file => adlibapi_image.info
+*************************
+Calling hook_upgrade_regex_info_alter
+Completed hook_upgrade_regex_info_alter
+Replaced the file
+
+*************************
+Converting the file => adlibapi_image.module
+*************************
+Calling hook_upgrade_regex_alter
+Completed hook_upgrade_regex_alter
+Calling hook_upgrade_call_alter
+Completed hook_upgrade_call_alter
+Calling hook_upgrade_hook_alter
+Completed hook_upgrade_hook_alter
+Calling hook_upgrade_file_alter
+Completed hook_upgrade_file_alter
+Replaced the file
+
+*************************
+Converting the directory => /var/www/drupal7dev.local/sites/default/files/coder_upgrade/old/adlibapi/plugins
+*************************
+
+*************************
+Converting the directory => /var/www/drupal7dev.local/sites/default/files/coder_upgrade/old/adlibapi/plugins/export_ui
+*************************
+
+*************************
+Converting the file => adlibapi_ctools_export_ui.inc
+*************************
+Calling hook_upgrade_regex_alter
+Completed hook_upgrade_regex_alter
+Calling hook_upgrade_call_alter
+Completed hook_upgrade_call_alter
+Calling hook_upgrade_hook_alter
+Completed hook_upgrade_hook_alter
+Calling hook_upgrade_file_alter
+Completed hook_upgrade_file_alter
+Replaced the file
+
+*************************
+Post-processing the directory => /var/www/drupal7dev.local/sites/default/files/coder_upgrade/new/adlibapi
+*************************
+Calling hook_upgrade_end_alter
+Completed hook_upgrade_end_alter
+
+*************************
+Creating a patch file for the directory => /var/www/drupal7dev.local/sites/default/files/coder_upgrade/old/adlibapi
+*************************
+Making patch file: diff -up -r /var/www/drupal7dev.local/sites/default/files/coder_upgrade/old/adlibapi /var/www/drupal7dev.local/sites/default/files/coder_upgrade/new/adlibapi > sites/default/files/coder_upgrade/patch/adlibapi.patch
