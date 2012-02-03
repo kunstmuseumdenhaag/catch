@@ -110,3 +110,29 @@ function mus_search_api_settings_default_search_api_index() {
   }');
   return $items;
 }
+
+/**
+ * Implementation of hook_default_search_api_server().
+ */
+function mus_search_api_settings_default_search_api_server() {
+  $items = array();
+  $items['solr_4_0'] = entity_import('search_api_server', '{
+    "name" : "Solr 4.0",
+    "machine_name" : "solr_4_0",
+    "description" : "Solr 4 test server.",
+    "class" : "search_api_solr_service",
+    "options" : {
+      "host" : "10.211.55.25",
+      "port" : "8080",
+      "path" : "\\/solr\\/gemeentemuseum",
+      "http_user" : "",
+      "http_pass" : "",
+      "excerpt" : 0,
+      "retrieve_data" : 0,
+      "highlight_data" : 0
+    },
+    "enabled" : "1",
+    "rdf_mapping" : []
+  }');
+  return $items;
+}
