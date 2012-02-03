@@ -1,0 +1,8 @@
+core = "7.x"
+dependencies[] = "search_api"
+description = "MuS search api settings transports server and index definitions"
+features[search_api_index][] = "mus_index_1"
+name = "MuS Search api settings"
+package = "Features"
+project = "mus_search_api_settings"
+version = "7.x-1.0-beta1"
