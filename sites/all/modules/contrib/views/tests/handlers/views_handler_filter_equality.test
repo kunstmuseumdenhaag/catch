@@ -1,6 +1,6 @@
 <?php
 
-class ViewsHandlerFilterEqualityTest extends ViewsSqlTest {
+class viewsHandlerFilterEqualityTest extends ViewsSqlTest {
   public static function getInfo() {
     return array(
       'name' => 'Filter: Equality',

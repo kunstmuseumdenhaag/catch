@@ -1,6 +1,6 @@
 <?php
 
-class ViewsHandlerFilterCounterTest extends ViewsSqlTest {
+class viewsHandlerFilterCounterTest extends ViewsSqlTest {
   public static function getInfo() {
     return array(
       'name' => 'Field: Counter',

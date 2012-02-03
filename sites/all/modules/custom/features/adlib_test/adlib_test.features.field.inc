@@ -5,7 +5,7 @@
  */
 
 /**
- * Implements hook_field_default_fields().
+ * Implementation of hook_field_default_fields().
  */
 function adlib_test_field_default_fields() {
   $fields = array();
@@ -44,12 +44,18 @@ function adlib_test_field_default_fields() {
       'deleted' => '0',
       'description' => '',
       'display' => array(
+        'adlib_object' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => '36',
+        ),
         'default' => array(
           'label' => 'above',
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
-          'weight' => '36',
+          'weight' => '18',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -73,7 +79,7 @@ function adlib_test_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '22',
+        'weight' => '24',
       ),
     ),
   );
@@ -112,12 +118,18 @@ function adlib_test_field_default_fields() {
       'deleted' => '0',
       'description' => '',
       'display' => array(
+        'adlib_object' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => '27',
+        ),
         'default' => array(
           'label' => 'above',
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
-          'weight' => '6',
+          'weight' => '14',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -141,7 +153,7 @@ function adlib_test_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '7',
+        'weight' => '10',
       ),
     ),
   );
@@ -180,6 +192,12 @@ function adlib_test_field_default_fields() {
       'deleted' => '0',
       'description' => '',
       'display' => array(
+        'adlib_object' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => '28',
+        ),
         'default' => array(
           'label' => 'above',
           'module' => 'text',
@@ -209,7 +227,7 @@ function adlib_test_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '9',
+        'weight' => '13',
       ),
     ),
   );
@@ -218,7 +236,7 @@ function adlib_test_field_default_fields() {
   $fields['node-adlib_object-field_adlib_chronicle_title'] = array(
     'field_config' => array(
       'active' => '1',
-      'cardinality' => '1',
+      'cardinality' => '-1',
       'deleted' => '0',
       'entity_types' => array(),
       'field_name' => 'field_adlib_chronicle_title',
@@ -237,7 +255,7 @@ function adlib_test_field_default_fields() {
       ),
       'module' => 'text',
       'settings' => array(
-        'max_length' => '255',
+        'max_length' => '1024',
       ),
       'translatable' => '0',
       'type' => 'text',
@@ -248,12 +266,18 @@ function adlib_test_field_default_fields() {
       'deleted' => '0',
       'description' => '',
       'display' => array(
+        'adlib_object' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
         'default' => array(
           'label' => 'above',
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
-          'weight' => '19',
+          'weight' => '36',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -277,75 +301,7 @@ function adlib_test_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '31',
-      ),
-    ),
-  );
-
-  // Exported field: 'node-adlib_object-field_adlib_chronicle_title_lref'
-  $fields['node-adlib_object-field_adlib_chronicle_title_lref'] = array(
-    'field_config' => array(
-      'active' => '1',
-      'cardinality' => '1',
-      'deleted' => '0',
-      'entity_types' => array(),
-      'field_name' => 'field_adlib_chronicle_title_lref',
-      'foreign keys' => array(
-        'format' => array(
-          'columns' => array(
-            'format' => 'format',
-          ),
-          'table' => 'filter_format',
-        ),
-      ),
-      'indexes' => array(
-        'format' => array(
-          0 => 'format',
-        ),
-      ),
-      'module' => 'text',
-      'settings' => array(
-        'max_length' => '255',
-      ),
-      'translatable' => '0',
-      'type' => 'text',
-    ),
-    'field_instance' => array(
-      'bundle' => 'adlib_object',
-      'default_value' => NULL,
-      'deleted' => '0',
-      'description' => '',
-      'display' => array(
-        'default' => array(
-          'label' => 'above',
-          'module' => 'text',
-          'settings' => array(),
-          'type' => 'text_default',
-          'weight' => '20',
-        ),
-        'teaser' => array(
-          'label' => 'above',
-          'settings' => array(),
-          'type' => 'hidden',
-          'weight' => 0,
-        ),
-      ),
-      'entity_type' => 'node',
-      'field_name' => 'field_adlib_chronicle_title_lref',
-      'label' => 'Chronicle title lref',
-      'required' => 0,
-      'settings' => array(
-        'text_processing' => '0',
-        'user_register_form' => FALSE,
-      ),
-      'widget' => array(
-        'active' => 1,
-        'module' => 'text',
-        'settings' => array(
-          'size' => '60',
-        ),
-        'type' => 'text_textfield',
-        'weight' => '32',
+        'weight' => '26',
       ),
     ),
   );
@@ -384,12 +340,24 @@ function adlib_test_field_default_fields() {
       'deleted' => '0',
       'description' => '',
       'display' => array(
+        'adlib_object' => array(
+          'label' => 'above',
+          'module' => 'adlib_display',
+          'settings' => array(
+            'adlib_display_grouped_fields' => 'field_adlib_creator
+field_adlib_acquisition_source
+field_adlib_inscription_maker
+field_adlib_institution_name',
+          ),
+          'type' => 'adlib_display_grouped_adlib_field',
+          'weight' => '3',
+        ),
         'default' => array(
           'label' => 'above',
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
-          'weight' => '7',
+          'weight' => '6',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -413,7 +381,7 @@ function adlib_test_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '7',
+        'weight' => '9',
       ),
     ),
   );
@@ -452,12 +420,18 @@ function adlib_test_field_default_fields() {
       'deleted' => '0',
       'description' => '',
       'display' => array(
+        'adlib_object' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => '24',
+        ),
         'default' => array(
           'label' => 'above',
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
-          'weight' => '6',
+          'weight' => '7',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -481,7 +455,7 @@ function adlib_test_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '8',
+        'weight' => '11',
       ),
     ),
   );
@@ -518,12 +492,18 @@ function adlib_test_field_default_fields() {
       'deleted' => '0',
       'description' => '',
       'display' => array(
+        'adlib_object' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => '25',
+        ),
         'default' => array(
           'label' => 'above',
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
-          'weight' => '4',
+          'weight' => '3',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -547,7 +527,7 @@ function adlib_test_field_default_fields() {
           'rows' => '5',
         ),
         'type' => 'text_textarea',
-        'weight' => '-3',
+        'weight' => '3',
       ),
     ),
   );
@@ -586,12 +566,18 @@ function adlib_test_field_default_fields() {
       'deleted' => '0',
       'description' => '',
       'display' => array(
+        'adlib_object' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => '29',
+        ),
         'default' => array(
           'label' => 'above',
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
-          'weight' => '24',
+          'weight' => '23',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -615,7 +601,7 @@ function adlib_test_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '17',
+        'weight' => '19',
       ),
     ),
   );
@@ -654,12 +640,18 @@ function adlib_test_field_default_fields() {
       'deleted' => '0',
       'description' => '',
       'display' => array(
+        'adlib_object' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => '30',
+        ),
         'default' => array(
           'label' => 'above',
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
-          'weight' => '24',
+          'weight' => '29',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -683,7 +675,7 @@ function adlib_test_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '36',
+        'weight' => '30',
       ),
     ),
   );
@@ -722,12 +714,18 @@ function adlib_test_field_default_fields() {
       'deleted' => '0',
       'description' => '',
       'display' => array(
+        'adlib_object' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => '34',
+        ),
         'default' => array(
           'label' => 'above',
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
-          'weight' => '23',
+          'weight' => '28',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -751,7 +749,7 @@ function adlib_test_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '35',
+        'weight' => '29',
       ),
     ),
   );
@@ -790,12 +788,18 @@ function adlib_test_field_default_fields() {
       'deleted' => '0',
       'description' => '',
       'display' => array(
+        'adlib_object' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => '35',
+        ),
         'default' => array(
           'label' => 'above',
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
-          'weight' => 38,
+          'weight' => '34',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -819,7 +823,7 @@ function adlib_test_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '45',
+        'weight' => '36',
       ),
     ),
   );
@@ -828,7 +832,7 @@ function adlib_test_field_default_fields() {
   $fields['node-adlib_object-field_adlib_image'] = array(
     'field_config' => array(
       'active' => '1',
-      'cardinality' => '1',
+      'cardinality' => '-1',
       'deleted' => '0',
       'entity_types' => array(),
       'field_name' => 'field_adlib_image',
@@ -858,12 +862,19 @@ function adlib_test_field_default_fields() {
       'deleted' => '0',
       'description' => '',
       'display' => array(
-        'default' => array(
+        'adlib_object' => array(
           'label' => 'above',
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
           'weight' => '1',
+        ),
+        'default' => array(
+          'label' => 'above',
+          'module' => 'text',
+          'settings' => array(),
+          'type' => 'text_default',
+          'weight' => '2',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -887,7 +898,7 @@ function adlib_test_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '1',
+        'weight' => '7',
       ),
     ),
   );
@@ -926,12 +937,18 @@ function adlib_test_field_default_fields() {
       'deleted' => '0',
       'description' => '',
       'display' => array(
+        'adlib_object' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => '33',
+        ),
         'default' => array(
           'label' => 'above',
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
-          'weight' => '37',
+          'weight' => '19',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -955,7 +972,7 @@ function adlib_test_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '23',
+        'weight' => '25',
       ),
     ),
   );
@@ -994,6 +1011,12 @@ function adlib_test_field_default_fields() {
       'deleted' => '0',
       'description' => '',
       'display' => array(
+        'adlib_object' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => '31',
+        ),
         'default' => array(
           'label' => 'above',
           'module' => 'text',
@@ -1023,7 +1046,7 @@ function adlib_test_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '10',
+        'weight' => '14',
       ),
     ),
   );
@@ -1062,6 +1085,12 @@ function adlib_test_field_default_fields() {
       'deleted' => '0',
       'description' => '',
       'display' => array(
+        'adlib_object' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => '10',
+        ),
         'default' => array(
           'label' => 'above',
           'module' => 'text',
@@ -1091,7 +1120,7 @@ function adlib_test_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '11',
+        'weight' => '15',
       ),
     ),
   );
@@ -1130,12 +1159,18 @@ function adlib_test_field_default_fields() {
       'deleted' => '0',
       'description' => '',
       'display' => array(
+        'adlib_object' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => '32',
+        ),
         'default' => array(
           'label' => 'above',
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
-          'weight' => '22',
+          'weight' => '21',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -1159,7 +1194,7 @@ function adlib_test_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '15',
+        'weight' => '17',
       ),
     ),
   );
@@ -1198,12 +1233,23 @@ function adlib_test_field_default_fields() {
       'deleted' => '0',
       'description' => '',
       'display' => array(
+        'adlib_object' => array(
+          'label' => 'above',
+          'module' => 'adlib_display',
+          'settings' => array(
+            'adlib_display_grouped_fields' => 'field_adlib_material
+field_adlib_technique
+field_adlib_dim_presentation',
+          ),
+          'type' => 'adlib_display_grouped_adlib_field',
+          'weight' => '6',
+        ),
         'default' => array(
           'label' => 'above',
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
-          'weight' => '21',
+          'weight' => '20',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -1227,7 +1273,7 @@ function adlib_test_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '14',
+        'weight' => '16',
       ),
     ),
   );
@@ -1266,12 +1312,18 @@ function adlib_test_field_default_fields() {
       'deleted' => '0',
       'description' => '',
       'display' => array(
+        'adlib_object' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => '23',
+        ),
         'default' => array(
           'label' => 'above',
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
-          'weight' => '5',
+          'weight' => '4',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -1295,7 +1347,7 @@ function adlib_test_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '-1',
+        'weight' => '4',
       ),
     ),
   );
@@ -1334,12 +1386,18 @@ function adlib_test_field_default_fields() {
       'deleted' => '0',
       'description' => '',
       'display' => array(
+        'adlib_object' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => '14',
+        ),
         'default' => array(
           'label' => 'above',
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
-          'weight' => '27',
+          'weight' => '32',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -1363,7 +1421,7 @@ function adlib_test_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '38',
+        'weight' => '32',
       ),
     ),
   );
@@ -1402,12 +1460,18 @@ function adlib_test_field_default_fields() {
       'deleted' => '0',
       'description' => '',
       'display' => array(
+        'adlib_object' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => '15',
+        ),
         'default' => array(
           'label' => 'above',
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
-          'weight' => '25',
+          'weight' => '30',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -1431,7 +1495,7 @@ function adlib_test_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '37',
+        'weight' => '31',
       ),
     ),
   );
@@ -1470,12 +1534,18 @@ function adlib_test_field_default_fields() {
       'deleted' => '0',
       'description' => '',
       'display' => array(
+        'adlib_object' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => '13',
+        ),
         'default' => array(
           'label' => 'above',
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
-          'weight' => '28',
+          'weight' => '33',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -1499,7 +1569,7 @@ function adlib_test_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '40',
+        'weight' => '34',
       ),
     ),
   );
@@ -1538,12 +1608,18 @@ function adlib_test_field_default_fields() {
       'deleted' => '0',
       'description' => '',
       'display' => array(
+        'adlib_object' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => '12',
+        ),
         'default' => array(
           'label' => 'above',
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
-          'weight' => '26',
+          'weight' => '31',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -1567,7 +1643,7 @@ function adlib_test_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '39',
+        'weight' => '33',
       ),
     ),
   );
@@ -1606,6 +1682,13 @@ function adlib_test_field_default_fields() {
       'deleted' => '0',
       'description' => '',
       'display' => array(
+        'adlib_object' => array(
+          'label' => 'above',
+          'module' => 'text',
+          'settings' => array(),
+          'type' => 'text_default',
+          'weight' => '8',
+        ),
         'default' => array(
           'label' => 'above',
           'module' => 'text',
@@ -1635,7 +1718,7 @@ function adlib_test_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '0',
+        'weight' => '5',
       ),
     ),
   );
@@ -1674,12 +1757,18 @@ function adlib_test_field_default_fields() {
       'deleted' => '0',
       'description' => '',
       'display' => array(
+        'adlib_object' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => '11',
+        ),
         'default' => array(
           'label' => 'above',
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
-          'weight' => '35',
+          'weight' => '16',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -1703,7 +1792,7 @@ function adlib_test_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '21',
+        'weight' => '23',
       ),
     ),
   );
@@ -1742,12 +1831,25 @@ function adlib_test_field_default_fields() {
       'deleted' => '0',
       'description' => '',
       'display' => array(
+        'adlib_object' => array(
+          'label' => 'above',
+          'module' => 'adlib_display',
+          'settings' => array(
+            'adlib_display_grouped_fields' => 'field_adlib_prod_date_start
+field_adlib_prod_date_end
+field_adlib_production_period
+field_adlib_acquisition_date
+field_adlib_inscription_date',
+          ),
+          'type' => 'adlib_display_grouped_adlib_field',
+          'weight' => '4',
+        ),
         'default' => array(
           'label' => 'above',
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
-          'weight' => '10',
+          'weight' => '14',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -1771,7 +1873,7 @@ function adlib_test_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '18',
+        'weight' => '20',
       ),
     ),
   );
@@ -1810,12 +1912,18 @@ function adlib_test_field_default_fields() {
       'deleted' => '0',
       'description' => '',
       'display' => array(
+        'adlib_object' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => '16',
+        ),
         'default' => array(
           'label' => 'above',
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
-          'weight' => '34',
+          'weight' => '15',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -1839,7 +1947,7 @@ function adlib_test_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '20',
+        'weight' => '22',
       ),
     ),
   );
@@ -1878,12 +1986,23 @@ function adlib_test_field_default_fields() {
       'deleted' => '0',
       'description' => '',
       'display' => array(
+        'adlib_object' => array(
+          'label' => 'above',
+          'module' => 'adlib_display',
+          'settings' => array(
+            'adlib_display_grouped_fields' => 'field_adlib_production_place
+field_adlib_acquisition_place
+',
+          ),
+          'type' => 'adlib_display_grouped_adlib_field',
+          'weight' => '5',
+        ),
         'default' => array(
           'label' => 'above',
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
-          'weight' => '7',
+          'weight' => '11',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -1907,7 +2026,7 @@ function adlib_test_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '8',
+        'weight' => '12',
       ),
     ),
   );
@@ -1946,12 +2065,18 @@ function adlib_test_field_default_fields() {
       'deleted' => '0',
       'description' => '',
       'display' => array(
+        'adlib_object' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => '21',
+        ),
         'default' => array(
           'label' => 'above',
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
-          'weight' => '13',
+          'weight' => '17',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -1975,7 +2100,7 @@ function adlib_test_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '19',
+        'weight' => '21',
       ),
     ),
   );
@@ -2014,12 +2139,18 @@ function adlib_test_field_default_fields() {
       'deleted' => '0',
       'description' => '',
       'display' => array(
+        'adlib_object' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => '22',
+        ),
         'default' => array(
           'label' => 'above',
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
-          'weight' => '5',
+          'weight' => '12',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -2043,7 +2174,7 @@ function adlib_test_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '6',
+        'weight' => '8',
       ),
     ),
   );
@@ -2080,12 +2211,18 @@ function adlib_test_field_default_fields() {
       'deleted' => '0',
       'description' => '',
       'display' => array(
+        'adlib_object' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => '20',
+        ),
         'default' => array(
           'label' => 'above',
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
-          'weight' => '9',
+          'weight' => '35',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -2109,7 +2246,7 @@ function adlib_test_field_default_fields() {
           'rows' => '10',
         ),
         'type' => 'text_textarea',
-        'weight' => '44',
+        'weight' => '35',
       ),
     ),
   );
@@ -2148,12 +2285,18 @@ function adlib_test_field_default_fields() {
       'deleted' => '0',
       'description' => '',
       'display' => array(
+        'adlib_object' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => '19',
+        ),
         'default' => array(
           'label' => 'above',
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
-          'weight' => '22',
+          'weight' => '27',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -2177,7 +2320,7 @@ function adlib_test_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '34',
+        'weight' => '28',
       ),
     ),
   );
@@ -2216,12 +2359,18 @@ function adlib_test_field_default_fields() {
       'deleted' => '0',
       'description' => '',
       'display' => array(
+        'adlib_object' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => '17',
+        ),
         'default' => array(
           'label' => 'above',
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
-          'weight' => '21',
+          'weight' => '26',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -2245,43 +2394,38 @@ function adlib_test_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '33',
+        'weight' => '27',
       ),
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_tags'
-  $fields['node-adlib_object-field_adlib_tags'] = array(
+  // Exported field: 'node-adlib_object-field_adlib_tag'
+  $fields['node-adlib_object-field_adlib_tag'] = array(
     'field_config' => array(
       'active' => '1',
       'cardinality' => '-1',
       'deleted' => '0',
       'entity_types' => array(),
-      'field_name' => 'field_adlib_tags',
+      'field_name' => 'field_adlib_tag',
       'foreign keys' => array(
-        'tid' => array(
+        'format' => array(
           'columns' => array(
-            'tid' => 'tid',
+            'format' => 'format',
           ),
-          'table' => 'taxonomy_term_data',
+          'table' => 'filter_format',
         ),
       ),
       'indexes' => array(
-        'tid' => array(
-          0 => 'tid',
+        'format' => array(
+          0 => 'format',
         ),
       ),
-      'module' => 'taxonomy',
+      'module' => 'text',
       'settings' => array(
-        'allowed_values' => array(
-          0 => array(
-            'vocabulary' => 'tags',
-            'parent' => '0',
-          ),
-        ),
+        'max_length' => '512',
       ),
       'translatable' => '0',
-      'type' => 'taxonomy_term_reference',
+      'type' => 'text',
     ),
     'field_instance' => array(
       'bundle' => 'adlib_object',
@@ -2289,12 +2433,18 @@ function adlib_test_field_default_fields() {
       'deleted' => '0',
       'description' => '',
       'display' => array(
+        'adlib_object' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => '9',
+        ),
         'default' => array(
           'label' => 'above',
-          'module' => 'taxonomy',
+          'module' => 'text',
           'settings' => array(),
-          'type' => 'taxonomy_term_reference_link',
-          'weight' => '6',
+          'type' => 'text_default',
+          'weight' => '3',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -2304,21 +2454,21 @@ function adlib_test_field_default_fields() {
         ),
       ),
       'entity_type' => 'node',
-      'field_name' => 'field_adlib_tags',
+      'field_name' => 'field_adlib_tag',
       'label' => 'Tags',
       'required' => 0,
       'settings' => array(
+        'text_processing' => '0',
         'user_register_form' => FALSE,
       ),
       'widget' => array(
-        'active' => 0,
-        'module' => 'taxonomy',
+        'active' => 1,
+        'module' => 'text',
         'settings' => array(
-          'autocomplete_path' => 'taxonomy/autocomplete',
-          'size' => 60,
+          'size' => '60',
         ),
-        'type' => 'taxonomy_autocomplete',
-        'weight' => '-2',
+        'type' => 'text_textfield',
+        'weight' => '6',
       ),
     ),
   );
@@ -2357,12 +2507,18 @@ function adlib_test_field_default_fields() {
       'deleted' => '0',
       'description' => '',
       'display' => array(
+        'adlib_object' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => '18',
+        ),
         'default' => array(
           'label' => 'above',
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
-          'weight' => '23',
+          'weight' => '22',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -2386,7 +2542,81 @@ function adlib_test_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '16',
+        'weight' => '18',
+      ),
+    ),
+  );
+
+  // Exported field: 'node-adlib_object-field_adlib_title'
+  $fields['node-adlib_object-field_adlib_title'] = array(
+    'field_config' => array(
+      'active' => '1',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'entity_types' => array(),
+      'field_name' => 'field_adlib_title',
+      'foreign keys' => array(
+        'format' => array(
+          'columns' => array(
+            'format' => 'format',
+          ),
+          'table' => 'filter_format',
+        ),
+      ),
+      'indexes' => array(
+        'format' => array(
+          0 => 'format',
+        ),
+      ),
+      'module' => 'text',
+      'settings' => array(
+        'max_length' => '255',
+      ),
+      'translatable' => '0',
+      'type' => 'text',
+    ),
+    'field_instance' => array(
+      'bundle' => 'adlib_object',
+      'default_value' => NULL,
+      'deleted' => '0',
+      'description' => '',
+      'display' => array(
+        'adlib_object' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+        'default' => array(
+          'label' => 'above',
+          'module' => 'text',
+          'settings' => array(),
+          'type' => 'text_default',
+          'weight' => '1',
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+      ),
+      'entity_type' => 'node',
+      'field_name' => 'field_adlib_title',
+      'label' => 'Title',
+      'required' => 0,
+      'settings' => array(
+        'text_processing' => '0',
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 1,
+        'module' => 'text',
+        'settings' => array(
+          'size' => '60',
+        ),
+        'type' => 'text_textfield',
+        'weight' => '1',
       ),
     ),
   );
@@ -2423,12 +2653,22 @@ function adlib_test_field_default_fields() {
       'deleted' => '0',
       'description' => '',
       'display' => array(
+        'adlib_object' => array(
+          'label' => 'above',
+          'module' => 'adlib_display',
+          'settings' => array(
+            'adlib_display_grouped_fields' => 'field_adlib_object_name
+field_adlib_description',
+          ),
+          'type' => 'adlib_display_grouped_adlib_field',
+          'weight' => '2',
+        ),
         'default' => array(
           'label' => 'above',
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
-          'weight' => '3',
+          'weight' => '2',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -2452,7 +2692,7 @@ function adlib_test_field_default_fields() {
           'rows' => '5',
         ),
         'type' => 'text_textarea',
-        'weight' => '-4',
+        'weight' => '2',
       ),
     ),
   );
@@ -2463,7 +2703,6 @@ function adlib_test_field_default_fields() {
   t('Acquisition place');
   t('Acquisition source');
   t('Chronicle title');
-  t('Chronicle title lref');
   t('Creation presentation');
   t('Creator');
   t('Description');
@@ -2494,6 +2733,7 @@ function adlib_test_field_default_fields() {
   t('Related object title');
   t('Tags');
   t('Technique');
+  t('Title');
   t('Title short description');
 
   return $fields;

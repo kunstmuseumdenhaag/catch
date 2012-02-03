@@ -20,7 +20,6 @@ class views_plugin_row_node_rss extends views_plugin_row {
     $options = parent::option_definition();
 
     $options['item_length'] = array('default' => 'default');
-    $options['links'] = FALSE;
 
     return $options;
   }
@@ -33,11 +32,6 @@ class views_plugin_row_node_rss extends views_plugin_row {
       '#title' => t('Display type'),
       '#options' => $this->options_form_summary_options(),
       '#default_value' => $this->options['item_length'],
-    );
-    $form['links'] = array(
-      '#type' => 'checkbox',
-      '#title' => t('Display links'),
-      '#default_value' => $this->options['links'],
     );
   }
 
@@ -91,56 +85,41 @@ class views_plugin_row_node_rss extends views_plugin_row {
 
     $item_text = '';
 
-    $uri = entity_uri('node', $node);
-    $node->link = url($uri['path'], $uri['options'] + array('absolute' => TRUE));
-    $node->rss_namespaces = array();
+    $node->rss_namespaces = array('xmlns:dc' => 'http://purl.org/dc/elements/1.1/');
     $node->rss_elements = array(
-      array(
-        'key' => 'pubDate',
-        'value' => gmdate('r', $node->created),
-      ),
-      array(
-        'key' => 'dc:creator',
-        'value' => $node->name,
-      ),
-      array(
-        'key' => 'guid',
-        'value' => $node->nid . ' at ' . $base_url,
-        'attributes' => array('isPermaLink' => 'false'),
-      ),
+      array('key' => 'pubDate', 'value' => gmdate('r', $node->created)),
+      array('key' => 'dc:creator', 'value' => $node->name),
+      array('key' => 'guid', 'value' => $node->nid . ' at ' . $base_url, 'attributes' => array('isPermaLink' => 'false'))
     );
 
     // The node gets built and modules add to or modify $node->rss_elements
     // and $node->rss_namespaces.
-    $build = node_view($node, 'rss');
-    unset($build['#theme']);
+    node_build_content($node, 'rss');
 
-    if (!empty($node->rss_namespaces)) {
-      $this->view->style_plugin->namespaces = array_merge($this->view->style_plugin->namespaces, $node->rss_namespaces);
-    }
+    $this->view->style_plugin->namespaces = array_merge($this->view->style_plugin->namespaces, $node->rss_namespaces);
 
-    // Hide the links if desired.
-    if (!$this->options['links']) {
-      hide($build['links']);
-    }
-
-    if ($item_length != 'title') {
+    if ($item_length != 'title' && !empty($node->content)) {
       // We render node contents and force links to be last.
-      $build['links']['#weight'] = 1000;
-      $item_text .= drupal_render($build);
+      $links = drupal_render($node->content['links']);
+      $item_text .= drupal_render($node->content) . $links;
     }
 
-    $item = new stdClass();
+    $item = new stdClass;
     $item->description = $item_text;
     $item->title = $node->title;
-    $item->link = $node->link;
+    $item->link = url("node/$node->nid", array('absolute' => TRUE));
     $item->elements = $node->rss_elements;
     $item->nid = $node->nid;
+    if (isset($node->readmore)) {
+      $item->readmore = $node->readmore;
+    }
 
-    return theme($this->theme_functions(), array(
-      'view' => $this->view,
-      'options' => $this->options,
-      'row' => $item
-    ));
+    return theme($this->theme_functions(),
+      array(
+        'view' => $this->view,
+        'options' => $this->options,
+        'row' => $item
+      ));
   }
 }
+

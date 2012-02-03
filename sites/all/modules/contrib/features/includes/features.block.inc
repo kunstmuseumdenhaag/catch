@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Implements hook_features_api().
+ * Implementation of hook_features_api().
  */
 function block_features_api() {
   return array();
 }
 
 /**
- * Implements hook_features_export().
+ * Implementation of hook_features_export().
  */
 function block_features_export($data, &$export) {
   $pipe = array();

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Implements hook_filter_default_formats().
+ * Implementation of hook_filter_default_formats().
  */
 function features_test_filter_default_formats() {
   $formats = array();

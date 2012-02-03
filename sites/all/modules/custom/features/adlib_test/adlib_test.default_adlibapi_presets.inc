@@ -5,7 +5,7 @@
  */
 
 /**
- * Implements hook_default_adlibapi_preset().
+ * Implementation of hook_default_adlibapi_preset().
  */
 function adlib_test_default_adlibapi_preset() {
   $export = array();

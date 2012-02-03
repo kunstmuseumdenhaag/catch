@@ -27,8 +27,6 @@ function user_views_data() {
     'help' => t('Users who have created accounts on your site.'),
     'access query tag' => 'user_access',
   );
-  $data['users']['table']['entity type'] = 'user';
-
 
   $data['users']['table']['default_relationship'] = array(
     'node' => array(
@@ -37,10 +35,6 @@ function user_views_data() {
     ),
     'node_revision' => array(
       'table' => 'node_revision',
-      'field' => 'uid',
-    ),
-    'file' => array(
-      'table' => 'file',
       'field' => 'uid',
     ),
   );
@@ -216,8 +210,7 @@ function user_views_data() {
     ),
   );
 
-  $data['users']['timestamp_year']['moved to'] = array('users', 'created_year');
-  $data['users']['created_year'] = array(
+  $data['users']['timestamp_year'] = array(
     'title' => t('Created year'),
     'help' => t('In the form of YYYY.'),
     'argument' => array(
@@ -248,7 +241,7 @@ function user_views_data() {
     'title' => t('Created week'),
     'help' => t('In the form of WW (01 - 53).'),
     'argument' => array(
-      'field' => 'created',
+      'field' => 'timestamp',
       'handler' => 'views_handler_argument_node_created_week',
     ),
   );
@@ -354,15 +347,13 @@ function user_views_data() {
       'left_field' => 'uid',
       'field' => 'uid',
     ),
-  );
-  
-  $data['users_roles']['table']['default_relationship'] = array(
     'node' => array(
-      'table' => 'node',
+      'left_field' => 'uid',
       'field' => 'uid',
     ),
     'node_revision' => array(
-      'table' => 'node_revision',
+      'left_table' => 'node',
+      'left_field' => 'uid',
       'field' => 'uid',
     ),
   );
@@ -403,39 +394,15 @@ function user_views_data() {
       'left_field' => 'rid',
       'field' => 'rid',
     ),
-  );
-  
-  $data['role']['table']['default_relationship'] = array(
     'node' => array(
-      'table' => 'node',
-      'field' => 'uid',
-    ),
-    'node_revision' => array(
-      'table' => 'node_revision',
-      'field' => 'uid',
-    ),
-  );
-
-  // permission table
-  $data['role_permission']['table']['group']  = t('User');
-  $data['role_permission']['table']['join'] = array(
-     // Directly links to users table.
-    'users' => array(
       'left_table' => 'users_roles',
       'left_field' => 'rid',
       'field' => 'rid',
     ),
-  );
-
-  $data['role_permission']['permission'] = array(
-    'title' => t('Permission'),
-    'help' => t('The user permissions.'),
-    'field' => array(
-      'handler' => 'views_handler_field_user_permissions',
-      'no group by' => TRUE,
-    ),
-    'filter' => array(
-      'handler' => 'views_handler_filter_user_permissions',
+    'node_revision' => array(
+      'left_table' => 'users_roles',
+      'left_field' => 'rid',
+      'field' => 'rid',
     ),
   );
 
@@ -449,19 +416,12 @@ function user_views_data() {
       'left_field' => 'uid',
       'field' => 'uid',
     ),
-  );
-
-  $data['authmap']['table']['default_relationship'] = array(
     'node' => array(
-      'table' => 'node',
-      'field' => 'uid',
-    ),
-    'node_revision' => array(
-      'table' => 'node_revision',
+      'left_table' => 'users',
+      'left_field' => 'uid',
       'field' => 'uid',
     ),
   );
-
   $data['authmap']['aid'] = array(
     'title' => t('Authmap ID'),
     'help' => t('The Authmap ID.'),

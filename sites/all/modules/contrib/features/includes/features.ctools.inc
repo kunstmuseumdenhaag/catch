@@ -25,7 +25,7 @@ foreach (_ctools_features_get_info() as $component => $info) {
 }
 
 /**
- * Implements hook_features_api().
+ * Implementation of hook_features_api().
  */
 function ctools_features_api() {
   return array(
@@ -41,7 +41,7 @@ function ctools_features_api() {
 }
 
 /**
- * Implements hook_features_export().
+ * Implementation of hook_features_export().
  * Adds references to the ctools mothership hook, ctools_plugin_api().
  */
 function ctools_features_export($data, &$export, $module_name = '') {
@@ -62,7 +62,7 @@ function ctools_features_export($data, &$export, $module_name = '') {
 }
 
 /**
- * Implements hook_features_export_render().
+ * Implementation of hook_features_export_render().
  * Adds the ctools mothership hook, ctools_plugin_api().
  */
 function ctools_features_export_render($module, $data) {
@@ -104,7 +104,9 @@ function ctools_features_export_render($module, $data) {
 function ctools_component_features_api($module_name) {
   $api = array();
   foreach (_ctools_features_get_info() as $component => $info) {
-    $api[$component] = $info;
+    if ($info['module'] === $module_name) {
+      $api[$component] = $info;
+    }
   }
   return $api;
 }
@@ -312,7 +314,7 @@ function _ctools_features_export_crud_delete($table, $object) {
 }
 
 /**
- * Implements hook_features_export_render() for page_manager.
+ * Implementation of hook_features_export_render() for page_manager.
  */
 function page_manager_pages_features_export_render($module, $data) {
   // Ensure that handlers have their code included before exporting.

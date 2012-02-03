@@ -1,6 +1,6 @@
 <?php
 
-class ViewsHandlerFilterStringTest extends ViewsSqlTest {
+class viewsHandlerFilterStringTest extends ViewsSqlTest {
   var $column_map = array();
 
   public static function getInfo() {
@@ -40,7 +40,7 @@ class ViewsHandlerFilterStringTest extends ViewsSqlTest {
   }
 
   /**
-   * An extended test dataset.
+   * A extended test dataset.
    */
   protected function dataSet() {
     $dataset = parent::dataSet();

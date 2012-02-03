@@ -192,12 +192,7 @@ fieldset.fieldset-no-legend {
 
 .views-display-top ul.secondary {
   background-color: transparent;
-  float: left
-}
-
-.views-display-top .secondary .action-list li {
-  float: none;
-  margin: 0;
+  margin-right: 18em;
 }
 
 /* @end */

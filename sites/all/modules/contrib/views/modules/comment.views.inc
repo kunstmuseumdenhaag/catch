@@ -27,9 +27,7 @@ function comment_views_data() {
     'field' => 'cid',
     'title' => t('Comment'),
     'help' => t("Comments are responses to node content."),
-    'access query tag' => 'comment_access',
   );
-  $data['comment']['table']['entity type'] = 'comment';
 
   // Provide a "default relationship" to keep older views from choking.
   $data['comment']['table']['default_relationship'] = array(
@@ -294,16 +292,6 @@ function comment_views_data() {
     ),
   );
 
-
-  // link to approve comment
-  $data['comment']['approve_comment'] = array(
-    'field' => array(
-      'title' => t('Approve link'),
-      'help' => t('Provide a simple link to approve the comment.'),
-      'handler' => 'views_handler_field_comment_link_approve',
-    ),
-  );
-
   // link to reply to comment
   $data['comment']['replyto_comment'] = array(
     'field' => array(
@@ -349,11 +337,11 @@ function comment_views_data() {
   );
 
   $data['comment']['uid'] = array(
-    'title' => t('Author uid'),
-    'help' => t('If you need more fields then the uid add the comment: author relationship'),
+    'title' => t('Uid'),
+    'help' => t("The User ID of the comment's author."),
     'relationship' => array(
       'title' => t('Author'),
-      'help' => t("The User ID of the comment's author."),
+      'help' => t('Relate comment to the user who created it.'),
       'base' => 'users',
       'base field' => 'uid',
       'handler' => 'views_handler_relationship',
@@ -366,7 +354,7 @@ function comment_views_data() {
       'handler' => 'views_handler_argument_numeric',
     ),
     'field' => array(
-      'handler' => 'views_handler_field_user',
+      'handler' => 'views_handler_filter_user_name',
     ),
   );
 
@@ -599,7 +587,7 @@ function template_preprocess_views_view_row_comment(&$vars) {
   $view = &$vars['view'];
   $plugin = &$view->style_plugin->row_plugin;
   $comment = $plugin->comments[$vars['row']->{$vars['field_alias']}];
-  $node = $plugin->nodes[$comment->nid];
+  $node = node_load($comment->nid);
   // Put the view on the node so we can retrieve it in the preprocess.
   $node->view = &$view;
 

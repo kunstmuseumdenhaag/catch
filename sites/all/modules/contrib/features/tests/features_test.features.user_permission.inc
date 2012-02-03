@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Implements hook_user_default_permissions().
+ * Implementation of hook_user_default_permissions().
  */
 function features_test_user_default_permissions() {
   $permissions = array();

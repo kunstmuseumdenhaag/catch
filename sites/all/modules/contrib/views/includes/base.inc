@@ -265,7 +265,7 @@ class views_object {
    * This function run's through all suboptions recursive.
    *
    * @param $translatable
-   *   Stores all available translatable items.
+   *   Stores all availible translatable items.
    * @param $storage
    * @param $option
    * @param $definition

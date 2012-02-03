@@ -106,8 +106,7 @@ function features_export_form($form, $form_state, $feature = NULL) {
       foreach ($options as $k => $v) {
         $options[$k] = check_plain($v);
       }
-      $label = (isset($component_info['name']) ? $component_info['name'] . ": " . $component : $component);
-      $form['export']['components']['#options'][$component] = $label;
+      $form['export']['components']['#options'][$component] = (isset($component_info['name']) ? $component_info['name'] : $component);
       if (!empty($options)) {
         $form['export']['sources'][$component] = array(
           '#type' => 'checkboxes',
@@ -327,7 +326,7 @@ function features_admin_form($form, $form_state) {
   $modules = array_filter(features_get_modules(), 'features_filter_hidden');
   $features = array_filter(features_get_features(), 'features_filter_hidden');
   $conflicts = features_get_conflicts();
-    
+
   foreach ($modules as $key => $module) {
     if ($module->status && !empty($module->info['dependencies'])) {
       foreach ($module->info['dependencies'] as $dependent) {
@@ -349,8 +348,7 @@ function features_admin_form($form, $form_state) {
 
   $form = array('#features' => $features);
 
-  // Generate features form. Features are sorted by dependencies, resort alpha
-  ksort($features);
+  // Generate features form.
   foreach ($features as $name => $module) {
     $package_title = !empty($module->info['package']) ? $module->info['package'] : t('Other');
     $package = strtolower(preg_replace('/[^a-zA-Z0-9-]+/', '-', $package_title));
@@ -480,11 +478,6 @@ function features_admin_form($form, $form_state) {
  * Display the components of a feature.
  */
 function features_admin_components($form, $form_state, $feature) {
-  // Breadcrumb navigation
-  $breadcrumb[] = l(t('Home'), NULL);
-  $breadcrumb[] = l(t('Features'), 'admin/structure/features');
-  drupal_set_breadcrumb($breadcrumb);
-
   module_load_include('inc', 'features', 'features.export');
   $form = array();
 
@@ -494,33 +487,18 @@ function features_admin_components($form, $form_state, $feature) {
   $form['#dependencies'] = array();
   if (!empty($feature->info['dependencies'])) {
     foreach ($feature->info['dependencies'] as $dependency) {
-      $parsed_dependency = drupal_parse_dependency($dependency);
-      $dependency = $parsed_dependency['name'];
       $status = features_get_module_status($dependency);
       $form['#dependencies'][$dependency] = $status;
     }
   }
 
-  $conflicts = features_get_conflicts();
-  if (!module_exists($form['module']['#value']) && isset($form['module']['#value']) && !empty($conflicts[$form['module']['#value']])) {
-    $module_conflicts = $conflicts[$form['module']['#value']];
-    $conflicts = array();
-    foreach ($module_conflicts as $conflict) {
-      $conflicts = array_merge_recursive($conflict, $conflicts);
-    }
-  }
-  else {
-    $conflicts = array();
-  }
-  $form['#conflicts'] = $conflicts;
-
   $review = $revert = FALSE;
-    
+
   // Iterate over components and retrieve status for display
   $states = features_get_component_states(array($feature->name), FALSE);
   $form['revert']['#tree'] = TRUE;
   foreach ($feature->info['features'] as $component => $items) {
-    if (user_access('administer features') && array_key_exists($component, $states[$feature->name]) && in_array($states[$feature->name][$component], array(FEATURES_OVERRIDDEN, FEATURES_NEEDS_REVIEW))) {
+    if (user_access('administer features') && in_array($states[$feature->name][$component], array(FEATURES_OVERRIDDEN, FEATURES_NEEDS_REVIEW))) {
       switch ($states[$feature->name][$component]) {
         case FEATURES_OVERRIDDEN:
           $revert = TRUE;
@@ -541,16 +519,8 @@ function features_admin_components($form, $form_state, $feature) {
     else {
       $path = NULL;
     }
-      
-    $storage = FEATURES_DEFAULT;
-    if (array_key_exists($component, $states[$feature->name])) {
-      $storage = $states[$feature->name][$component];
-    }
-    else if (array_key_exists($component, $conflicts)) {
-      $storage = FEATURES_CONFLICT;
-    }
     $form['components'][$component] = array(
-      '#markup' => theme('features_storage_link', array('storage' => $storage, 'path' =>  $path)),
+      '#markup' => theme('features_storage_link', array('storage' => $states[$feature->name][$component], 'path' =>  $path)),
     );
   }
 

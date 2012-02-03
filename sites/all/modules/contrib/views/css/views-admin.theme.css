@@ -24,7 +24,8 @@
 }
 
 .box-margin {
-  margin: 12px 12px 0 12px;
+  margin-left: 12px;
+  margin-right: 12px;
 }
 
 /* @end */
@@ -204,9 +205,9 @@ input.form-radio {
   margin-left: 16px; /* LTR */
 }
 
-/* Hide 'remove' checkboxes. */
-.views-remove-checkbox {
-    display: none;
+/* Hide 'remove' checkboxes. This might be scoped too widely. */
+[class*="form-type-checkbox"][class*="remove"] {
+  display: none;
 }
 
 /* sizes the labels of checkboxes and radio button to the height of the text */
@@ -412,7 +413,8 @@ td.group-title {
 .views-display-top {
   background-color: #F9F9F9;
   border-bottom: 1px solid #CCCCCC;
-  padding: 8px 8px 8px; /* LTR */
+  margin-bottom: 14px;
+  padding: 8px 8px 6px; /* LTR */
   position: relative;
 }
 
@@ -421,6 +423,7 @@ td.group-title {
 }
 
 .views-display-top .secondary > li {
+  margin-bottom: 6px;
   margin-right: 6px;
   padding-left: 0;
 }
@@ -920,7 +923,6 @@ td.group-title {
 #views-preview-wrapper {
   border: 1px solid #CCC;
   border-top: 2px solid #CCC;
-  padding-bottom: 12px;
   padding-top: 12px;
 }
 

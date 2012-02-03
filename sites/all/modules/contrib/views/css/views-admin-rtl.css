@@ -25,6 +25,10 @@
   float: left;
 }
 
+.views-displays {
+  float: right;
+}
+
 /* @end */
 
 /* @group Attachment details tabs

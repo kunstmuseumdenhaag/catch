@@ -43,13 +43,11 @@ class views_plugin_row_aggregator_rss extends views_plugin_row {
     $item = db_query($sql, array(':iid' => $iid))->fetchObject();
 
     $item->elements = array(
-      array(
-        'key' => 'pubDate',
-        'value' => gmdate('r', $item->timestamp),
-      ),
+      array('key' => 'pubDate', 'value' => gmdate('r', $item->timestamp)),
       array(
         'key' => 'dc:creator',
         'value' => $item->author,
+        'namespace' => array('xmlns:dc' => 'http://purl.org/dc/elements/1.1/'),
       ),
       array(
         'key' => 'guid',
@@ -71,3 +69,4 @@ class views_plugin_row_aggregator_rss extends views_plugin_row {
     ));
   }
 }
+

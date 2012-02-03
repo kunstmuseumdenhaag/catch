@@ -98,28 +98,27 @@ class views_plugin_style_jump_menu extends views_plugin_style {
     foreach ($sets as $title => $records) {
       foreach ($records as $row_index => $row) {
         $this->view->row_index = $row_index;
-        $path = html_entity_decode(strip_tags($this->get_field($this->view->row_index, $this->options['path'])), ENT_QUOTES);
+        $path = strip_tags($this->get_field($this->view->row_index, $this->options['path']));
         // Putting a '/' in front messes up url() so let's take that out
         // so users don't shoot themselves in the foot.
-        $base_path = base_path();
-        if (strpos($path, $base_path) === 0) {
-          $path = drupal_substr($path, drupal_strlen($base_path));
+        if (strpos($path, '/') === 0) {
+          $path = substr($path, 1);
         }
 
         // use drupal_parse_url() to preserve query and fragment in case the user
         // wants to do fun tricks.
         $url_options = drupal_parse_url($path);
+        $path = $url_options['path'];
 
-        $path = url($url_options['path'], $url_options);
-        $field = html_entity_decode(strip_tags($this->row_plugin->render($row)), ENT_QUOTES);
-        $key = md5($path . $field) . "::" . $path;
+        $path = url($path, $url_options);
+        $field = strip_tags($this->row_plugin->render($row));
         if ($title) {
-          $options[$title][$key] = $field;
+          $options[$title][$path] = $field;
         }
         else {
-          $options[$key] = $field;
+          $options[$path] = $field;
         }
-        $paths[$path] = $key;
+        $paths[$path] = $path;
         $this->view->row_index++;
       }
     }
@@ -127,7 +126,7 @@ class views_plugin_style_jump_menu extends views_plugin_style {
 
     $default_value = '';
     if ($this->options['default_value'] && !empty($paths[url($_GET['q'])])) {
-      $default_value = $paths[url($_GET['q'])];
+      $default_value = url($_GET['q']);
     }
 
     ctools_include('jump-menu');
@@ -139,7 +138,7 @@ class views_plugin_style_jump_menu extends views_plugin_style {
     );
 
     $form = drupal_get_form('ctools_jump_menu', $options, $settings);
-    return $form;
+    return drupal_render($form);
   }
 
   function render_set($title, $records) {

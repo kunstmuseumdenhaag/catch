@@ -1,11 +1,11 @@
 <?php
 
-class ViewsArgumentValidatorTest extends ViewsSqlTest {
+class viewsArgumentValidatorTest extends ViewsSqlTest {
   public static function getInfo() {
     return array(
-      'name' => 'Argument validator',
-      'group' => 'Views Plugins',
-      'description' => 'Test argument validator tests.',
+      'name' => t('Argument validator'),
+      'group' => t('Views Plugins'),
+      'description' => t('Test argument validator tests.'),
     );
   }
 

@@ -1,11 +1,10 @@
 <?php
-
 /**
  * @file
  * Tests views user argument default plugin.
  */
 
-class ViewsUserArgumentDefault extends ViewsSqlTest {
+class viewsUserArgumentDefault extends ViewsSqlTest {
   public static function getInfo() {
     return array(
       'name' => 'Tests user argument default plugin',

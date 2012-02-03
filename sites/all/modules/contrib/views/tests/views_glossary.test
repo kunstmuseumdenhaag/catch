@@ -1,8 +1,7 @@
 <?php
-
 /**
  * @file
- * Test glossary view ( summary of arguments ).
+ *   Test glossary view ( summary of arguments )
  */
 
 class ViewsGlossaryTestCase extends ViewsSqlTest {
@@ -55,3 +54,4 @@ class ViewsGlossaryTestCase extends ViewsSqlTest {
     }
   }
 }
+

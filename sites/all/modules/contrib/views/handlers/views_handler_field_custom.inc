@@ -31,8 +31,8 @@ class views_handler_field_custom extends views_handler_field {
   }
 
   function render($values) {
-    // Return the text, so the code never thinks the value is empty.
-    return $this->options['alter']['text'];
+    // Nothing to render.
+    return '';
   }
 }
 
