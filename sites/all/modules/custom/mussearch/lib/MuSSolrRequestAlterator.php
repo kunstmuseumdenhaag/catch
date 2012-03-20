@@ -177,7 +177,7 @@ class MuSSolrRequestAlterator {
             $query = 'where:(' . $query . ')';
             break;
           case self::PARSED_ADVANCED_WHO:
-            $query = 'WHO:(' . $query . ')';
+            $query = 'who:(' . $query . ')';
             break;
         }
         $parsedAdvanced[] = $query;
