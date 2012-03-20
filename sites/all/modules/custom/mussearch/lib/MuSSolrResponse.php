@@ -91,6 +91,22 @@ class MuSSolrResponse {
     $this->_raw = preg_replace($pattern, '', $responseWithHeader);
   }
 
+  /**
+   * Add items to the MuS debug information.
+   * @param $name
+   * @param $value
+   */
+  public function addQueryDebugInformation($name, $value) {
+    // Add the parsed query to the xml and rebuild the raw xml
+    static $musDebug;
+    if (!isset($musDebug)) {
+      $musDebug = $this->_xml->addChild('lst');
+      $musDebug->addAttribute('name', 'musDebug');
+    }
+    $musDebugItem = $musDebug->addChild('lst', $value);
+    $musDebugItem->addAttribute('name', $name);
+    $this->_raw = $this->_xml->asXml();
+  }
     /**
    * Get the error
    * @return bool indicating is there was an error
