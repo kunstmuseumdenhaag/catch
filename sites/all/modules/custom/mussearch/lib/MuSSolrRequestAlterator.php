@@ -6,7 +6,18 @@ class MuSSolrRequestAlterator {
   protected $baseUrl;
   protected $params;
 
+  protected $parsedAdvancedQuery;
+
   protected $lastCall;
+
+  const PARSED_ADVANCED_ORIGINAL  = 'originalMusAdvancedQuery';
+  const PARSED_ADVANCED_FULL      = 'parsedMusAdvancedQuery';
+  const PARSED_ADVANCED_WHAT      = 'whatQuery';
+  const PARSED_ADVANCED_WHO       = 'whoQuery';
+  const PARSED_ADVANCED_WHERE     = 'whereQuery';
+  const PARSED_ADVANCED_WHEN      = 'whenQuery';
+  const PARSED_ADVANCED_HOW       = 'howQuery';
+  const PARSED_ADVANCED_REST      = 'restQuery';
 
   function __construct($host = 'localhost', $port = 8180, $path = '/solr/', $querystring) {
     $this->host = $host;
@@ -34,7 +45,12 @@ class MuSSolrRequestAlterator {
     $this->rewriteMuSParams();
     $querystring = $this->getQueryString();
     $fullUrl = $this->baseUrl . '?' . $querystring;
-    return $this->_doRequest($fullUrl);
+    $response = $this->_doRequest($fullUrl);
+    if (isset($this->params['debugQuery']) && $this->params['debugQuery']) {
+      $this->addDebugInfo($response);
+//      $response->addQueryDebugInformation('parsedMusAdvancedQuery', $this->parsedAdvancedQuery['']);
+    }
+    return $response;
   }
 
   /**
@@ -78,10 +94,133 @@ class MuSSolrRequestAlterator {
    */
   protected function rewriteMuSParams() {
     // Rewrite mus_q
-    if (isset($this->params['mus_q'])) {
-      $this->params['q'] = $this->params['mus_q'];
+    if (isset($this->params['mus_aq'])) {
+      $this->rewriteAdvancedQuery();
+      $this->params['q'] = $this->parsedAdvancedQuery[self::PARSED_ADVANCED_FULL];
       unset($this->params['mus_q']);
     }
+  }
+
+  /**
+   * Rewrite the advanced query
+   */
+  protected function rewriteAdvancedQuery() {
+    $keywords = array();
+    $this->parsedAdvancedQuery[self::PARSED_ADVANCED_ORIGINAL] = $this->params['mus_aq'];
+
+    // Extract what
+    $this->parsedAdvancedQuery[self::PARSED_ADVANCED_WHAT] = $this->extractFieldQuery('what', $this->params['mus_aq']);
+    // Extract the keywords from what
+    $parsedKeywords = $this->extractKeyWords($this->parsedAdvancedQuery[self::PARSED_ADVANCED_WHAT]);
+    if (sizeof($parsedKeywords) > 0) {
+      $keywords = array_merge($keywords, $parsedKeywords);
+    }
+
+    // Extract who
+    $this->parsedAdvancedQuery[self::PARSED_ADVANCED_WHO] = $this->extractFieldQuery('who', $this->params['mus_aq']);
+    // Extract the keywords from who
+    $parsedKeywords = $this->extractKeyWords($this->parsedAdvancedQuery[self::PARSED_ADVANCED_WHO]);
+    if (sizeof($parsedKeywords) > 0) {
+      $keywords = array_merge($keywords, $parsedKeywords);
+    }
+
+    // Extract where
+    $this->parsedAdvancedQuery[self::PARSED_ADVANCED_WHERE] = $this->extractFieldQuery('where', $this->params['mus_aq']);
+    // Extract the keywords from where
+    $parsedKeywords = $this->extractKeyWords($this->parsedAdvancedQuery[self::PARSED_ADVANCED_WHERE]);
+    if (sizeof($parsedKeywords) > 0) {
+      $keywords = array_merge($keywords, $parsedKeywords);
+    }
+
+    // Extract when
+    $this->parsedAdvancedQuery[self::PARSED_ADVANCED_WHEN] = $this->extractFieldQuery('when', $this->params['mus_aq']);
+    // Extract the keywords from when
+    $parsedKeywords = $this->extractKeyWords($this->parsedAdvancedQuery[self::PARSED_ADVANCED_WHEN]);
+    if (sizeof($parsedKeywords) > 0) {
+      $keywords = array_merge($keywords, $parsedKeywords);
+    }
+
+    // Extract how
+    $this->parsedAdvancedQuery[self::PARSED_ADVANCED_HOW] = $this->extractFieldQuery('how', $this->params['mus_aq']);
+    // Extract the keywords from how
+    $parsedKeywords = $this->extractKeyWords($this->parsedAdvancedQuery[self::PARSED_ADVANCED_HOW]);
+    if (sizeof($parsedKeywords) > 0) {
+      $keywords = array_merge($keywords, $parsedKeywords);
+    }
+
+    // Extract the rest
+    // Remove the field queries first
+    $regex = '/\w+:\(.*\)/iU';
+    $restQuery = trim(preg_replace($regex, '', $this->params['mus_aq']));
+    // Remove unnecessary whitespaces
+    $this->parsedAdvancedQuery[self::PARSED_ADVANCED_REST] = preg_replace('/\s{2,}/', ' ', $restQuery);
+    // Add the keywords to the restQuery
+    $this->parsedAdvancedQuery[self::PARSED_ADVANCED_REST] .= ' ' . implode(' ', $keywords);
+
+    // Now create the full query
+    $parsedAdvanced = array();
+    $queryParts = array(self::PARSED_ADVANCED_HOW,self::PARSED_ADVANCED_WHEN, self::PARSED_ADVANCED_WHAT, self::PARSED_ADVANCED_WHERE, self::PARSED_ADVANCED_WHO, self::PARSED_ADVANCED_REST);
+    foreach ($this->parsedAdvancedQuery as $key => $query) {
+      // Only add, if the qeury is not empty
+      if (in_array($key, $queryParts) && $query != '') {
+        switch ($key) {
+          case self::PARSED_ADVANCED_HOW:
+            $query = 'how:(' . $query . ')';
+            break;
+          case self::PARSED_ADVANCED_WHEN:
+            $query = 'when:(' . $query . ')';
+            break;
+          case self::PARSED_ADVANCED_WHAT:
+            $query = 'what:(' . $query . ')';
+            break;
+          case self::PARSED_ADVANCED_WHERE:
+            $query = 'where:(' . $query . ')';
+            break;
+          case self::PARSED_ADVANCED_WHO:
+            $query = 'WHO:(' . $query . ')';
+            break;
+        }
+        $parsedAdvanced[] = $query;
+      }
+    }
+    $this->parsedAdvancedQuery[self::PARSED_ADVANCED_FULL] = implode(' ', $parsedAdvanced);
+  }
+
+  /**
+   * Extract a field query out of a query
+   * @param unknown_type $field
+   * @param unknown_type $query
+   * return_type
+   */
+  protected function extractFieldQuery($field, $query) {
+    // Construct the regex
+    $regex = '/' . $field . ':\((.*)\)/iU';
+    preg_match($regex, $query, $matches);
+    $fieldQuery = isset($matches[1]) ? $matches[1] : '';
+    return $fieldQuery;
+  }
+
+  /**
+   * Extract the single keywords out of string of keywords. Negated keywords will be ignored.
+   * @param $string
+   * @return $keywords
+   * 	Array containing keywords
+   */
+  protected function extractKeyWords($string) {
+    // Filter out OR and AND and other characters
+    $regex = '/(AND|OR)/';
+    $string = preg_replace($regex, '', $string);
+    // split on spaces
+    $keywords = preg_split('/\s/', $string);
+    // remove all keywords prepended by minus sign
+    foreach ($keywords as $key => &$word) {
+      if (preg_match('/-.+/', $word) || $word == '') {
+        unset($keywords[$key]);
+      }
+      // Trim the word
+      trim($word);
+    }
+    return $keywords;
   }
 
   /**
@@ -143,5 +282,17 @@ class MuSSolrRequestAlterator {
     }
   }
 
+  /**
+   * Add debug information to the response
+   * @param $response
+   */
+  protected function addDebugInfo($response) {
+    // Add the parsed advanced query info
+    if (isset($this->parsedAdvancedQuery) && sizeof($this->parsedAdvancedQuery) > 0) {
+      foreach ($this->parsedAdvancedQuery as $key => $value) {
+        $response->addQueryDebugInformation($key, $value);
+      }
+    }
+  }
 
 }
