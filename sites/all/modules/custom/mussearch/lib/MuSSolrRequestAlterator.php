@@ -93,11 +93,16 @@ class MuSSolrRequestAlterator {
    * Do a rewrite to normal solr parameters.
    */
   protected function rewriteMuSParams() {
-    // Rewrite mus_q
+    // Rewrite mus_aq
     if (isset($this->params['mus_aq'])) {
       $this->rewriteAdvancedQuery();
       $this->params['q'] = $this->parsedAdvancedQuery[self::PARSED_ADVANCED_FULL];
-      unset($this->params['mus_q']);
+      unset($this->params['mus_aq']);
+    }
+    // Rewrite mus_sq
+    if (isset($this->params['mus_sq'])) {
+      $this->params['q'] = $this->params['mus_sq'];
+      unset($this->params['mus_sq']);
     }
   }
 
