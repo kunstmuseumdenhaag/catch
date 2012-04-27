@@ -122,3 +122,29 @@ function mus_search_api_settings_default_search_api_index() {
   }');
   return $items;
 }
+
+/**
+ * Implementation of hook_default_search_api_server().
+ */
+function mus_search_api_settings_default_search_api_server() {
+  $items = array();
+  $items['test_solr_3_5_gemeentemusuem'] = entity_import('search_api_server', '{
+    "name" : "Test Solr 3.5 Gemeentemusuem",
+    "machine_name" : "test_solr_3_5_gemeentemusuem",
+    "description" : "",
+    "class" : "search_api_solr_service",
+    "options" : {
+      "host" : "vps5470.xlshosting.net",
+      "port" : "8080",
+      "path" : "\\/solr\\/gemeentemuseum",
+      "http_user" : "",
+      "http_pass" : "",
+      "excerpt" : 0,
+      "retrieve_data" : 0,
+      "highlight_data" : 0
+    },
+    "enabled" : "1",
+    "rdf_mapping" : []
+  }');
+  return $items;
+}
