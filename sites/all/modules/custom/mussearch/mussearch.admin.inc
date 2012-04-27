@@ -27,3 +27,26 @@ function mussearch_admin_settings($form, &$form_state) {
 
   return system_settings_form($form);
 }
+
+
+/**
+ * Create fieldmappings.map and schema.xml snippets from csv
+ */
+function mussearch_map_utility($form, &$form_state) {
+  $form = array();
+  $mappings = array();
+  if (($handle = fopen(MUSSEARCH_MAPPING_CSV, "r")) !== FALSE) {
+    $mappings = fgetcsv($handle);
+  }
+  $form['fieldmappings'] = array(
+    '#type' => 'textarea',
+    '#title' => t('fieldmappings.map content'),
+    '#default_value' => 'Contains fieldmappings',
+  );
+  $form['schema'] = array(
+    '#type' => 'textarea',
+    '#title' => t('schema.xml content'),
+    '#default_value' => 'Contains schema.xml snippet',
+  );
+  return $form;
+}
