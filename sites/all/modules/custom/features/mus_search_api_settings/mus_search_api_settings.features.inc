@@ -13,7 +13,7 @@ function mus_search_api_settings_default_search_api_index() {
     "name" : "MuS index 1",
     "machine_name" : "mus_index_1",
     "description" : "MuS index 1",
-    "server" : "solr_4_0",
+    "server" : "test_solr_3_5_gemeentemusuem",
     "item_type" : "node",
     "options" : {
       "index_directly" : 1,
@@ -57,6 +57,18 @@ function mus_search_api_settings_default_search_api_index() {
         "field_adlib_rel_obj_title" : { "type" : "string" },
         "field_adlib_technique" : { "type" : "string" },
         "field_adlib_title_short_desc" : { "type" : "string" },
+        "field_adlib_tag" : { "type" : "list\\u003ctext\\u003e" },
+        "field_adlib_title" : { "type" : "text" },
+        "field_adlib_credit_line" : { "type" : "list\\u003ctext\\u003e" },
+        "field_adlib_paragraph_present" : { "type" : "list\\u003ctext\\u003e" },
+        "field_adlib_qualific_present" : { "type" : "list\\u003ctext\\u003e" },
+        "field_adlib_production_reason" : { "type" : "list\\u003ctext\\u003e" },
+        "field_adlib_repro_reference" : { "type" : "list\\u003ctext\\u003e" },
+        "field_adlib_how_raw" : { "type" : "string" },
+        "field_adlib_what_raw" : { "type" : "string" },
+        "field_adlib_when_raw" : { "type" : "string" },
+        "field_adlib_where_raw" : { "type" : "string" },
+        "field_adlib_who_raw" : { "type" : "string" },
         "search_api_language" : { "type" : "string" }
       },
       "data_alter_callbacks" : {
@@ -106,32 +118,6 @@ function mus_search_api_settings_default_search_api_index() {
     },
     "enabled" : "1",
     "read_only" : "0",
-    "rdf_mapping" : []
-  }');
-  return $items;
-}
-
-/**
- * Implementation of hook_default_search_api_server().
- */
-function mus_search_api_settings_default_search_api_server() {
-  $items = array();
-  $items['solr_4_0'] = entity_import('search_api_server', '{
-    "name" : "Solr 4.0",
-    "machine_name" : "solr_4_0",
-    "description" : "Solr 4 test server.",
-    "class" : "search_api_solr_service",
-    "options" : {
-      "host" : "10.211.55.25",
-      "port" : "8080",
-      "path" : "\\/solr\\/gemeentemuseum",
-      "http_user" : "",
-      "http_pass" : "",
-      "excerpt" : 0,
-      "retrieve_data" : 0,
-      "highlight_data" : 0
-    },
-    "enabled" : "1",
     "rdf_mapping" : []
   }');
   return $items;
