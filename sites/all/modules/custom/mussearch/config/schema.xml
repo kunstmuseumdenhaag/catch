@@ -422,11 +422,11 @@
 	<field name="title"       			                 type="text" multiValued="true" indexed="true" stored="true" required="false" />	
 	<field name="title_short_description"                type="text" multiValued="true" indexed="true" stored="true" required="false" />	
 
-	<field name="what"                                   type="string" multiValued="false" indexed="true" stored="true" required="false" />		
-	<field name="who"                                    type="string" multiValued="false" indexed="true" stored="true" required="false" />	
-	<field name="where"                                  type="string" multiValued="false" indexed="true" stored="true" required="false" />	
-	<field name="when"                                   type="string" multiValued="false" indexed="true" stored="true" required="false" />	
-	<field name="how"                                    type="string" multiValued="false" indexed="true" stored="true" required="false" />
+	<field name="what"                                   type="string" multiValued="false" indexed="false" stored="true" required="false" />		
+	<field name="who"                                    type="string" multiValued="false" indexed="false" stored="true" required="false" />	
+	<field name="where"                                  type="string" multiValued="false" indexed="false" stored="true" required="false" />	
+	<field name="when"                                   type="string" multiValued="false" indexed="false" stored="true" required="false" />	
+	<field name="how"                                    type="string" multiValued="false" indexed="false" stored="true" required="false" />
 	
 	<!-- Fields for use with copyField-->
 	<field name="what_search"                            type="text" multiValued="true" indexed="true" stored="true" required="false" />
