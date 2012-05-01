@@ -3,6 +3,7 @@
  * @file
  * Mus search primary module file. Note that most of the functionality is placed in a Drupal agnostic class.
  */
+define('MUSSEARCH_MAPPING_CSV', 'config/mapping.csv');
 
 /**
  * Implements hook_menu().
@@ -27,6 +28,14 @@ function mussearch_menu() {
     'description' => 'Setup MuS search api settings',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('mussearch_admin_settings'),
+    'access arguments' => array('administer mus api'),
+    'file' => 'mussearch.admin.inc',
+  );
+  $items['admin/config/search/musapimap'] = array(
+    'title' => 'MuSapi map utility',
+    'description' => 'MuS search map utility to create map and schema.xml file',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('mussearch_map_utility'),
     'access arguments' => array('administer mus api'),
     'file' => 'mussearch.admin.inc',
   );
