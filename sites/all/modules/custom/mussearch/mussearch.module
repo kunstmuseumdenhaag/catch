@@ -3,7 +3,7 @@
  * @file
  * Mus search primary module file. Note that most of the functionality is placed in a Drupal agnostic class.
  */
-define('MUSSEARCH_MAPPING_CSV', 'mapping.csv');
+define('MUSSEARCH_MAPPING_CSV', 'config/mapping.csv');
 
 /**
  * Implements hook_menu().
