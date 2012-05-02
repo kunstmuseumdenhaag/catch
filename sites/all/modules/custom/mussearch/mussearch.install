@@ -30,6 +30,10 @@ function mussearch_get_schema_mussearch() {
           'type' => 'text',
           'size' => 'medium'
         ),
+        'bypass_blacklist' => array(
+          'type' => 'int',
+          'size' => 'tiny'
+        ),
         'organisation' => array(
           'type' => 'varchar',
           'length' => 255
