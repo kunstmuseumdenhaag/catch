@@ -5,6 +5,7 @@ class MuSSolrRequestAlterator {
   protected $path;
   protected $baseUrl;
   protected $params;
+  protected $apikeyObject;
 
   protected $parsedAdvancedQuery;
 
@@ -103,6 +104,12 @@ class MuSSolrRequestAlterator {
     if (isset($this->params['mus_sq'])) {
       $this->params['q'] = $this->params['mus_sq'];
       unset($this->params['mus_sq']);
+    }
+    // Handle api key
+    if (isset($this->params['mus_apikey'])) {
+      $apikeyObject = MuSSolrAPIKey::getInstance($this->params['mus_apikey']);
+      $this->params['musallowedlevel'] = $apikeyObject->getAccessString();
+      unset($this->params['mus_apikey']);
     }
   }
 
