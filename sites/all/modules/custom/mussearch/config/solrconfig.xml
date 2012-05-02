@@ -594,9 +594,7 @@
      <str name="defType">edismax</str>
      <str name="echoParams">none</str>
      <float name="tie">0.01</float>
-	 <str name="qf">
-        who when how what
-     </str>
+	 <str name="qf">who_search^1 when_search^1 how_search^1 what_search^1 where_search^1</str>
  <!--<str name="pf">
         text^0.2 features^1.1 name^1.5 manu^1.4 manu_exact^1.9
      </str>-->
@@ -644,6 +642,7 @@
     </lst>
     <arr name="last-components">
       <str>spellcheck</str>
+      <str>privateField</str>
     </arr>
   </requestHandler>
 
@@ -811,6 +810,12 @@
     </arr>
   </requestHandler> -->
 
+  <searchComponent name="privateField" class="nl.triquanta.solr.component.PrivateFieldComponent">
+  	<str name="allowedFields">item_id,score,title,how</str>
+  	<str name="privateField">item_id</str>
+  	<str name="publicValue">468</str>
+  </searchComponent>
+
   <searchComponent name="tvComponent" class="org.apache.solr.handler.component.TermVectorComponent"/>
   <!-- A Req Handler for working with the tvComponent.  This is purely as an example.
   You will likely want to add the component to your already specified request handlers. -->
@@ -905,7 +910,7 @@
 
   <!-- A component to return terms and document frequency of those terms.
        This component does not yet support distributed search. -->
-  <searchComponent name="termsComponent" class="org.apache.solr.handler.component.TermsComponent"/>
+  <searchComponent name="termsComponent" class="org.apache.solr.handler.component.TermsComponent" />
 
   <requestHandler name="/terms" class="org.apache.solr.handler.component.SearchHandler">
      <lst name="defaults">
