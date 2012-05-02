@@ -391,7 +391,7 @@
 	<field name="dimensions_presentation"                type="text" multiValued="true" indexed="true" stored="true" required="false" />
 	<field name="documentation_title"                    type="text" multiValued="true" indexed="true" stored="true" required="false" />
 	<field name="documentation_title_lref"               type="string" multiValued="true" indexed="true" stored="true" required="false" />
-	<field name="edit_date"                              type="string" multiValued="false" indexed="true" stored="true" required="false" />
+	<field name="edit_date"                              type="string" multiValued="true" indexed="true" stored="true" required="false" />
 	<field name="inscription_date"                       type="text" multiValued="true" indexed="true" stored="true" required="false" />
 	<field name="inscription_maker"                      type="text" multiValued="true" indexed="true" stored="true" required="false" />
 	<field name="institution_name"                       type="text" multiValued="false" indexed="true" stored="true" required="false" />
