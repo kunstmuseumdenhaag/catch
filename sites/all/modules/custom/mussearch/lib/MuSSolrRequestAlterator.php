@@ -31,6 +31,10 @@ class MuSSolrRequestAlterator {
     if (isset($_GET['mus_apikey'])) {
       $this->apikeyObject = MuSSolrAPIKey::getInstance($_GET['mus_apikey']);
     }
+    else {
+      // Create an apikey object using dummy apikey. In this case no rights are given.
+      $this->apikeyObject = MuSSolrAPIKey::getInstance('dummy');
+    }
     // Parse the query string
     $this->parseQeuryString($querystring);
     // Unset the apikey parameter
