@@ -39,6 +39,21 @@ function mussearch_menu() {
     'access arguments' => array('administer mus api'),
     'file' => 'mussearch.admin.inc',
   );
+  $items['admin/config/search/musapikeys'] = array(
+    'title' => 'MuSapi api key management',
+    'description' => 'MuS search api key management allows to manage api keys',
+    'page callback' => 'mussearch_apikey_management',
+    'access arguments' => array('administer mus api'),
+    'file' => 'mussearch.admin.inc',
+  );
+  $items['admin/config/search/musapikeys/%'] = array(
+    'title' => 'MuSapi api key management',
+    'description' => 'MuS search api key management allows to manage api keys',
+    'page callback' => 'mussearch_apikey_management',
+    'page arguments' => array(4),
+    'access arguments' => array('administer mus api'),
+    'file' => 'mussearch.admin.inc',
+  );
 
   return $items;
 }
