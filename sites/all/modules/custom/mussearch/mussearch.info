@@ -6,4 +6,5 @@ package = Museum
 dependicies[] = search_api
 files[] = lib/MuSSolrRequestAlterator.php
 files[] = lib/MuSSolrResponse.php
+files[] = lib/MuSSolrAPIKey.php
 files[] = mussearch.admin.inc
