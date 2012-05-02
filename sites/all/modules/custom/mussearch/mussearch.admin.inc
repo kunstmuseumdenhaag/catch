@@ -121,6 +121,12 @@ function mussearch_apikey_management($apikey_id = NULL) {
     '#header' => $header,
     '#rows' => $rows,
   );
+  // Add a link if apikey_id is set, so a new apikey can be made
+  if (isset($apikey_id)) {
+    $output['create new'] = array(
+      '#markup' => l(t('Create new'), 'admin/config/search/musapikeys'),
+    );
+  }
   // Voeg het formulier voor het aanmaken van een api key toe.
   $form = drupal_get_form('mussearch_add_apikey_form', $apikey_id);
   $output['form'] = $form;
