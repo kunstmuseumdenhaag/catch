@@ -10,6 +10,7 @@ class MuSSolrRequestAlterator {
   protected $parsedAdvancedQuery;
 
   protected $lastCall;
+  protected $parameterBlacklist = array('echoParams','q','musallowedlevel','qf','defType',);
 
   const PARSED_ADVANCED_ORIGINAL  = 'originalMusAdvancedQuery';
   const PARSED_ADVANCED_FULL      = 'parsedMusAdvancedQuery';
@@ -26,8 +27,14 @@ class MuSSolrRequestAlterator {
     $this->path = $path;
     // Create full url
     $this->createBaseUrl();
+    // Initiate apikeyObject
+    if (isset($_GET['mus_apikey'])) {
+      $this->apikeyObject = MuSSolrAPIKey::getInstance($_GET['mus_apikey']);
+    }
     // Parse the query string
     $this->parseQeuryString($querystring);
+    // Unset the apikey parameter
+    unset($this->params['mus_apikey']);
   }
 
   /**
@@ -106,9 +113,8 @@ class MuSSolrRequestAlterator {
       unset($this->params['mus_sq']);
     }
     // Handle api key
-    if (isset($this->params['mus_apikey'])) {
-      $apikeyObject = MuSSolrAPIKey::getInstance($this->params['mus_apikey']);
-      $this->params['musallowedlevel'] = $apikeyObject->getAccessString();
+    if (isset($this->apikeyObject)) {
+      $this->params['musallowedlevel'] = $this->apikeyObject->getAccessString();
       unset($this->params['mus_apikey']);
     }
   }
@@ -291,6 +297,22 @@ class MuSSolrRequestAlterator {
         }
       }
       $this->params = $params;
+      // Filter the params
+      $this->filterParams();
+    }
+  }
+
+  /**
+   * Filter the params. For instance apply blacklisting
+   */
+  protected function filterParams() {
+    // Apply blacklisting
+    if (! $this->apikeyObject->mayBypassBlacklist() ) {
+      foreach ($this->params as $name => $param) {
+        if (in_array($name, $this->parameterBlacklist)) {
+          unset($this->params[$name]);
+        }
+      }
     }
   }
 

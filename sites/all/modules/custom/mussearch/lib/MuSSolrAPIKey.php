@@ -11,6 +11,10 @@ abstract class MuSSolrAPIKey {
     return isset($this->apikeyInfo['access_rights']) ? $this->apikeyInfo['access_rights'] : '';
   }
 
+  public function mayBypassBlacklist() {
+    return isset($this->apikeyInfo['bypass_blacklist']) ? $this->apikeyInfo['bypass_blacklist'] : FALSE;
+  }
+
   /**
    * Factory function to get right implementation based on system detection
    * @param String $apikey

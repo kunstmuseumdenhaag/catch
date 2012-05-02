@@ -100,6 +100,7 @@ function mussearch_apikey_management($apikey_id = NULL) {
     t('Key id'),
     t('API key'),
     t('Access rights'),
+    t('Bypass blacklist'),
     t('Organisation'),
     t('First name'),
     t('Last name'),
@@ -167,6 +168,11 @@ function mussearch_add_apikey_form($form, &$form_state, $apikey_id = NULL) {
     '#title' => t('Access rights'),
     '#default_value' => isset($defaults['access_rights']) ? $defaults['access_rights'] : '',
   );
+  $form['bypass_blacklist'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Bypass parameter blacklist'),
+    '#default_value' => isset($defaults['bypass_blacklist']) ? $defaults['bypass_blacklist'] : '',
+  );
   $form['organisation'] = array(
     '#type' => 'textfield',
     '#title' => t('Organisation'),
@@ -216,6 +222,7 @@ function mussearch_add_apikey_form_submit($form, &$form_state) {
   $fields_values = array(
     'apikey' => $form_state['values']['apikey'],
   	'access_rights' => $form_state['values']['access_rights'],
+  	'bypass_blacklist' => $form_state['values']['bypass_blacklist'],
     'organisation' => $form_state['values']['organisation'],
     'firstname' => $form_state['values']['firstname'],
     'lastname' => $form_state['values']['lastname'],
