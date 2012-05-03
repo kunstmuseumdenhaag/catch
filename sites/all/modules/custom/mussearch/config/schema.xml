@@ -463,7 +463,10 @@
    <copyField source="technique" dest="how_search" />
    <copyField source="dim_presentation" dest="how_search" />
    
+   <!-- score is a field that is added by solr itself. We need it in the schema.xml because our custom component 
    
+   -->
+   <field name="score" type="float" multiValued="false" indexed="false" stored="false" required="false" />
 														
 	
  </fields>
