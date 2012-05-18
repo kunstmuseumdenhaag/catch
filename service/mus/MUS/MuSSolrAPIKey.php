@@ -50,9 +50,11 @@ class MuSSolrAPIKeyDrupal extends MuSSolrAPIKey {
 
 class MuSSolrAPIKeySlim extends MuSSolrAPIKey {
   function __construct($apikey) {
+    // Get the slim instance
+    $app = Slim::getInstance();
     // Generate PDO database string
-    $dbConnectString = 'mysql:host=' . musSettings('db_host') . ';dbname=' . musSettings('db_database');
-    $db = new PDO($dbConnectString, musSettings('db_username'), musSettings('db_password'));
+    $dbConnectString = 'mysql:host=' . $app->config('db_host') . ';dbname=' . $app->config('db_database');
+    $db = new PDO($dbConnectString, $app->config('db_username'), $app->config('db_password'));
     $query = $db->prepare('SELECT * FROM musapi WHERE apikey = :apikey');
     $query->execute(array(':apikey' => $apikey));
     $info = $query->fetch(PDO::FETCH_ASSOC);

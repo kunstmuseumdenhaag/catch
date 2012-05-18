@@ -9,9 +9,15 @@ require 'Slim/Slim.php';
 require_once 'MUS/MuSSolrAPIKey.php';
 require_once 'MUS/MuSSolrRequestAlterator.php';
 require_once 'MUS/MuSSolrResponse.php';
-require_once 'MUS/settings.php';
+require_once 'MUS/init.php';
 
 $app = new Slim();
+
+// Root directory of MuS
+define('MUS_ROOT', getcwd());
+
+// Initialize the settings
+initializeMus();
 
 /**
  * Step 3: Define the Slim application routes
@@ -30,6 +36,7 @@ $app = new Slim();
  * The routes below work with PHP >= 5.3.
  */
 
+
 //GET route
 $app->get('/search', 'musSearch');
 $app->get('/detail/:id', 'musDetail');
@@ -40,7 +47,7 @@ $app->get('/detail/:id', 'musDetail');
 function musSearch() {
   $app = Slim::getInstance();
   // Create a new mus sorl request alterator
-  $alterator = new MuSSolrRequestAlterator(musSettings('solr_host'), musSettings('solr_port'), musSettings('solr_path'), $_SERVER['QUERY_STRING']);
+  $alterator = new MuSSolrRequestAlterator($app->config('solr_host'), $app->config('solr_port'), $app->config('solr_path'), $_SERVER['QUERY_STRING']);
   $response = $alterator->doSolrRequest();
   $solrHeaders = $response->getHeaderInfo();
   $appResponse = $app->response();
@@ -51,7 +58,7 @@ function musSearch() {
 function musDetail($id) {
   $app = Slim::getInstance();
   // Create a new mus sorl request alterator
-  $alterator = new MuSSolrRequestAlterator(musSettings('solr_host'), musSettings('solr_port'), musSettings('solr_path'), $_SERVER['QUERY_STRING']);
+  $alterator = new MuSSolrRequestAlterator($app->config('solr_host'), $app->config('solr_port'), $app->config('solr_path'), $_SERVER['QUERY_STRING']);
   $query = 'item_id:' . $id;
   $alterator->addParam('q', $query);
   $alterator->addParam('qt', 'detail');
