@@ -5,6 +5,9 @@ sites/*/settings*.php
 sites/*/files
 sites/*/private
 
+# Ignore MuS local environment settings
+service/mus/environment/conf.php
+
 .DS_Store
 
 #eclipse files

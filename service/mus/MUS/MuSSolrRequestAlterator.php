@@ -290,8 +290,12 @@ class MuSSolrRequestAlterator {
 
       if (sizeof($query) > 0) {
         foreach ($query as $param) {
-          list($name, $value) = explode('=', $param);
-          $params[urldecode($name)][] = urldecode($value);
+          // Try to explode the param
+          $exploded = explode('=', $param);
+          if (isset($exploded[1])) {
+            list($name, $value) = $exploded;
+            $params[urldecode($name)][] = urldecode($value);
+          }
         }
         // Now set each parameter containing only 1 value to just a string instead of array
         foreach ($params as $name => $param) {

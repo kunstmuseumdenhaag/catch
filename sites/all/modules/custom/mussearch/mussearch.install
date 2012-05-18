@@ -1,0 +1,64 @@
+<?php
+/**
+ * Implements hook_update_().
+ */
+function mussearch_update_7000() {
+  db_set_active('musapi');
+  db_create_table('musapi', mussearch_get_schema_mussearch());
+  db_set_active();
+}
+
+/**
+ * Get the schema definition for the musapi table.
+ * Note that this definition is not placed in a hook schema, because it should be installed in an other database.
+ * @return Array $schema
+ */
+function mussearch_get_schema_mussearch() {
+  $schema = array(
+    'description' => 'Mus api table for storing api keys',
+    'fields' => array(
+        'aid' => array(
+          'type' => 'serial',
+          'not null' => TRUE
+        ),
+        'apikey' => array(
+          'type' => 'varchar',
+          'length' => 40,
+          'not null' => TRUE
+        ),
+        'access_rights' => array(
+          'type' => 'text',
+          'size' => 'medium'
+        ),
+        'bypass_blacklist' => array(
+          'type' => 'int',
+          'size' => 'tiny'
+        ),
+        'organisation' => array(
+          'type' => 'varchar',
+          'length' => 255
+        ),
+        'firstname' => array(
+          'type' => 'varchar',
+          'length' => 255
+        ),
+        'lastname' => array(
+          'type' => 'varchar',
+          'length' => 255
+        ),
+        'email' => array(
+          'type' => 'varchar',
+          'length' => 255
+        ),
+        'phone' => array(
+          'type' => 'varchar',
+          'length' => 45
+        )
+    ),
+    'primary key' => array('aid'),
+    'indexes' => array(
+      'aid' => array('aid'),
+    ),
+  );
+  return $schema;
+}
