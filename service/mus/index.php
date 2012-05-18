@@ -31,7 +31,8 @@ $app = new Slim();
  */
 
 //GET route
-$app->get('/', 'musSearch');
+$app->get('/search', 'musSearch');
+$app->get('/detail/:id', 'musDetail');
 
 /*
  * The actual application
@@ -40,6 +41,20 @@ function musSearch() {
   $app = Slim::getInstance();
   // Create a new mus sorl request alterator
   $alterator = new MuSSolrRequestAlterator(musSettings('solr_host'), musSettings('solr_port'), musSettings('solr_path'), $_SERVER['QUERY_STRING']);
+  $response = $alterator->doSolrRequest();
+  $solrHeaders = $response->getHeaderInfo();
+  $appResponse = $app->response();
+  $appResponse['Content-Type'] = $solrHeaders['Content-Type'];
+  $appResponse->body($response->getRaw());
+}
+
+function musDetail($id) {
+  $app = Slim::getInstance();
+  // Create a new mus sorl request alterator
+  $alterator = new MuSSolrRequestAlterator(musSettings('solr_host'), musSettings('solr_port'), musSettings('solr_path'), $_SERVER['QUERY_STRING']);
+  $query = 'item_id:' . $id;
+  $alterator->addParam('q', $query);
+  $alterator->addParam('qt', 'detail');
   $response = $alterator->doSolrRequest();
   $solrHeaders = $response->getHeaderInfo();
   $appResponse = $app->response();
