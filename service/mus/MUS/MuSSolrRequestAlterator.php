@@ -187,19 +187,19 @@ class MuSSolrRequestAlterator {
       if (in_array($key, $queryParts) && $query != '') {
         switch ($key) {
           case self::PARSED_ADVANCED_HOW:
-            $query = 'how_search:(' . $query . ')';
+            $query = 'how:(' . $query . ')';
             break;
           case self::PARSED_ADVANCED_WHEN:
-            $query = 'when_search:(' . $query . ')';
+            $query = 'when:(' . $query . ')';
             break;
           case self::PARSED_ADVANCED_WHAT:
-            $query = 'what_search:(' . $query . ')';
+            $query = 'what:(' . $query . ')';
             break;
           case self::PARSED_ADVANCED_WHERE:
-            $query = 'where_search:(' . $query . ')';
+            $query = 'where:(' . $query . ')';
             break;
           case self::PARSED_ADVANCED_WHO:
-            $query = 'who_search:(' . $query . ')';
+            $query = 'who:(' . $query . ')';
             break;
         }
         $parsedAdvanced[] = $query;
