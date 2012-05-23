@@ -417,7 +417,7 @@
 	<field name="description_qualification_presentation" type="text" multiValued="true" indexed="true" stored="true" required="false" />
 	<field name="description" type="text" multiValued="true" indexed="true" stored="true" required="false" />
 	<field name="tags" type="text" multiValued="true" indexed="true" stored="true" required="false" />
-
+	<field name="ss_title" type="text" multiValued="true" indexed="true" stored="true" required="false" />
 	<field name="publication_access" type="string" multiValued="false" indexed="true" stored="true" required="false" />
 	<field name="PIDnumber" type="string" multiValued="false" indexed="true" stored="true" required="false" />
 
