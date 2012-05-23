@@ -31,15 +31,15 @@ class AdlibSearchResponse extends AdlibBaseResponse{
   * @param string $rawResponse the raw response we get from the adlib server
   * @param string $httpHeaders the HTTP headers created when the request was made
   */
-  public function __construct($rawResponse, $httpHeaders = array()){
+  public function __construct($responseWithHeader, $httpInfo = array()){
     // call base constructor
-    parent::__construct($rawResponse, $httpHeaders);
+    parent::__construct($responseWithHeader, $httpInfo);
     // Only if no errors occured, continue.
     if (! $this->getError()) {
       try {
         // disable warnings from XML parser
         libxml_use_internal_errors(true);
-        $this->_xmlObject = simplexml_load_string($rawResponse);
+        $this->_xmlObject = simplexml_load_string($this->_raw);
         /* check for error in XML */
         $errorXML = $this->_xmlObject->diagnostic->error;
         if(!empty($errorXML->info)){

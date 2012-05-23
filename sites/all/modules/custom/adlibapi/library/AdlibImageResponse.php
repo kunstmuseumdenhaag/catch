@@ -6,12 +6,12 @@ class AdlibImageResponse extends AdlibBaseResponse{
   * @param string $rawResponse the raw response we get from the adlib server
   * @param string $httpHeaders the HTTP headers created when the request was made
   */
-  public function __construct($rawResponse, $httpHeaders = array()){
-    parent::__construct($rawResponse, $httpHeaders);
+  public function __construct($responseWithHeader, $httpInfo = array()){
+    parent::__construct($responseWithHeader, $httpInfo);
     try{
       // disable warnings from XML parser
       libxml_use_internal_errors(true);
-      $xmlObject = simplexml_load_string($rawResponse);
+      $xmlObject = simplexml_load_string($this->_raw);
       /* check for error in XML */
       try{
         if(isset($xmlObject->diagnostic)){

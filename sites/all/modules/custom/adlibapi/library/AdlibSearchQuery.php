@@ -30,6 +30,11 @@ class AdlibSearchQuery{
    */
   private $startFrom;
 
+  /**
+   * Retrieve all fields
+   */
+  private $retrieveAllFields = TRUE;
+
   // methods
   /**
   * Constructor
@@ -97,6 +102,23 @@ class AdlibSearchQuery{
     $this->xmltype = $xmltype;
   }
 
+  /**
+   * Set all fields to be returned
+   * @param bool $enable
+   */
+  public function setRetrieveAllFields($enable = TRUE) {
+    if (is_bool($enable)) {
+      $this->retrieveAllFields = $enable;
+    }
+  }
+
+  /**
+   * Determine if all fields are to be returned.
+   * @return bool $retrieveAllFields
+   */
+  public function getRetrieveAllFields() {
+    return $this->retrieveAllFields;
+  }
 
   /**
    * Get the complete query
@@ -105,8 +127,8 @@ class AdlibSearchQuery{
   function getQueryItems(){
     $params= $this->_parameters2String();
     $items=$params;
-    // add fields
-    if(count($this->fields)>0){
+    // add fields (if all fields should be returned, don't add specific fields
+    if(count($this->fields)>0 && ! $this->retrieveAllFields) {
       $fields = "&fields=".rawurlencode(implode(",", $this->fields));
       $items.=$fields;
     }
