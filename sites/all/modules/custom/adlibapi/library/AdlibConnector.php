@@ -229,27 +229,25 @@ class AdLibConnector{
    * @return AdlibSearchResponse object with the result of the query
    */
   private function _doCall($fullurl, $type='search'){
-    // create a context
-    $context_options = array(
-       'http' => array('method' => 'GET',
-                       'ignore_errors' => '0')
-    );
-
-    $context = stream_context_create($context_options);
-
     $this->lastCall = $fullurl;
-    // 'file_get_contents' will return 'false' if the request fails and will not throw an exception
-    // $http_response_header is created in the local scope when 'file_get_contents' made a request
-    // the '@' before 'file_get_contents' suppresses any messages
-    $rawdata = @file_get_contents($fullurl, false, $context);
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $fullurl);
+    curl_setopt($ch, CURLOPT_HEADER, true);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_USERAGENT, 'MuS search proxy');
+
+    $rawdata = curl_exec($ch);
+    $httpInfo = curl_getinfo($ch);
+
     switch ($type) {
       case 'image':
         // create AdlibImageResponse object, any request errors are handled in the constructor
-        $response = new AdlibImageResponse($rawdata, $http_response_header);
+        $response = new AdlibImageResponse($rawdata, $httpInfo);
         break;
       default:
         // create AdlibSearchResponse object, any request errors are handled in the constructor
-        $response = new AdlibSearchResponse($rawdata, $http_response_header);
+        $response = new AdlibSearchResponse($rawdata, $httpInfo);
         break;
     }
     return $response;

@@ -10,7 +10,7 @@
  http://wiki.apache.org/solr/SchemaXml
 -->
 
-<schema name="search-api-1.0" version="1.2">
+<schema name="mus-api-1.0" version="1.2">
     <!-- attribute "name" is the name of this schema and is only used for display purposes.
          Applications should change this to reflect the nature of the search collection.
          version="1.2" is Solr's version number for the schema syntax and semantics.  It should
@@ -417,7 +417,7 @@
 	<field name="description_qualification_presentation" type="text" multiValued="true" indexed="true" stored="true" required="false" />
 	<field name="description" type="text" multiValued="true" indexed="true" stored="true" required="false" />
 	<field name="tags" type="text" multiValued="true" indexed="true" stored="true" required="false" />
-
+	<field name="ss_title" type="text" multiValued="true" indexed="true" stored="true" required="false" />
 	<field name="publication_access" type="string" multiValued="false" indexed="true" stored="true" required="false" />
 	<field name="PIDnumber" type="string" multiValued="false" indexed="true" stored="true" required="false" />
 

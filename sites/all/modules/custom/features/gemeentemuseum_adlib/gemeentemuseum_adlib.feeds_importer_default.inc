@@ -1,13 +1,13 @@
 <?php
 /**
  * @file
- * adlib_test.feeds_importer_default.inc
+ * gemeentemuseum_adlib.feeds_importer_default.inc
  */
 
 /**
  * Implementation of hook_feeds_importer_default().
  */
-function adlib_test_feeds_importer_default() {
+function gemeentemuseum_adlib_feeds_importer_default() {
   $export = array();
 
   $feeds_importer = new stdClass;
@@ -20,55 +20,124 @@ function adlib_test_feeds_importer_default() {
     'fetcher' => array(
       'plugin_key' => 'AdlibFetcher',
       'config' => array(
-        'database' => 'gemeentemuseum_algemeen',
-        'changed' => '1990-01-01 01:01',
+        'database' => 'catch',
+        'changed' => '1970-01-01 01:01',
         'items' => '100',
         'fields' => array(
           0 => 'object_number',
-          1 => 'object_name',
-          2 => 'creator',
-          3 => 'production.place',
-          4 => 'material',
-          5 => 'technique',
-          6 => 'title',
-          7 => 'production.date.start',
-          8 => 'production.date.end',
-          9 => 'production.period',
-          10 => 'inscription.date',
-          11 => 'inscription.maker',
-          12 => 'acquisition.source',
-          13 => 'acquisition.date',
-          14 => 'acquisition.place',
-          15 => 'documentation.title',
-          16 => 'documentation.title.lref',
-          17 => 'reproduction.reference',
-          18 => 'part_of_reference',
-          19 => 'part_of.title',
-          20 => 'parts_reference',
-          21 => 'related_object.reference',
-          22 => 'parts.title',
-          23 => 'related_object.title',
-          24 => 'production.reason',
-          25 => 'edit.date',
-          26 => 'institution.name',
-          27 => 'reproduction.identifier_URL',
-          28 => 'chronicle.title',
-          29 => 'title.short_description',
-          30 => 'creation_presentation',
-          31 => 'production.place_presentation',
-          32 => 'production.date_presentation',
-          33 => 'dimensions_presentation',
-          34 => 'material_technique_presentation',
-          35 => 'credit_line',
-          36 => 'description.paragraph_presentation',
-          37 => 'description.qualification_presentation',
-          38 => 'description',
-          39 => 'tags',
+          1 => 'alternative_number',
+          2 => 'alternative_number.type',
+          3 => 'alternative_number.date',
+          4 => 'alternative_number.institution',
+          5 => 'administration_name',
+          6 => 'collection',
+          7 => 'collection.lref',
+          8 => 'object_category',
+          9 => 'object_category.lref',
+          10 => 'object_name',
+          11 => 'object_name.lref',
+          12 => 'object_name.type',
+          13 => 'object_name.type.lref',
+          14 => 'object_name.authority',
+          15 => 'object_name.authority.lref',
+          16 => 'object_name.notes',
+          17 => 'other_name',
+          18 => 'other_name.type',
+          19 => 'creator',
+          20 => 'creator.lref',
+          21 => 'creator.qualifier',
+          22 => 'school_style',
+          23 => 'school_style.lref',
+          24 => 'production.place',
+          25 => 'production.place.lref',
+          26 => 'material',
+          27 => 'material.lref',
+          28 => 'material.part',
+          29 => 'material.notes',
+          30 => 'technique',
+          31 => 'technique.lref',
+          32 => 'technique.part',
+          33 => 'technique.notes',
+          34 => 'frame',
+          35 => 'frame.notes',
+          36 => 'title',
+          37 => 'title.translation',
+          38 => 'title.type',
+          39 => 'title.notes',
+          40 => 'content.description',
+          41 => 'content.description.part',
+          42 => 'production.date.start',
+          43 => 'production.date.end',
+          44 => 'production.period',
+          45 => 'production.period.lref',
+          46 => 'production.date.notes',
+          47 => 'production_date.start.prec',
+          48 => 'production.date.end.prec',
+          49 => 'dimension.type',
+          50 => 'dimension.type.lref',
+          51 => 'dimension.value',
+          52 => 'dimension.unit',
+          53 => 'dimension.unit.lref',
+          54 => 'dimension.precision',
+          55 => 'dimension.part',
+          56 => 'dimension.notes',
+          57 => 'dimension.free',
+          58 => 'original_function',
+          59 => 'inscription.type',
+          60 => 'inscription.type.lref',
+          61 => 'inscription.interpretation',
+          62 => 'inscription.position',
+          63 => 'inscription.method',
+          64 => 'inscription.content',
+          65 => 'inscription.description',
+          66 => 'inscription.language',
+          67 => 'inscription.translation',
+          68 => 'inscription.script',
+          69 => 'inscription.date',
+          70 => 'inscription.maker',
+          71 => 'exhibition',
+          72 => 'exhibition.notes',
+          73 => 'priref',
+          74 => 'documentation.title.article',
+          75 => 'documentation.title',
+          76 => 'documentation.title.lref',
+          77 => 'reproduction.reference',
+          78 => 'part_of_reference',
+          79 => 'part_of.title',
+          80 => 'part_of.notes',
+          81 => 'parts_reference',
+          82 => 'related_object.reference',
+          83 => 'related_object.association',
+          84 => 'related_object.association.lref',
+          85 => 'related_object.notes',
+          86 => 'parts.title',
+          87 => 'parts.notes',
+          88 => 'related_object.title',
+          89 => 'production.notes',
+          90 => 'production.reason',
+          91 => 'edit.date',
+          92 => 'institution.name',
+          93 => 'reproduction.identifier_URL',
+          94 => 'notes',
+          95 => 'chronicle.title',
+          96 => 'routine.entry.step',
+          97 => 'title.short_description',
+          98 => 'creation_presentation',
+          99 => 'production.place_presentation',
+          100 => 'production.date_presentation',
+          101 => 'dimensions_presentation',
+          102 => 'material_technique_presentation',
+          103 => 'credit_line',
+          104 => 'description.paragraph_presentation',
+          105 => 'description.qualification_presentation',
+          106 => 'description',
+          107 => 'tags',
+          108 => 'PIDnumber',
         ),
         'datesort' => 'modification',
-        'batch_results' => 160300,
-        'batch_startfrom' => 37001,
-        'status' => 1,
+        'batch_results' => 160301,
+        'batch_startfrom' => 0,
+        'status' => 0,
         'xmltype' => 'unstructured',
       ),
     ),
@@ -77,18 +146,16 @@ function adlib_test_feeds_importer_default() {
       'config' => array(
         'sources' => array(
           'adlibparser:0' => '[object_number]',
-          'adlibparser:1' => '[object_number]',
+          'adlibparser:1' => '[title]',
           'adlibparser:2' => '[title.short_description]',
           'adlibparser:3' => '[description]',
           'adlibparser:4' => '[object_name]',
           'adlibparser:6' => '[creation_presententation]',
           'adlibparser:7' => '[creator]',
-          'adlibparser:8' => '[acquisition.source]',
           'adlibparser:9' => '[inscription.maker]',
           'adlibparser:10' => '[institution.name]',
           'adlibparser:11' => '[production.place_presentation]',
           'adlibparser:12' => '[production.place]',
-          'adlibparser:13' => '[acquisition.place]',
           'adlibparser:14' => '[material_technique_presentation]',
           'adlibparser:15' => '[material]',
           'adlibparser:16' => '[technique]',
@@ -106,7 +173,6 @@ function adlib_test_feeds_importer_default() {
           'adlibparser:36' => '[raw_xml]',
           'adlibparser:37' => '[production.date.start]',
           'adlibparser:38' => '[production.date.end]',
-          'adlibparser:39' => '[acquisition.date]',
           'adlibparser:40' => '[inscription.date]',
           'adlibparser:41' => '[edit.date]',
           'adlibparser:42' => '[reproduction.identifier_URL]',
@@ -127,20 +193,19 @@ function adlib_test_feeds_importer_default() {
 <object_name>[object_name:</object_name><object_name>]</object_name>
 <title.short_description>[title.short_description:</title.short_description><title.short_description>]</title.short_description>
 <title>[title:</title><title>]</title>',
-          'adlibparser:54' => '<acquisition.date>[acquisition.date:</acquisition.date><acquisition.date>]</acquisition.date>
-<inscription.date>[inscription.date:</inscription.date><inscription.date>]</inscription.date>
+          'adlibparser:54' => '<inscription.date>[inscription.date:</inscription.date><inscription.date>]</inscription.date>
 <production.date.end>[production.date.end:</production.date.end><production.date.end>]</production.date.end>
 <production.date_presentation>[production.date_presentation:</production.date_presentation><production.date_presentation>]</production.date_presentation>
 <production.date.start>[production.date.start:</production.date.start><production.date.start>]</production.date.start>
 <production.period>[production.period:</production.period><production.period>]</production.period>',
-          'adlibparser:55' => '<acquisition.place>[acquisition.place:</acquisition.place><acquisition.place>]<acquisition.place>
-<production.place_presentation>[production.place_presentation:</production.place_presentation><production.place_presentation>]</production.place_presentation>
+          'adlibparser:55' => '<production.place_presentation>[production.place_presentation:</production.place_presentation><production.place_presentation>]</production.place_presentation>
 <production.place>[production.place:</production.place><production.place>]</production.place>',
-          'adlibparser:56' => '<acquisition.source>[acquisition.source:</acquisition.source><acquisition.source>]</acquisition.source>
-<creation_presentation>[creation_presentation:</creation_presentation><creation_presentation>]</creation_presentation>
+          'adlibparser:56' => '<creation_presentation>[creation_presentation:</creation_presentation><creation_presentation>]</creation_presentation>
 <creator>[creator:</creator><creator>]</creator>
 <inscription.maker>[inscription.maker:</inscription.maker><inscription.maker>]</inscription.maker>
 <institution.name>[institution.name:</institution.name><institution.name>]</institution.name>',
+          'adlibparser:57' => '[object_number]',
+          'adlibparser:58' => '[routine.entry.step]',
         ),
         'rawXML' => array(),
       ),
@@ -188,208 +253,203 @@ function adlib_test_feeds_importer_default() {
             'unique' => FALSE,
           ),
           7 => array(
-            'source' => 'adlibparser:8',
-            'target' => 'field_adlib_acquisition_source',
-            'unique' => FALSE,
-          ),
-          8 => array(
             'source' => 'adlibparser:9',
             'target' => 'field_adlib_inscription_maker',
             'unique' => FALSE,
           ),
-          9 => array(
+          8 => array(
             'source' => 'adlibparser:10',
             'target' => 'field_adlib_institution_name',
             'unique' => FALSE,
           ),
-          10 => array(
+          9 => array(
             'source' => 'adlibparser:11',
             'target' => 'field_adlib_prod_place_present',
             'unique' => FALSE,
           ),
-          11 => array(
+          10 => array(
             'source' => 'adlibparser:12',
             'target' => 'field_adlib_production_place',
             'unique' => FALSE,
           ),
-          12 => array(
-            'source' => 'adlibparser:13',
-            'target' => 'field_adlib_acquisition_place',
-            'unique' => FALSE,
-          ),
-          13 => array(
+          11 => array(
             'source' => 'adlibparser:14',
             'target' => 'field_adlib_material_present',
             'unique' => FALSE,
           ),
-          14 => array(
+          12 => array(
             'source' => 'adlibparser:15',
             'target' => 'field_adlib_material',
             'unique' => FALSE,
           ),
-          15 => array(
+          13 => array(
             'source' => 'adlibparser:16',
             'target' => 'field_adlib_technique',
             'unique' => FALSE,
           ),
-          16 => array(
+          14 => array(
             'source' => 'adlibparser:17',
             'target' => 'field_adlib_dim_presentation',
             'unique' => FALSE,
           ),
-          17 => array(
+          15 => array(
             'source' => 'adlibparser:20',
             'target' => 'field_adlib_rel_obj_title',
             'unique' => FALSE,
           ),
-          18 => array(
+          16 => array(
             'source' => 'adlibparser:21',
             'target' => 'field_adlib_rel_obj_reference',
             'unique' => FALSE,
           ),
-          19 => array(
+          17 => array(
             'source' => 'adlibparser:22',
             'target' => 'field_adlib_documentation_title',
             'unique' => FALSE,
           ),
-          20 => array(
+          18 => array(
             'source' => 'adlibparser:24',
             'target' => 'field_adlib_part_of_title',
             'unique' => FALSE,
           ),
-          21 => array(
+          19 => array(
             'source' => 'adlibparser:25',
             'target' => 'field_adlib_parts_title',
             'unique' => FALSE,
           ),
-          22 => array(
+          20 => array(
             'source' => 'adlibparser:26',
             'target' => 'field_adlib_part_of_reference',
             'unique' => FALSE,
           ),
-          23 => array(
+          21 => array(
             'source' => 'adlibparser:27',
             'target' => 'field_adlib_parts_reference',
             'unique' => FALSE,
           ),
-          24 => array(
+          22 => array(
             'source' => 'adlibparser:29',
             'target' => 'field_adlib_doc_title_lref',
             'unique' => FALSE,
           ),
-          25 => array(
+          23 => array(
             'source' => 'adlibparser:30',
             'target' => 'field_adlib_prod_date_present',
             'unique' => FALSE,
           ),
-          26 => array(
+          24 => array(
             'source' => 'adlibparser:34',
             'target' => 'field_adlib_production_period',
             'unique' => FALSE,
           ),
-          27 => array(
+          25 => array(
             'source' => 'adlibparser:36',
             'target' => 'field_adlib_raw_xml',
             'unique' => FALSE,
           ),
-          28 => array(
+          26 => array(
             'source' => 'adlibparser:37',
             'target' => 'field_adlib_prod_date_start',
             'unique' => FALSE,
           ),
-          29 => array(
+          27 => array(
             'source' => 'adlibparser:38',
             'target' => 'field_adlib_prod_date_end',
             'unique' => FALSE,
           ),
-          30 => array(
-            'source' => 'adlibparser:39',
-            'target' => 'field_adlib_acquisition_date',
-            'unique' => FALSE,
-          ),
-          31 => array(
+          28 => array(
             'source' => 'adlibparser:40',
             'target' => 'field_adlib_inscription_date',
             'unique' => FALSE,
           ),
-          32 => array(
+          29 => array(
             'source' => 'adlibparser:41',
             'target' => 'field_adlib_edit_date',
             'unique' => FALSE,
           ),
-          33 => array(
+          30 => array(
             'source' => 'adlibparser:42',
             'target' => 'field_adlib_image',
             'unique' => FALSE,
           ),
-          34 => array(
+          31 => array(
             'source' => 'adlibparser:43',
             'target' => 'field_adlib_tag',
             'unique' => FALSE,
           ),
-          35 => array(
+          32 => array(
             'source' => 'adlibparser:44',
             'target' => 'field_adlib_chronicle_title',
             'unique' => FALSE,
           ),
-          36 => array(
+          33 => array(
             'source' => 'adlibparser:45',
             'target' => 'field_adlib_title',
             'unique' => FALSE,
           ),
-          37 => array(
+          34 => array(
             'source' => 'adlibparser:46',
             'target' => 'guid',
             'unique' => 1,
           ),
-          38 => array(
+          35 => array(
             'source' => 'adlibparser:47',
             'target' => 'field_adlib_credit_line',
             'unique' => FALSE,
           ),
-          39 => array(
+          36 => array(
             'source' => 'adlibparser:48',
             'target' => 'field_adlib_paragraph_present',
             'unique' => FALSE,
           ),
-          40 => array(
+          37 => array(
             'source' => 'adlibparser:49',
             'target' => 'field_adlib_qualific_present',
             'unique' => FALSE,
           ),
-          41 => array(
+          38 => array(
             'source' => 'adlibparser:50',
             'target' => 'field_adlib_production_reason',
             'unique' => FALSE,
           ),
-          42 => array(
+          39 => array(
             'source' => 'adlibparser:51',
             'target' => 'field_adlib_repro_reference',
             'unique' => FALSE,
           ),
-          43 => array(
+          40 => array(
             'source' => 'adlibparser:52',
             'target' => 'field_adlib_how_raw',
             'unique' => FALSE,
           ),
-          44 => array(
+          41 => array(
             'source' => 'adlibparser:53',
             'target' => 'field_adlib_what_raw',
             'unique' => FALSE,
           ),
-          45 => array(
+          42 => array(
             'source' => 'adlibparser:54',
             'target' => 'field_adlib_when_raw',
             'unique' => FALSE,
           ),
-          46 => array(
+          43 => array(
             'source' => 'adlibparser:55',
             'target' => 'field_adlib_where_raw',
             'unique' => FALSE,
           ),
-          47 => array(
+          44 => array(
             'source' => 'adlibparser:56',
             'target' => 'field_adlib_who_raw',
+            'unique' => FALSE,
+          ),
+          45 => array(
+            'source' => 'adlibparser:57',
+            'target' => 'field_adlib_object_number',
+            'unique' => FALSE,
+          ),
+          46 => array(
+            'source' => 'adlibparser:58',
+            'target' => 'field_adlib_publication_access',
             'unique' => FALSE,
           ),
         ),
@@ -399,7 +459,7 @@ function adlib_test_feeds_importer_default() {
     ),
     'content_type' => '',
     'update' => 0,
-    'import_period' => '0',
+    'import_period' => '-1',
     'expire_period' => 3600,
     'import_on_create' => 1,
     'process_in_background' => 0,

@@ -1,13 +1,13 @@
 <?php
 /**
  * @file
- * adlib_test.features.taxonomy.inc
+ * gemeentemuseum_adlib.features.taxonomy.inc
  */
 
 /**
  * Implementation of hook_taxonomy_default_vocabularies().
  */
-function adlib_test_taxonomy_default_vocabularies() {
+function gemeentemuseum_adlib_taxonomy_default_vocabularies() {
   return array(
     'tags' => array(
       'name' => 'Tags',
