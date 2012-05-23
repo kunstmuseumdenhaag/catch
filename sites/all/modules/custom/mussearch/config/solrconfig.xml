@@ -22,7 +22,7 @@
      Specifically, the Solr Config can support XInclude, which may make it easier to manage
      the configuration.  See https://issues.apache.org/jira/browse/SOLR-1167
 -->
-<config name="mus-api-1.0">
+<config name="mus-api-1.0.1">
   <!-- Set this to 'false' if you want solr to continue working after it has
        encountered an severe configuration error.  In a production environment,
        you may want solr to keep working even if one handler is mis-configured.
@@ -409,8 +409,8 @@
          local query request for each NamedList in sequence. -->
     <listener event="newSearcher" class="solr.QuerySenderListener">
       <arr name="queries">
-        <lst><str name="q">solr</str> <str name="start">0</str> <str name="rows">10</str></lst>
-        <lst><str name="q">rocks</str> <str name="start">0</str> <str name="rows">10</str></lst>
+        <lst><str name="q">gemeentemuseum</str> <str name="start">0</str> <str name="rows">10</str></lst>
+        <lst><str name="q">keramiek</str> <str name="start">0</str> <str name="rows">10</str></lst>
         <lst><str name="q">static newSearcher warming query from solrconfig.xml</str></lst>
       </arr>
     </listener>
@@ -420,7 +420,7 @@
          requests or to gain autowarming data from. -->
     <listener event="firstSearcher" class="solr.QuerySenderListener">
       <arr name="queries">
-        <lst><str name="q">solr rocks</str><str name="start">0</str><str name="rows">10</str></lst>
+        <lst><str name="q">gemeentemuseum</str><str name="start">0</str><str name="rows">10</str></lst>
         <lst><str name="q">static firstSearcher warming query from solrconfig.xml</str></lst>
       </arr>
     </listener>
@@ -534,7 +534,7 @@
     <!-- default values for query parameters -->
     <lst name="defaults">
       <str name="echoParams">none</str>
-      <str name="fl">score,acquisition_date,acquisition_place,acquisition_source,chronicle_title,chronicle_title_lref,creation_present,creator,description,dim_presentation,doc_title_lref,documentation_title,edit_date,how,id,image,index_id,inscription_date,inscription_maker,institution_name,item_id,material,material_present,object_name,part_of_reference,part_of_title,parts_reference,parts_title,pid,prod_date_end,prod_date_present,prod_date_start,prod_place_present,production_period,production_place,raw_xml,rel_obj_reference,rel_obj_title,technique,title,title_short_desc</str>
+      <str name="fl">chronicle_title,creation_presentation,creator,credit_line,description,description_paragraph_presentation,description_qualification_presentation,dimensions_presentation,documentation_title,documentation_title_lref,edit_date,inscription_date,inscription_maker,institution_name,material,material_technique_presentation,object_name,object_number,part_of_reference,part_of_title,parts_reference,parts_title,PIDnumber,production_date_presentation,production_date_end,production_date_start,production_period,production_place,production_place_presentation,production_reason,related_object_reference,related_object_title,reproduction_identifier_URL,reproduction_reference,publication_access,tags,technique,title,ss_title,title_short_description,raw,how,what,when,where,who</str>
       <str name="q.op">AND</str>
       <str name="q.alt">*:*</str>
 
@@ -563,6 +563,7 @@
     </lst>
     <arr name="last-components">
       <str>spellcheck</str>
+	  <!--<str>privateField</str>-->
     </arr>
   </requestHandler>
 
@@ -609,7 +610,7 @@
      schema.xml). These will be returned alongside "id" and "score" in the
      search results.
 -->
-     <str name="fl">item_id,score,who,when,how,what, raw_xml</str>
+     <str name="fl">item_id,score,who,when,how,what,raw,where</str>
 <!--
      If you want to allow results where not all keywords are matched, uncomment
      the following line and insert your own "minimum match" definition.
@@ -643,7 +644,7 @@
     </lst>
     <arr name="last-components">
       <str>spellcheck</str>
-      <str>privateField</str>
+      <!--<str>privateField</str>-->
     </arr>
   </requestHandler>
 
@@ -811,11 +812,14 @@
     </arr>
   </requestHandler> -->
 
+  <!--
   <searchComponent name="privateField" class="nl.triquanta.solr.component.PrivateFieldComponent">
   	<str name="allowedFields">item_id,score,title</str>
   	<str name="privateField">publication_access</str>
   	<str name="publicValue">volledig</str>
   </searchComponent>
+  
+  -->
 
   <searchComponent name="tvComponent" class="org.apache.solr.handler.component.TermVectorComponent"/>
   <!-- A Req Handler for working with the tvComponent.  This is purely as an example.
