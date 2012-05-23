@@ -1,0 +1,8 @@
+core = "7.x"
+dependencies[] = "search_api"
+description = "Dummy server voor gemeentemuseum"
+features[search_api_server][] = "dummy"
+name = "Gemeentemuseum_dummy_server"
+package = "Features"
+project = "gemeentemuseum_dummy_server"
+version = "7.x-1.0"

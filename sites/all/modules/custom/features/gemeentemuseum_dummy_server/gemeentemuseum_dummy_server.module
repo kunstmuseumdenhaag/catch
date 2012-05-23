@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Gemeentemuseum_dummy_server feature.
+ */
+
+include_once('gemeentemuseum_dummy_server.features.inc');

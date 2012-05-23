@@ -13,7 +13,7 @@ function mus_search_api_settings_default_search_api_index() {
     "name" : "MuS index 1",
     "machine_name" : "mus_index_1",
     "description" : "MuS index 1",
-    "server" : "test_solr_3_5_gemeentemusuem",
+    "server" : "dummy",
     "item_type" : "node",
     "options" : {
       "index_directly" : 1,
@@ -118,32 +118,6 @@ function mus_search_api_settings_default_search_api_index() {
     },
     "enabled" : "1",
     "read_only" : "0",
-    "rdf_mapping" : []
-  }');
-  return $items;
-}
-
-/**
- * Implementation of hook_default_search_api_server().
- */
-function mus_search_api_settings_default_search_api_server() {
-  $items = array();
-  $items['test_solr_3_5_gemeentemusuem'] = entity_import('search_api_server', '{
-    "name" : "Test Solr 3.5 Gemeentemusuem",
-    "machine_name" : "test_solr_3_5_gemeentemusuem",
-    "description" : "",
-    "class" : "search_api_solr_service",
-    "options" : {
-      "host" : "vps5470.xlshosting.net",
-      "port" : "8080",
-      "path" : "\\/solr\\/gemeentemuseum",
-      "http_user" : "",
-      "http_pass" : "",
-      "excerpt" : 0,
-      "retrieve_data" : 0,
-      "highlight_data" : 0
-    },
-    "enabled" : "1",
     "rdf_mapping" : []
   }');
   return $items;
