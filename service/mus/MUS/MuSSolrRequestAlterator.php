@@ -121,6 +121,31 @@ class MuSSolrRequestAlterator {
       $this->params['musallowedlevel'] = $this->apikeyObject->getAccessString();
       unset($this->params['mus_apikey']);
     }
+    // Rewrite fq
+    if (isset($this->params['fq']) && sizeof($this->params['fq']) > 0) {
+      foreach ($this->params['fq'] as $key => $fq) {
+        $this->params['fq'][$key] = $this->rewriteFq($fq);
+      }
+    }
+  }
+
+  /**
+   * Rewrite the filter queries.
+   * @param $fq
+   * @return $rewrittenFq
+   */
+  protected function rewriteFq($fq) {
+    // replace what
+    $fq = str_replace('what:', 'what_search:', $fq);
+    // replace who
+    $fq = str_replace('who:', 'who_search:', $fq);
+    // replace where
+    $fq = str_replace('where:', 'where_search:', $fq);
+    // Replace when
+    $fq = str_replace('when:', 'when_search:', $fq);
+    // replace how
+    $fq = str_replace('how:', 'how_search:', $fq);
+    return $fq;
   }
 
   /**
@@ -187,19 +212,19 @@ class MuSSolrRequestAlterator {
       if (in_array($key, $queryParts) && $query != '') {
         switch ($key) {
           case self::PARSED_ADVANCED_HOW:
-            $query = 'how:(' . $query . ')';
+            $query = 'how_search:(' . $query . ')';
             break;
           case self::PARSED_ADVANCED_WHEN:
-            $query = 'when:(' . $query . ')';
+            $query = 'when_search:(' . $query . ')';
             break;
           case self::PARSED_ADVANCED_WHAT:
-            $query = 'what:(' . $query . ')';
+            $query = 'what_search:(' . $query . ')';
             break;
           case self::PARSED_ADVANCED_WHERE:
-            $query = 'where:(' . $query . ')';
+            $query = 'where_search:(' . $query . ')';
             break;
           case self::PARSED_ADVANCED_WHO:
-            $query = 'who:(' . $query . ')';
+            $query = 'who_search:(' . $query . ')';
             break;
         }
         $parsedAdvanced[] = $query;
@@ -297,9 +322,9 @@ class MuSSolrRequestAlterator {
             $params[urldecode($name)][] = urldecode($value);
           }
         }
-        // Now set each parameter containing only 1 value to just a string instead of array
+        // Now set each parameter containing only 1 value to just a string instead of array, except for fq.
         foreach ($params as $name => $param) {
-          if (sizeof($param) == 1) {
+          if (sizeof($param) == 1 && $name != 'fq') {
             $params[$name] = $param[0];
           }
         }
