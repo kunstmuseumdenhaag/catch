@@ -22,7 +22,7 @@
      Specifically, the Solr Config can support XInclude, which may make it easier to manage
      the configuration.  See https://issues.apache.org/jira/browse/SOLR-1167
 -->
-<config name="search-api-1.0">
+<config name="mus-api-1.0">
   <!-- Set this to 'false' if you want solr to continue working after it has
        encountered an severe configuration error.  In a production environment,
        you may want solr to keep working even if one handler is mis-configured.
@@ -593,6 +593,7 @@
     <lst name="defaults">
      <str name="defType">edismax</str>
      <str name="echoParams">none</str>
+	 <str name="mm">1</str>
      <float name="tie">0.01</float>
 	 <str name="qf">who_search^1 when_search^1 how_search^1 what_search^1 where_search^1</str>
  <!--<str name="pf">
@@ -811,9 +812,9 @@
   </requestHandler> -->
 
   <searchComponent name="privateField" class="nl.triquanta.solr.component.PrivateFieldComponent">
-  	<str name="allowedFields">item_id,score,title,how</str>
-  	<str name="privateField">item_id</str>
-  	<str name="publicValue">468</str>
+  	<str name="allowedFields">item_id,score,title</str>
+  	<str name="privateField">publication_access</str>
+  	<str name="publicValue">volledig</str>
   </searchComponent>
 
   <searchComponent name="tvComponent" class="org.apache.solr.handler.component.TermVectorComponent"/>

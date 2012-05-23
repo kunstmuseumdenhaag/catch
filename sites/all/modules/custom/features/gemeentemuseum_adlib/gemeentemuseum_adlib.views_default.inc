@@ -1,13 +1,13 @@
 <?php
 /**
  * @file
- * adlib_test.views_default.inc
+ * gemeentemuseum_adlib.views_default.inc
  */
 
 /**
  * Implementation of hook_views_default_views().
  */
-function adlib_test_views_default_views() {
+function gemeentemuseum_adlib_views_default_views() {
   $export = array();
 
   $view = new view;
@@ -36,7 +36,7 @@ function adlib_test_views_default_views() {
   $handler->display->display_options['row_options']['view_mode'] = 'adlib_object';
   $handler->display->display_options['row_options']['links'] = 1;
   $handler->display->display_options['row_options']['comments'] = 0;
-  /* Veld: Inhoud: Nid */
+  /* Field: Content: Nid */
   $handler->display->display_options['fields']['nid']['id'] = 'nid';
   $handler->display->display_options['fields']['nid']['table'] = 'node';
   $handler->display->display_options['fields']['nid']['field'] = 'nid';
@@ -60,7 +60,7 @@ function adlib_test_views_default_views() {
   $handler->display->display_options['fields']['nid']['empty_zero'] = 0;
   $handler->display->display_options['fields']['nid']['hide_alter_empty'] = 1;
   $handler->display->display_options['fields']['nid']['link_to_node'] = 0;
-  /* Veld: Inhoud: Titel */
+  /* Field: Content: Title */
   $handler->display->display_options['fields']['title']['id'] = 'title';
   $handler->display->display_options['fields']['title']['table'] = 'node';
   $handler->display->display_options['fields']['title']['field'] = 'title';
@@ -83,32 +83,32 @@ function adlib_test_views_default_views() {
   $handler->display->display_options['fields']['title']['empty_zero'] = 0;
   $handler->display->display_options['fields']['title']['hide_alter_empty'] = 0;
   $handler->display->display_options['fields']['title']['link_to_node'] = 1;
-  /* Sort criterion: Inhoud: Image (field_adlib_image) */
+  /* Sort criterion: Content: Image (field_adlib_image) */
   $handler->display->display_options['sorts']['field_adlib_image_value']['id'] = 'field_adlib_image_value';
   $handler->display->display_options['sorts']['field_adlib_image_value']['table'] = 'field_data_field_adlib_image';
   $handler->display->display_options['sorts']['field_adlib_image_value']['field'] = 'field_adlib_image_value';
   $handler->display->display_options['sorts']['field_adlib_image_value']['order'] = 'DESC';
-  /* Sort criterion: Inhoud: Post date */
+  /* Sort criterion: Content: Post date */
   $handler->display->display_options['sorts']['created']['id'] = 'created';
   $handler->display->display_options['sorts']['created']['table'] = 'node';
   $handler->display->display_options['sorts']['created']['field'] = 'created';
   $handler->display->display_options['sorts']['created']['order'] = 'DESC';
-  /* Sort criterion: Inhoud: Titel */
+  /* Sort criterion: Content: Title */
   $handler->display->display_options['sorts']['title']['id'] = 'title';
   $handler->display->display_options['sorts']['title']['table'] = 'node';
   $handler->display->display_options['sorts']['title']['field'] = 'title';
-  /* Sort criterion: Inhoud: PID (field_adlib_pid) */
+  /* Sort criterion: Content: PID (field_adlib_pid) */
   $handler->display->display_options['sorts']['field_adlib_pid_value']['id'] = 'field_adlib_pid_value';
   $handler->display->display_options['sorts']['field_adlib_pid_value']['table'] = 'field_data_field_adlib_pid';
   $handler->display->display_options['sorts']['field_adlib_pid_value']['field'] = 'field_adlib_pid_value';
-  /* Filter criterion: Inhoud: Gepubliceerd */
+  /* Filter criterion: Content: Published */
   $handler->display->display_options['filters']['status']['id'] = 'status';
   $handler->display->display_options['filters']['status']['table'] = 'node';
   $handler->display->display_options['filters']['status']['field'] = 'status';
   $handler->display->display_options['filters']['status']['value'] = 1;
   $handler->display->display_options['filters']['status']['group'] = 0;
   $handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
-  /* Filter criterion: Inhoud: Type */
+  /* Filter criterion: Content: Type */
   $handler->display->display_options['filters']['type']['id'] = 'type';
   $handler->display->display_options['filters']['type']['table'] = 'node';
   $handler->display->display_options['filters']['type']['field'] = 'type';
@@ -121,22 +121,6 @@ function adlib_test_views_default_views() {
   $handler->display->display_options['path'] = 'adlib-objects';
   $handler->display->display_options['menu']['type'] = 'normal';
   $handler->display->display_options['menu']['title'] = 'Adlib Objects';
-  $translatables['adlib_objects'] = array(
-    t('Master'),
-    t('Adlib Objects'),
-    t('more'),
-    t('Apply'),
-    t('Opnieuw instellen'),
-    t('Sort by'),
-    t('Asc'),
-    t('Desc'),
-    t('Items per page'),
-    t('- All -'),
-    t('Offset'),
-    t('Titel'),
-    t('<a href="/node/[nid]">No title</a>'),
-    t('Page'),
-  );
   $export['adlib_objects'] = $view;
 
   return $export;

@@ -4,4 +4,4 @@
  * Code for the Adlib test feature.
  */
 
-include_once('adlib_test.features.inc');
+include_once('gemeentemuseum_adlib.features.inc');
