@@ -1,13 +1,13 @@
 <?php
 /**
  * @file
- * adlib_test.features.user_permission.inc
+ * gemeentemuseum_adlib.features.user_permission.inc
  */
 
 /**
  * Implementation of hook_user_default_permissions().
  */
-function adlib_test_user_default_permissions() {
+function gemeentemuseum_adlib_user_default_permissions() {
   $permissions = array();
 
   // Exported permission: use text format full_html
