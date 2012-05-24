@@ -22,7 +22,7 @@
      Specifically, the Solr Config can support XInclude, which may make it easier to manage
      the configuration.  See https://issues.apache.org/jira/browse/SOLR-1167
 -->
-<config name="mus-api-1.0.1">
+<config name="mus-api-1.0.2">
   <!-- Set this to 'false' if you want solr to continue working after it has
        encountered an severe configuration error.  In a production environment,
        you may want solr to keep working even if one handler is mis-configured.
@@ -610,7 +610,7 @@
      schema.xml). These will be returned alongside "id" and "score" in the
      search results.
 -->
-     <str name="fl">item_id,score,who,when,how,what,raw,where</str>
+     <str name="fl">PIDnumber,score,who,when,how,what,raw,where</str>
 <!--
      If you want to allow results where not all keywords are matched, uncomment
      the following line and insert your own "minimum match" definition.
