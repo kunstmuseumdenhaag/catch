@@ -59,7 +59,7 @@ function musDetail($id) {
   $app = Slim::getInstance();
   // Create a new mus sorl request alterator
   $alterator = new MuSSolrRequestAlterator($app->config('solr_host'), $app->config('solr_port'), $app->config('solr_path'), $_SERVER['QUERY_STRING']);
-  $query = 'item_id:' . $id;
+  $query = 'PIDnumber:' . $id;
   $alterator->addParam('q', $query);
   $alterator->addParam('qt', 'detail');
   $response = $alterator->doSolrRequest();
