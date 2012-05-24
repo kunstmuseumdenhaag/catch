@@ -68,6 +68,8 @@ function mus_search_api_settings_default_search_api_index() {
         "field_adlib_when_raw" : { "type" : "string" },
         "field_adlib_where_raw" : { "type" : "string" },
         "field_adlib_who_raw" : { "type" : "string" },
+        "field_adlib_alternative_number" : { "type" : "list\\u003cstring\\u003e" },
+        "field_adlib_alt_number_type" : { "type" : "list\\u003cstring\\u003e" },
         "search_api_language" : { "type" : "string" }
       },
       "data_alter_callbacks" : {
