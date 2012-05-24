@@ -684,7 +684,7 @@ field_adlib_institution_name',
   $fields['node-adlib_object-field_adlib_doc_title_lref'] = array(
     'field_config' => array(
       'active' => '1',
-      'cardinality' => '1',
+      'cardinality' => '-1',
       'deleted' => '0',
       'entity_types' => array(),
       'field_name' => 'field_adlib_doc_title_lref',
@@ -1428,7 +1428,7 @@ field_adlib_dim_presentation',
   $fields['node-adlib_object-field_adlib_object_name'] = array(
     'field_config' => array(
       'active' => '1',
-      'cardinality' => '1',
+      'cardinality' => '-1',
       'deleted' => '0',
       'entity_types' => array(),
       'field_name' => 'field_adlib_object_name',
@@ -1650,7 +1650,7 @@ field_adlib_dim_presentation',
   $fields['node-adlib_object-field_adlib_part_of_reference'] = array(
     'field_config' => array(
       'active' => '1',
-      'cardinality' => '1',
+      'cardinality' => '-1',
       'deleted' => '0',
       'entity_types' => array(),
       'field_name' => 'field_adlib_part_of_reference',
@@ -1798,7 +1798,7 @@ field_adlib_dim_presentation',
   $fields['node-adlib_object-field_adlib_parts_reference'] = array(
     'field_config' => array(
       'active' => '1',
-      'cardinality' => '1',
+      'cardinality' => '-1',
       'deleted' => '0',
       'entity_types' => array(),
       'field_name' => 'field_adlib_parts_reference',
