@@ -10,7 +10,7 @@
  http://wiki.apache.org/solr/SchemaXml
 -->
 
-<schema name="mus-api-1.0" version="1.2">
+<schema name="mus-api-1.0.2" version="1.2">
     <!-- attribute "name" is the name of this schema and is only used for display purposes.
          Applications should change this to reflect the nature of the search collection.
          version="1.2" is Solr's version number for the schema syntax and semantics.  It should
@@ -389,16 +389,13 @@
 	<field name="production_period" type="text" multiValued="true" indexed="true" stored="true" required="false" />
 	<field name="inscription_date" type="text" multiValued="true" indexed="true" stored="true" required="false" />
 	<field name="inscription_maker" type="text" multiValued="true" indexed="true" stored="true" required="false" />
-	<field name="acquisition_source" type="text" multiValued="true" indexed="true" stored="true" required="false" />
-	<field name="acquisition_date" type="text" multiValued="true" indexed="true" stored="true" required="false" />
-	<field name="acquisition_place" type="text" multiValued="true" indexed="true" stored="true" required="false" />
 	<field name="documentation_title" type="text" multiValued="true" indexed="true" stored="true" required="false" />
 	<field name="documentation_title_lref" type="string" multiValued="true" indexed="true" stored="true" required="false" />
 	<field name="reproduction_reference" type="string" multiValued="true" indexed="true" stored="true" required="false" />
 	<field name="part_of_reference" type="string" multiValued="true" indexed="true" stored="true" required="false" />
 	<field name="part_of_title" type="text" multiValued="true" indexed="true" stored="true" required="false" />
 	<field name="parts_reference" type="string" multiValued="true" indexed="true" stored="true" required="false" />
-	<field name="related_object_reference" type="string" multiValued="true" indexed="true" stored="true" required="false" />
+	<field name="related_object_reference" type="text" multiValued="true" indexed="true" stored="true" required="false" />
 	<field name="parts_title" type="text" multiValued="true" indexed="true" stored="true" required="false" />
 	<field name="related_object_title" type="text" multiValued="true" indexed="true" stored="true" required="false" />
 	<field name="production_reason" type="text" multiValued="true" indexed="true" stored="true" required="false" />
@@ -406,6 +403,7 @@
 	<field name="institution_name" type="text" multiValued="false" indexed="true" stored="true" required="false" />
 	<field name="reproduction_identifier_URL" type="string" multiValued="true" indexed="true" stored="true" required="false" />
 	<field name="chronicle_title" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+	<field name="chronicle_title_lref" type="text" multiValued="true" indexed="true" stored="true" required="false" />
 	<field name="title_short_description" type="text" multiValued="false" indexed="true" stored="true" required="false" />
 	<field name="creation_presentation" type="text" multiValued="false" indexed="true" stored="true" required="false" />
 	<field name="production_place_presentation" type="text" multiValued="false" indexed="true" stored="true" required="false" />
@@ -420,6 +418,8 @@
 	<field name="ss_title" type="text" multiValued="true" indexed="true" stored="true" required="false" />
 	<field name="publication_access" type="string" multiValued="false" indexed="true" stored="true" required="false" />
 	<field name="PIDnumber" type="string" multiValued="false" indexed="true" stored="true" required="false" />
+	<field name="alternative_number" type="string" multiValued="true" indexed="true" stored="true" required="false" />
+	<field name="alternative_number_type" type="string" multiValued="true" indexed="true" stored="true" required="false" />
 
 	<field name="how" type="string" multiValued="false" indexed="true" stored="true" required="false" />
 	<field name="what" type="string" multiValued="false" indexed="true" stored="true" required="false" />
