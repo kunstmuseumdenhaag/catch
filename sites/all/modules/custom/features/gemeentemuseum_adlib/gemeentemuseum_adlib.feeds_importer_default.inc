@@ -22,7 +22,7 @@ function gemeentemuseum_adlib_feeds_importer_default() {
       'config' => array(
         'database' => 'catch',
         'changed' => '1970-01-01 01:01',
-        'items' => '100',
+        'items' => '50',
         'fields' => array(
           0 => 'object_number',
           1 => 'alternative_number',
