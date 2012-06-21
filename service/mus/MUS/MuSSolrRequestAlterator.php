@@ -226,6 +226,9 @@ class MuSSolrRequestAlterator {
           case self::PARSED_ADVANCED_WHO:
             $query = 'who_search:(' . $query . ')';
             break;
+          case self::PARSED_ADVANCED_REST:
+            $query = 'fulltext:(' . $query . ')';
+            break;
         }
         $parsedAdvanced[] = $query;
       }
