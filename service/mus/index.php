@@ -9,6 +9,7 @@ require 'Slim/Slim.php';
 require_once 'MUS/MuSSolrAPIKey.php';
 require_once 'MUS/MuSSolrRequestAlterator.php';
 require_once 'MUS/MuSSolrResponse.php';
+require_once 'MUS/MuSSolrBooster.php';
 require_once 'MUS/init.php';
 
 $app = new Slim();

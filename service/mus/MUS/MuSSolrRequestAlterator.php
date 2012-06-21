@@ -55,13 +55,11 @@ class MuSSolrRequestAlterator {
   public function doSolrRequest() {
     // First rewrite all params for MuS
     $this->rewriteMuSParams();
+    // Then add boosting
+//    $this->addBoosting();
     $querystring = $this->getQueryString();
     $fullUrl = $this->baseUrl . '?' . $querystring;
     $response = $this->_doRequest($fullUrl);
-    if (isset($this->params['debugQuery']) && $this->params['debugQuery']) {
-      $this->addDebugInfo($response);
-//      $response->addQueryDebugInformation('parsedMusAdvancedQuery', $this->parsedAdvancedQuery['']);
-    }
     return $response;
   }
 
@@ -127,6 +125,14 @@ class MuSSolrRequestAlterator {
         $this->params['fq'][$key] = $this->rewriteFq($fq);
       }
     }
+  }
+
+  /**
+   * Add boosting
+   */
+  protected function addBoosting($boosttype = 'marijn') {
+    $booster = new MusSolrBooster($this->parsedAdvancedQuery, $boosttype);
+    $booster->writeParams($this->params);
   }
 
   /**
