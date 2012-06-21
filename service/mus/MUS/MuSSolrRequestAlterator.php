@@ -218,28 +218,35 @@ class MuSSolrRequestAlterator {
       if (in_array($key, $queryParts) && $query != '') {
         switch ($key) {
           case self::PARSED_ADVANCED_HOW:
-            $query = 'how_search:(' . $query . ')';
+            // add the parsed query to the params
+            $this->params[$key] = $query;
+            $query = '_query_:"{!dismax qf=\'how_search\' mm=\'1\' v=$' . $key . '}"';
             break;
           case self::PARSED_ADVANCED_WHEN:
-            $query = 'when_search:(' . $query . ')';
+            $this->params[$key] = $query;
+            $query = '_query_:"{!dismax qf=\'when_search\' mm=\'1\' v=$' . $key . '}"';
             break;
           case self::PARSED_ADVANCED_WHAT:
-            $query = 'what_search:(' . $query . ')';
+            $this->params[$key] = $query;
+            $query = '_query_:"{!dismax qf=\'what_search\' mm=\'1\' v=$' . $key . '}"';
             break;
           case self::PARSED_ADVANCED_WHERE:
-            $query = 'where_search:(' . $query . ')';
+            $this->params[$key] = $query;
+            $query = '_query_:"{!dismax qf=\'where_search\' mm=\'1\' v=$' . $key . '}"';
             break;
           case self::PARSED_ADVANCED_WHO:
-            $query = 'who_search:(' . $query . ')';
+            $this->params[$key] = $query;
+            $query = '_query_:"{!dismax qf=\'who_search\' mm=\'1\' v=$' . $key . '}"';
             break;
           case self::PARSED_ADVANCED_REST:
-            $query = 'fulltext:(' . $query . ')';
+            $this->params[$key] = $query;
+            $query = '_query_:"{!dismax qf=\'fulltext\' mm=\'1\' v=$' . $key . '}"';
             break;
         }
         $parsedAdvanced[] = $query;
       }
     }
-    $this->parsedAdvancedQuery[self::PARSED_ADVANCED_FULL] = implode(' ', $parsedAdvanced);
+    $this->parsedAdvancedQuery[self::PARSED_ADVANCED_FULL] = implode(' OR ', $parsedAdvanced);
   }
 
   /**
