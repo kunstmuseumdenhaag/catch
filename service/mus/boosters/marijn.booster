@@ -1,0 +1,13 @@
+[tokens]
+impact = 1000
+[params]
+bf[qqwhat] = "product(map(query($qqwhat),1e-10,1e3,1,0),[impact])"
+qqwhat[] = "what_search:([whatQuery])"
+bf[qqwho] = "product(map(query($qqwho),1e-10,1e3,1,0),[impact])"
+qqwho[] = "who_search:([whoQuery])"
+bf[qqwhere] = "product(map(query($qqwhere),1e-10,1e3,1,0),[impact])"
+qqwhere[] = "where_search:([whereQuery])"
+bf[qqwhen] = "product(map(query($qqwhen),1e-10,1e3,1,0),[impact])"
+qqwhen[] = "when_search:([whenQuery])"
+bf[qqhow] = "product(map(query($qqhow),1e-10,1e3,1,0),[impact])"
+qqhow[] = "how_search:([howQuery])"
