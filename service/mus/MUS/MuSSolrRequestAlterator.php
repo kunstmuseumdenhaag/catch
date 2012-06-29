@@ -56,7 +56,7 @@ class MuSSolrRequestAlterator {
     // First rewrite all params for MuS
     $this->rewriteMuSParams();
     // Then add boosting
-//    $this->addBoosting();
+    $this->addBoosting();
     $querystring = $this->getQueryString();
     $fullUrl = $this->baseUrl . '?' . $querystring;
     $response = $this->_doRequest($fullUrl);
@@ -214,39 +214,32 @@ class MuSSolrRequestAlterator {
     $parsedAdvanced = array();
     $queryParts = array(self::PARSED_ADVANCED_HOW,self::PARSED_ADVANCED_WHEN, self::PARSED_ADVANCED_WHAT, self::PARSED_ADVANCED_WHERE, self::PARSED_ADVANCED_WHO, self::PARSED_ADVANCED_REST);
     foreach ($this->parsedAdvancedQuery as $key => $query) {
-      // Only add, if the qeury is not empty
+   // Only add, if the qeury is not empty
       if (in_array($key, $queryParts) && $query != '') {
         switch ($key) {
           case self::PARSED_ADVANCED_HOW:
-            // add the parsed query to the params
-            $this->params[$key] = $query;
-            $query = '_query_:"{!dismax qf=\'how_search\' mm=\'1\' v=$' . $key . '}"';
+            $query = 'how_search:(' . $query . ')';
             break;
           case self::PARSED_ADVANCED_WHEN:
-            $this->params[$key] = $query;
-            $query = '_query_:"{!dismax qf=\'when_search\' mm=\'1\' v=$' . $key . '}"';
+            $query = 'when_search:(' . $query . ')';
             break;
           case self::PARSED_ADVANCED_WHAT:
-            $this->params[$key] = $query;
-            $query = '_query_:"{!dismax qf=\'what_search\' mm=\'1\' v=$' . $key . '}"';
+            $query = 'what_search:(' . $query . ')';
             break;
           case self::PARSED_ADVANCED_WHERE:
-            $this->params[$key] = $query;
-            $query = '_query_:"{!dismax qf=\'where_search\' mm=\'1\' v=$' . $key . '}"';
+            $query = 'where_search:(' . $query . ')';
             break;
           case self::PARSED_ADVANCED_WHO:
-            $this->params[$key] = $query;
-            $query = '_query_:"{!dismax qf=\'who_search\' mm=\'1\' v=$' . $key . '}"';
+            $query = 'who_search:(' . $query . ')';
             break;
           case self::PARSED_ADVANCED_REST:
-            $this->params[$key] = $query;
-            $query = '_query_:"{!dismax qf=\'fulltext\' mm=\'1\' v=$' . $key . '}"';
+            $query = 'fulltext:(' . $query . ')';
             break;
         }
         $parsedAdvanced[] = $query;
       }
     }
-    $this->parsedAdvancedQuery[self::PARSED_ADVANCED_FULL] = implode(' OR ', $parsedAdvanced);
+    $this->parsedAdvancedQuery[self::PARSED_ADVANCED_FULL] = implode(' ', $parsedAdvanced);
   }
 
   /**

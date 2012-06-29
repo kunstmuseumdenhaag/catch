@@ -2,7 +2,7 @@
 impact = 1000
 [params]
 bf[qqwhat] = "product(map(query($qqwhat),1e-10,1e3,1,0),[impact])"
-qqwhat[] = "what_search:([whatQuery])"
+qqwhat[] = "{!dismax qf=what_search mm=1}test"
 bf[qqwho] = "product(map(query($qqwho),1e-10,1e3,1,0),[impact])"
 qqwho[] = "who_search:([whoQuery])"
 bf[qqwhere] = "product(map(query($qqwhere),1e-10,1e3,1,0),[impact])"
