@@ -56,7 +56,7 @@ class MuSSolrRequestAlterator {
     // First rewrite all params for MuS
     $this->rewriteMuSParams();
     // Then add boosting
-//    $this->addBoosting();
+    $this->addBoosting();
     $querystring = $this->getQueryString();
     $fullUrl = $this->baseUrl . '?' . $querystring;
     $response = $this->_doRequest($fullUrl);
@@ -209,31 +209,33 @@ class MuSSolrRequestAlterator {
     $this->parsedAdvancedQuery[self::PARSED_ADVANCED_REST] = preg_replace('/\s{2,}/', ' ', $restQuery);
     // Add the keywords to the restQuery
     $this->parsedAdvancedQuery[self::PARSED_ADVANCED_REST] .= ' ' . implode(' ', $keywords);
+    // Trim the rest query
+    $this->parsedAdvancedQuery[self::PARSED_ADVANCED_REST] = trim($this->parsedAdvancedQuery[self::PARSED_ADVANCED_REST]);
 
     // Now create the full query
     $parsedAdvanced = array();
     $queryParts = array(self::PARSED_ADVANCED_HOW,self::PARSED_ADVANCED_WHEN, self::PARSED_ADVANCED_WHAT, self::PARSED_ADVANCED_WHERE, self::PARSED_ADVANCED_WHO, self::PARSED_ADVANCED_REST);
     foreach ($this->parsedAdvancedQuery as $key => $query) {
-      // Only add, if the qeury is not empty
+   // Only add, if the qeury is not empty
       if (in_array($key, $queryParts) && $query != '') {
         switch ($key) {
           case self::PARSED_ADVANCED_HOW:
-            $query = 'how_search:(' . $query . ')';
+            $query = 'how_search:(' . $query . ')^0';
             break;
           case self::PARSED_ADVANCED_WHEN:
-            $query = 'when_search:(' . $query . ')';
+            $query = 'when_search:(' . $query . ')^0';
             break;
           case self::PARSED_ADVANCED_WHAT:
-            $query = 'what_search:(' . $query . ')';
+            $query = 'what_search:(' . $query . ')^0';
             break;
           case self::PARSED_ADVANCED_WHERE:
-            $query = 'where_search:(' . $query . ')';
+            $query = 'where_search:(' . $query . ')^0';
             break;
           case self::PARSED_ADVANCED_WHO:
-            $query = 'who_search:(' . $query . ')';
+            $query = 'who_search:(' . $query . ')^0';
             break;
           case self::PARSED_ADVANCED_REST:
-            $query = 'fulltext:(' . $query . ')';
+            $query = 'fulltext:(' . $query . ')^0';
             break;
         }
         $parsedAdvanced[] = $query;
