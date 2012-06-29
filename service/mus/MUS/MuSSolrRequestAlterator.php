@@ -209,6 +209,8 @@ class MuSSolrRequestAlterator {
     $this->parsedAdvancedQuery[self::PARSED_ADVANCED_REST] = preg_replace('/\s{2,}/', ' ', $restQuery);
     // Add the keywords to the restQuery
     $this->parsedAdvancedQuery[self::PARSED_ADVANCED_REST] .= ' ' . implode(' ', $keywords);
+    // Trim the rest query
+    $this->parsedAdvancedQuery[self::PARSED_ADVANCED_REST] = trim($this->parsedAdvancedQuery[self::PARSED_ADVANCED_REST]);
 
     // Now create the full query
     $parsedAdvanced = array();
@@ -218,22 +220,22 @@ class MuSSolrRequestAlterator {
       if (in_array($key, $queryParts) && $query != '') {
         switch ($key) {
           case self::PARSED_ADVANCED_HOW:
-            $query = 'how_search:(' . $query . ')';
+            $query = 'how_search:(' . $query . ')^0';
             break;
           case self::PARSED_ADVANCED_WHEN:
-            $query = 'when_search:(' . $query . ')';
+            $query = 'when_search:(' . $query . ')^0';
             break;
           case self::PARSED_ADVANCED_WHAT:
-            $query = 'what_search:(' . $query . ')';
+            $query = 'what_search:(' . $query . ')^0';
             break;
           case self::PARSED_ADVANCED_WHERE:
-            $query = 'where_search:(' . $query . ')';
+            $query = 'where_search:(' . $query . ')^0';
             break;
           case self::PARSED_ADVANCED_WHO:
-            $query = 'who_search:(' . $query . ')';
+            $query = 'who_search:(' . $query . ')^0';
             break;
           case self::PARSED_ADVANCED_REST:
-            $query = 'fulltext:(' . $query . ')';
+            $query = 'fulltext:(' . $query . ')^0';
             break;
         }
         $parsedAdvanced[] = $query;
