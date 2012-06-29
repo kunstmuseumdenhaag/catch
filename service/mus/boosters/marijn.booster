@@ -1,0 +1,16 @@
+[tokens]
+impact = 1
+[params]
+bf[qqwhat] = "sum(product(map(query($qqwhat),1e-10,1e3,1,0),[impact]),scale(query($qqwhat),0,1))"
+qqwhat[] = "{!dismax qf=what_search mm=$mmMarijn ps=100 bf=1 pf=what_search}[whatQuery]"
+bf[qqwhere] = "sum(product(map(query($qqwhere),1e-10,1e3,1,0),[impact]),scale(query($qqwhere),0,0.25))"
+qqwhere[] = "{!dismax qf=where_search ps=100 mm=$mmMarijn bf=1 pf=where_search}[whereQuery]"
+bf[qqwho] = "sum(product(map(query($qqwho),1e-10,1e3,1,0),[impact]),scale(query($qqwho),0,1))"
+qqwho[] = "{!dismax qf=who_search ps=100 mm=$mmMarijn bf=1 pf=who_search}[whoQuery]"
+bf[qqwhen] = "sum(product(map(query($qqwhen),1e-10,1e3,1,0),[impact]),scale(query($qqwhen),0,1))"
+qqwhen[] = "{!dismax qf=when_search ps=100 mm=$mmMarijn bf=1 pf=when_search}[whenQuery]"
+bf[qqhow] = "sum(product(map(query($qqhow),1e-10,1e3,1,0),[impact]),scale(query($qqhow),0,1))"
+qqhow[] = "{!dismax qf=how_search ps=100 mm=$mmMarijn bf=1 pf=how_search}[howQuery]"
+bf[qqfull] = "sum(product(map(query($qqfull),1e-10,1e3,1,0),[impact]),scale(query($qqfull),0,1))"
+qqfull[] = "{!dismax qf=fulltext ps=100 mm=$mmMarijn bf=1 pf=fulltext}[restQuery]"
+mmMarijn[] = "1<1 2<-33% 5<-50%"
