@@ -86,12 +86,14 @@ class MusSolrBooster {
       }
     }
     // Now the params are initialized, check in bf for dependend parameters
-    foreach ($this->params['bf'] as $key => $bfFunction) {
-      // Only if the key is a string, there is a dependency
-      if (! is_numeric($key)) {
-        // If the key is not in the params array, the dependency is not met, so unset it
-        if (! isset($this->params[$key])) {
-          unset($this->params['bf'][$key]);
+    if (isset($this->params['bf'])) {
+      foreach ($this->params['bf'] as $key => $bfFunction) {
+        // Only if the key is a string, there is a dependency
+        if (! is_numeric($key)) {
+          // If the key is not in the params array, the dependency is not met, so unset it
+          if (! isset($this->params[$key])) {
+            unset($this->params['bf'][$key]);
+          }
         }
       }
     }
