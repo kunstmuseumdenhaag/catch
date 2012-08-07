@@ -106,6 +106,7 @@ function mussearch_apikey_management($apikey_id = NULL) {
     t('Last name'),
     t('E-mail'),
     t('Phone'),
+    t('Filter query'),
     t('Edit'),
   );
   $rows = array();
@@ -199,6 +200,11 @@ function mussearch_add_apikey_form($form, &$form_state, $apikey_id = NULL) {
     '#title' => t('Phone'),
     '#default_value' => isset($defaults['phone']) ? $defaults['phone'] : '',
   );
+  $form['filterquery'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Filterquery'),
+    '#default_value' => isset($defaults['filterquery']) ? $defaults['filterquery'] : '',
+  );
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Submit')
@@ -227,7 +233,8 @@ function mussearch_add_apikey_form_submit($form, &$form_state) {
     'firstname' => $form_state['values']['firstname'],
     'lastname' => $form_state['values']['lastname'],
     'email' => $form_state['values']['email'],
-    'phone' => $form_state['values']['phone']
+    'phone' => $form_state['values']['phone'],
+    'filterquery' => $form_state['values']['filterquery'],
   );
   $query->fields($fields_values);
   $succes = $query->execute();

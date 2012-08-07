@@ -8,6 +8,17 @@ function mussearch_update_7000() {
   db_set_active();
 }
 
+function mussearch_update_7001() {
+  // Create a new column in the musapi table.
+  db_set_active('musapi');
+  $spec = array(
+    'type' => 'text',
+    'size' => 'medium'
+  );
+  db_add_field('musapi', 'filterquery', $spec);
+  db_set_active();
+}
+
 /**
  * Get the schema definition for the musapi table.
  * Note that this definition is not placed in a hook schema, because it should be installed in an other database.
