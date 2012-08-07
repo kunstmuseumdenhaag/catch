@@ -15,6 +15,10 @@ abstract class MuSSolrAPIKey {
     return isset($this->apikeyInfo['bypass_blacklist']) ? $this->apikeyInfo['bypass_blacklist'] : FALSE;
   }
 
+  public function getFilterQuery() {
+    return isset($this->apikeyInfo['filterquery']) ? $this->apikeyInfo['filterquery'] : FALSE;
+  }
+
   /**
    * Factory function to get right implementation based on system detection
    * @param String $apikey

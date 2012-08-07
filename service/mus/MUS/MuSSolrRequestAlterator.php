@@ -117,6 +117,9 @@ class MuSSolrRequestAlterator {
     // Handle api key
     if (isset($this->apikeyObject)) {
       $this->params['musallowedlevel'] = $this->apikeyObject->getAccessString();
+      if ($additionalFilterQuery = $this->apikeyObject->getFilterQuery()) {
+        $this->params['fq']['apikeyQuery'] = $additionalFilterQuery;
+      }
       unset($this->params['mus_apikey']);
     }
     // Rewrite fq
