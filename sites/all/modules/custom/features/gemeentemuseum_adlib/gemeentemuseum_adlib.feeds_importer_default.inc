@@ -21,7 +21,7 @@ function gemeentemuseum_adlib_feeds_importer_default() {
       'plugin_key' => 'AdlibFetcher',
       'config' => array(
         'database' => 'catch',
-        'changed' => '1970-01-01 01:01',
+        'changed' => '1970-01-01 09:40',
         'items' => '50',
         'fields' => array(
           0 => 'object_number',
@@ -75,7 +75,7 @@ function gemeentemuseum_adlib_feeds_importer_default() {
           48 => 'PIDnumber',
         ),
         'datesort' => 'modification',
-        'batch_results' => 160526,
+        'batch_results' => 0,
         'batch_startfrom' => 0,
         'status' => 0,
         'xmltype' => 'unstructured',
@@ -423,7 +423,7 @@ function gemeentemuseum_adlib_feeds_importer_default() {
     ),
     'content_type' => '',
     'update' => 0,
-    'import_period' => '-1',
+    'import_period' => '0',
     'expire_period' => 3600,
     'import_on_create' => 1,
     'process_in_background' => 0,
