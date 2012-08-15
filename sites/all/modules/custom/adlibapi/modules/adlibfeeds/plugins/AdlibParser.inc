@@ -18,7 +18,7 @@ class AdlibParser extends FeedsParser {
   private $fields;
 
   private $field_regex = "[a-zA-Z0-9\._]+\s*";
-  private $separator_regex="[a-zA-Z0-9\s,;\:\._\<\>\/]+\s*";
+  private $separator_regex="[a-zA-Z0-9\s,;\:\._\<\>\/\|]+\s*";
 
   /**
    * Implementation of FeedsParser::parse().
@@ -150,7 +150,7 @@ class AdlibParser extends FeedsParser {
     foreach ($fields as $field) {
       $tokens[] = '[' . $field . ']';
     }
-    // Add the "raw_xml" token. This field is not retrieved from Adlib but added in $this->_parseAdlibResponse() 
+    // Add the "raw_xml" token. This field is not retrieved from Adlib but added in $this->_parseAdlibResponse()
     $tokens[] = '[raw_xml]';
     $list_vars = array(
       'items' => $tokens,
@@ -404,7 +404,7 @@ class AdlibParser extends FeedsParser {
        // remove redundant spaces
        $value = trim($value);
      }
- 
+
       $item[$source_key] = $value;
     }
     return $item;
