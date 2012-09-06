@@ -266,7 +266,7 @@ class AdlibParser extends FeedsParser {
           $field_array = array();
           // get all values
           foreach ($children as $value) {
-            $field_array[]=(string) $value[0];
+            $field_array[]= $this->replaceTokenCharacters((string) $value[0]);
           }
           // and put the resulting array in $doc[$field]
           $doc[$field]=$field_array;
@@ -275,7 +275,7 @@ class AdlibParser extends FeedsParser {
           // single value
           $value = $result->{$field};
           // put string in $doc[$field]
-          $doc[$field] = (string) $value[0];
+          $doc[$field] = $this->replaceTokenCharacters((string) $value[0]);
         }
       }
       // Put the raw xml value of one result in the document
@@ -283,6 +283,33 @@ class AdlibParser extends FeedsParser {
       $docs[] = $doc;
     }
     return $docs;
+  }
+
+  /**
+   * Replace token characters
+   *
+   * @param mixed $value
+   *   Value or array of values
+   * @param bool $reverse
+   *   Wether to reverse the action or not
+   *
+   * @return mixed
+   *   Altered string or array
+   */
+  private function replaceTokenCharacters($value, $reverse = FALSE) {
+    $replace_value = $value;
+    // Replace brackets
+    if ($reverse) {
+      $replace_value = str_replace("[", "*leftbracket*", $replace_value);
+      $replace_value = str_replace("]", "*rightbracket*", $replace_value);
+      return $replace_value;
+    }
+    else {
+      $replace_value = str_replace("*leftbracket*", "[", $replace_value);
+      $replace_value = str_replace("*rightbracket*", "]", $replace_value);
+      return $replace_value;
+    }
+
   }
 
   /**
@@ -399,10 +426,12 @@ class AdlibParser extends FeedsParser {
        }
      }
      else {
-     // if we have any more [<tags>] remove them here
+       // if we have any more [<tags>] remove them here
        $value = preg_replace('/\[.*?\]/', '' , $value);
        // remove redundant spaces
        $value = trim($value);
+       // Replace token characters again
+       $value = $this->replaceTokenCharacters($value, TRUE);
      }
 
       $item[$source_key] = $value;
