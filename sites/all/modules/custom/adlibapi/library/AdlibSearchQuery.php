@@ -11,6 +11,11 @@ class AdlibSearchQuery{
   private $parameters;
 
   /**
+   * A custom query will be appended to the base query
+   */
+  private $customQuery;
+
+  /**
    *  fields are the fields we want to receive from the adlibserver
    */
   private $fields;
@@ -55,6 +60,17 @@ class AdlibSearchQuery{
    */
   function addParameter($name, $value="", $compare="", $booleanop=""){
     $this->parameters[]=array("name"=>$name, "value"=>$value, "compare"=>$compare ,"booleanop"=>$booleanop);
+  }
+
+  /**
+   * Add a custom search query to the query.
+   * @param string $query
+   *   an adlib querystring which will be appended to the base query by means of an 'and' boolean operator
+   */
+  function addCustomQuery($query) {
+    if ($query != '') {
+      $this->customQuery = $query;
+    }
   }
 
   /**
@@ -127,6 +143,14 @@ class AdlibSearchQuery{
   function getQueryItems(){
     $params= $this->_parameters2String();
     $items=$params;
+    // If the custom query is not empty, append it.
+    if (isset($this->customQuery) && $this->customQuery != '') {
+      // if $items is not empty, add the 'and' operator
+      if ($items != '') {
+        $items .= "%20and%20";
+      }
+      $items .= rawurlencode($this->customQuery);
+    }
     // add fields (if all fields should be returned, don't add specific fields
     if(count($this->fields)>0 && ! $this->retrieveAllFields) {
       $fields = "&fields=".rawurlencode(implode(",", $this->fields));
