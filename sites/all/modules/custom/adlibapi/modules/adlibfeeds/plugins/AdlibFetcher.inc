@@ -191,7 +191,7 @@ class AdlibFetcher extends FeedsFetcher {
         '#disabled' => (! $this->config['status'] == '1') ? FALSE : TRUE,
       );
       $form['custom_query'] = array(
-        '#type' => 'textfield',
+        '#type' => 'textarea',
         '#title' => t('Custom adlib query'),
         '#description' => t('Check the adlib api home page for details about creating a query.'),
         '#default_value' => $this->config['custom_query'],
