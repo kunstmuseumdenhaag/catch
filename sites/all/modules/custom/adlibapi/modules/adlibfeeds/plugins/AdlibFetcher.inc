@@ -44,6 +44,10 @@ class FeedsAdlibBatch extends FeedsFetcherResult {
       'date_type' => $this->fetcher->config['datesort'],
     );
     $query = adlibapi_api_build_query('by_date', $queryoptions);
+    // Add custom query if applicable
+    if ($this->fetcher->config['use_custom_query'] && $this->fetcher->config['custom_query'] != '') {
+      $query->addCustomQuery($this->fetcher->config['custom_query']);
+    }
     // Set the limit and the fields.
     $query->setLimit($this->fetcher->config['items']);
     // Set the startfrom
@@ -136,6 +140,8 @@ class AdlibFetcher extends FeedsFetcher {
      */
     return array(
       'database' => 'unknown',
+      'use_custom_query' => 0,
+      'custom_query' => '',
       'changed' => format_date(100, 'custom', $this->format),
       'items' => 100,
       'fields' => array('no' => 0),
@@ -176,6 +182,19 @@ class AdlibFetcher extends FeedsFetcher {
       $index_fields = array(
         'creation' => t('Creation date'),
         'modification' => t('Modification date'),
+      );
+      // checkbox to enable custom query
+      $form['use_custom_query'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Use custom query'),
+        '#default_value' => $this->config['use_custom_query'],
+        '#disabled' => (! $this->config['status'] == '1') ? FALSE : TRUE,
+      );
+      $form['custom_query'] = array(
+        '#type' => 'textarea',
+        '#title' => t('Custom adlib query'),
+        '#description' => t('Check the adlib api home page for details about creating a query.'),
+        '#default_value' => $this->config['custom_query'],
       );
       // Create the checkboxes
       $form['fields'] = array(
@@ -250,6 +269,32 @@ class AdlibFetcher extends FeedsFetcher {
     if (! is_numeric($values['items'])) {
       form_set_error('items', t('Only integers are allowed!'));
     }
+    // If a custom query is set, validate by performing an adlib query and looking if no error is returned.
+    if ($values['use_custom_query']) {
+      $date = adlibapi_api_get_adlib_date(array('custom' => $values['changed']));
+      // If no date is set, for whatever reason, set the date to 1970.
+      if (! $date) {
+        $date = adlibapi_api_get_adlib_date(array('timestamp' => 0));
+      }
+      // Get a basic date query
+      $queryoptions = array(
+        'date' => $date,
+        'date_type' => $values['datesort'],
+      );
+      $query = adlibapi_api_build_query('by_date', $queryoptions);
+
+      $getType = $values['xmltype'];
+      $query->setXMLtype($getType);
+      $query->addCustomQuery($values['custom_query']);
+      $db_settings = adlibapi_api_get_database_settings($values['database']);
+      $conn = adlibapi_api_get_connection($db_settings);
+      $response = $conn->performQuery($query);
+      // check for errors
+      if ($response->getError()) {
+        form_set_error('custom_query', t('The adlib server didn\'t accept the custom query. The server responded with the following error: %error.', array('%error' => $response->getErrorMessage())));
+      }
+    }
+
   }
 
   public function configFormSubmit(&$values) {
@@ -262,6 +307,9 @@ class AdlibFetcher extends FeedsFetcher {
     // For some strange reason, a disabled date field is uninitialized when set to disabled. Therefor set it to the value that is already in the fetcher settings.
     if (! isset($values['changed'])) {
       $values['changed'] = $this->config['changed'];
+    }
+    if (! isset($values['custom_query'])) {
+      $values['custom_query'] = $this->config['custom_query'];
     }
     // Adjust the field settings and pass
     $newfields = array();
