@@ -300,13 +300,13 @@ class AdlibParser extends FeedsParser {
     $replace_value = $value;
     // Replace brackets
     if ($reverse) {
-      $replace_value = str_replace("[", "*leftbracket*", $replace_value);
-      $replace_value = str_replace("]", "*rightbracket*", $replace_value);
+      $replace_value = str_replace("*leftbracket*", "[", $replace_value);
+      $replace_value = str_replace("*rightbracket*", "]", $replace_value);
       return $replace_value;
     }
     else {
-      $replace_value = str_replace("*leftbracket*", "[", $replace_value);
-      $replace_value = str_replace("*rightbracket*", "]", $replace_value);
+      $replace_value = str_replace("[", "*leftbracket*", $replace_value);
+      $replace_value = str_replace("]", "*rightbracket*", $replace_value);
       return $replace_value;
     }
 
