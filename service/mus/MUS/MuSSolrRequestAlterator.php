@@ -20,6 +20,7 @@ class MuSSolrRequestAlterator {
   const PARSED_ADVANCED_WHEN      = 'whenQuery';
   const PARSED_ADVANCED_HOW       = 'howQuery';
   const PARSED_ADVANCED_REST      = 'restQuery';
+  const HIGHLIGHT_FIELDS          = 'raw';
 
   function __construct($host = 'localhost', $port = 8180, $path = '/solr/', $querystring) {
     $this->host = $host;
@@ -219,26 +220,34 @@ class MuSSolrRequestAlterator {
     $parsedAdvanced = array();
     $queryParts = array(self::PARSED_ADVANCED_HOW,self::PARSED_ADVANCED_WHEN, self::PARSED_ADVANCED_WHAT, self::PARSED_ADVANCED_WHERE, self::PARSED_ADVANCED_WHO, self::PARSED_ADVANCED_REST);
     foreach ($this->parsedAdvancedQuery as $key => $query) {
-   // Only add, if the qeury is not empty
+   // Only add, if the query is not empty.
+      /*
+       * Note the small boost factors:
+       * This is because ranking is done by specialized boosters.
+       * The default ranking should be cancelled.
+       *
+       * The reason there is no 0, is because of highlighting.
+       * This doesn't work if the score is entirely zero.
+       */
       if (in_array($key, $queryParts) && $query != '') {
         switch ($key) {
           case self::PARSED_ADVANCED_HOW:
-            $query = 'how_search:(' . $query . ')^0';
+            $query = 'how_search:(' . $query . ')^0.00000001';
             break;
           case self::PARSED_ADVANCED_WHEN:
-            $query = 'when_search:(' . $query . ')^0';
+            $query = 'when_search:(' . $query . ')^0.00000001';
             break;
           case self::PARSED_ADVANCED_WHAT:
-            $query = 'what_search:(' . $query . ')^0';
+            $query = 'what_search:(' . $query . ')^0.00000001';
             break;
           case self::PARSED_ADVANCED_WHERE:
-            $query = 'where_search:(' . $query . ')^0';
+            $query = 'where_search:(' . $query . ')^0.00000001';
             break;
           case self::PARSED_ADVANCED_WHO:
-            $query = 'who_search:(' . $query . ')^0';
+            $query = 'who_search:(' . $query . ')^0.00000001';
             break;
           case self::PARSED_ADVANCED_REST:
-            $query = 'fulltext:(' . $query . ')^0';
+            $query = 'fulltext:(' . $query . ')^0.00000001';
             break;
         }
         $parsedAdvanced[] = $query;

@@ -49,6 +49,10 @@ function musSearch() {
   $app = Slim::getInstance();
   // Create a new mus sorl request alterator
   $alterator = new MuSSolrRequestAlterator($app->config('solr_host'), $app->config('solr_port'), $app->config('solr_path'), $_SERVER['QUERY_STRING']);
+  // Add highlighting
+  $alterator->addParam('hl','true');
+  $alterator->addParam('hl.fl', MuSSolrRequestAlterator::HIGHLIGHT_FIELDS);
+
   $response = $alterator->doSolrRequest();
   $solrHeaders = $response->getHeaderInfo();
   $appResponse = $app->response();
