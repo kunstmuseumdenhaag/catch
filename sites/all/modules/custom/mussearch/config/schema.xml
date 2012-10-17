@@ -421,12 +421,12 @@
 	<field name="alternative_number" type="string" multiValued="true" indexed="true" stored="true" required="false" />
 	<field name="alternative_number_type" type="string" multiValued="true" indexed="true" stored="true" required="false" />
 
-	<field name="how" type="string" multiValued="false" indexed="true" stored="true" required="false" />
-	<field name="what" type="string" multiValued="false" indexed="true" stored="true" required="false" />
-	<field name="when" type="string" multiValued="false" indexed="true" stored="true" required="false" />
-	<field name="where" type="string" multiValued="false" indexed="true" stored="true" required="false" />
-	<field name="who" type="string" multiValued="false" indexed="true" stored="true" required="false" />
-	<field name="raw" type="string" multiValued="false" indexed="true" stored="true" required="false" />
+	<field name="how" type="text" multiValued="false" indexed="false" stored="true" required="false" />
+	<field name="what" type="text" multiValued="false" indexed="false" stored="true" required="false" />
+	<field name="when" type="text" multiValued="false" indexed="false" stored="true" required="false" />
+	<field name="where" type="text" multiValued="false" indexed="false" stored="true" required="false" />
+	<field name="who" type="text" multiValued="false" indexed="false" stored="true" required="false" />
+	<field name="raw" type="text" multiValued="false" indexed="false" stored="true" required="false" />
 
 	
 	<!-- Fields for use with copyField-->
