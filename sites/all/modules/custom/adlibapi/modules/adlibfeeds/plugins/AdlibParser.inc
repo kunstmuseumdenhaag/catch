@@ -106,6 +106,19 @@ class AdlibParser extends FeedsParser {
         }
       }
     }
+    $form['language'] = array(
+      '#type' => 'fieldset',
+      '#tree' => TRUE,
+      '#title' => t('Parser language settings'),
+      '#collapsible' => TRUE,
+      '#collapsed' => FALSE,
+    );
+    $form['language']['list'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Language codes, separated by comma'),
+      '#description' => t('Provide a list of language codes separated by comma. The first has preference. Eg. NL-nl,1,neutral'),
+      '#default_value' => isset($source_config['language']['list']) ? $source_config['language']['list'] : '',
+    );
     $form['adlib'] = array(
       '#type' => 'fieldset',
       '#tree' => TRUE,
@@ -174,6 +187,7 @@ class AdlibParser extends FeedsParser {
    * TODO: this is misuse of the validate function. Sources must be a top level array entry.
    */
   public function sourceFormValidate(&$values) {
+    $language_values = $values['language'];
     if (isset($values['adlib'])) {
       $values = $values['adlib'];
 
@@ -212,6 +226,9 @@ class AdlibParser extends FeedsParser {
         }
       }
     }
+    // This might be stupid.
+    // Why is this adlib key necessary?
+    $values['language'] = $language_values;
   }
 
   /**
@@ -243,6 +260,9 @@ class AdlibParser extends FeedsParser {
     return array(
       'sources' => array(),
       'rawXML' => array(),
+      'language' => array(
+        'list' => '',
+      )
     );
   }
 
@@ -308,27 +328,50 @@ class AdlibParser extends FeedsParser {
    */
   protected function getGroupedFieldByXpath($xmlpart, $fieldname) {
     $xml = new SimpleXMLElement($xmlpart->asXML());
-    $children = $xml->xpath('//' . $fieldname);
-    if (! $children || ! count($children)) {
-      $query = $fieldname . '/value[@lang="neutral"]';
-      $children = $xml->xpath($query);
+
+    $languages = $this->getLanguagePreferences();
+    foreach ($languages as $language) {
+      $xpath_query = $fieldname . '/value[@lang="' . $language . '"]';
+      $children = $xml->xpath($xpath_query);
+      // If children are found, exit the for loop.
+      if ($children || count($children)) {
+        break;
+      }
     }
-    // If no children are found, try the neutral language attribute
-    if (! $children || ! count($children)) {
-      $query = $fieldname . '/value[@lang="neutral"]';
-      $children = $xml->xpath($query);
-    }
-    // If this doesn't work, get the lang=0 attribute
-    if (! $children || ! count($children)) {
-      $query = $fieldname . '/value[@lang="0"]';
-      $children = $xml->xpath($query);
-    }
+
+//    if (! $children || ! count($children)) {
+//      $query = $fieldname . '/value[@lang="neutral"]';
+//      $children = $xml->xpath($query);
+//    }
+//    // If no children are found, try the neutral language attribute
+//    if (! $children || ! count($children)) {
+//      $query = $fieldname . '/value[@lang="neutral"]';
+//      $children = $xml->xpath($query);
+//    }
+//    // If this doesn't work, get the lang=0 attribute
+//    if (! $children || ! count($children)) {
+//      $query = $fieldname . '/value[@lang="0"]';
+//      $children = $xml->xpath($query);
+//    }
     // If this doesn't work, get just all value tags
     if (! $children || ! count($children)) {
       $query = $fieldname . '/value[@lang=""]';
       $children = $xml->xpath($query);
     }
+    if (! $children || ! count($children)) {
+      $children = $xml->xpath('//' . $fieldname);
+    }
     return $children;
+  }
+
+  /**
+   * Get the array of prefered languages.
+   *
+   * @return array
+   */
+  protected function getLanguagePreferences() {
+    $languages = $this->source_config['language']['list'];
+    return explode(',' ,$languages);
   }
 
   /**
