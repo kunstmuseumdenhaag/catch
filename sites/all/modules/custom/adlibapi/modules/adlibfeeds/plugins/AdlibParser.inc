@@ -308,6 +308,7 @@ class AdlibParser extends FeedsParser {
         }
       }
       $doc['priref'] = (string) $xml->record->attributes()->priref;
+      $doc['raw_xml'] = $result->asXML();
       $docs[] = $doc;
     }
     return $docs;
@@ -330,6 +331,7 @@ class AdlibParser extends FeedsParser {
     $xml = new SimpleXMLElement($xmlpart->asXML());
 
     $languages = $this->getLanguagePreferences();
+    /// First try to get the value tags with language.
     foreach ($languages as $language) {
       $xpath_query = $fieldname . '/value[@lang="' . $language . '"]';
       $children = $xml->xpath($xpath_query);
@@ -338,26 +340,12 @@ class AdlibParser extends FeedsParser {
         break;
       }
     }
-
-//    if (! $children || ! count($children)) {
-//      $query = $fieldname . '/value[@lang="neutral"]';
-//      $children = $xml->xpath($query);
-//    }
-//    // If no children are found, try the neutral language attribute
-//    if (! $children || ! count($children)) {
-//      $query = $fieldname . '/value[@lang="neutral"]';
-//      $children = $xml->xpath($query);
-//    }
-//    // If this doesn't work, get the lang=0 attribute
-//    if (! $children || ! count($children)) {
-//      $query = $fieldname . '/value[@lang="0"]';
-//      $children = $xml->xpath($query);
-//    }
     // If this doesn't work, get just all value tags
     if (! $children || ! count($children)) {
       $query = $fieldname . '/value[@lang=""]';
       $children = $xml->xpath($query);
     }
+    // And maybe there are no value tags at all,
     if (! $children || ! count($children)) {
       $children = $xml->xpath('//' . $fieldname);
     }
