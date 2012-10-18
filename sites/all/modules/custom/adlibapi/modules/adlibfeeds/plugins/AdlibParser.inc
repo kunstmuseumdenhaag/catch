@@ -40,8 +40,8 @@ class AdlibParser extends FeedsParser {
     $this->raw = trim($fetcher_result->getRaw());
 
     // Parse the adlib response to an array of adlib documents.
-    $adlib_items = $this->_parseAdlibResponse();
 
+    $adlib_items = $this->parseAdlibResponse();
     // Perform the so called adlib query in which tokes are replaced by values.
     $items = $this->_performAdlibQuery($adlib_items);
     // In Drupal 6 the items are added to the batch: $batch->items = $items;
@@ -174,7 +174,6 @@ class AdlibParser extends FeedsParser {
    * TODO: this is misuse of the validate function. Sources must be a top level array entry.
    */
   public function sourceFormValidate(&$values) {
-    $dummy="dummy";
     if (isset($values['adlib'])) {
       $values = $values['adlib'];
 
@@ -248,11 +247,12 @@ class AdlibParser extends FeedsParser {
   }
 
   /**
-   * Parse the XML response from the Adlib server
+   * Parse the XML grouped or unstructured response from the Adlib server
    * in an array
-   * @return associative array with 1 row per Adlib object
+   * @return array
+   *   Array with 1 row per Adlib object.
    */
-  private function _parseAdlibResponse() {
+  protected function parseAdlibResponse() {
     $xml = new SimpleXMLElement($this->raw);
     $results = $xml->xpath('//record');
     $docs = array();
@@ -260,29 +260,75 @@ class AdlibParser extends FeedsParser {
       $doc = array();
       foreach ($this->fields as $field) {
         // check if we have multiple values
-        $children = $result->xpath($field);
+        $children = $this->getGroupedFieldByXpath($result, $field);
         // $children = $result->{$field}->children();
-        if (count($children)>1) {
+        if (count($children) > 1) {
           $field_array = array();
           // get all values
           foreach ($children as $value) {
-            $field_array[]= $this->replaceTokenCharacters((string) $value[0]);
+            if ((string) $value != '' && (string) $value != 'Array'){
+              $field_array[] = $this->replaceTokenCharacters((string) $value);
+            }
+            else {
+              $field_array[] = $this->replaceTokenCharacters((string) $value->value);
+            }
           }
           // and put the resulting array in $doc[$field]
-          $doc[$field]=$field_array;
+          $doc[$field] = $field_array;
         }
         else {
           // single value
-          $value = $result->{$field};
-          // put string in $doc[$field]
-          $doc[$field] = $this->replaceTokenCharacters((string) $value[0]);
+          // First try if we there is a result without value
+          if ((string) $children[0] != '' && (string) $children[0] != 'Array') {
+            $doc[$field] = $this->replaceTokenCharacters((string) $children[0]);
+          }
+          else {
+            $doc[$field] = $this->replaceTokenCharacters((string) $children[0]->value);
+          }
         }
       }
-      // Put the raw xml value of one result in the document
-      $doc['raw_xml'] = $result->asXML();
+      $doc['priref'] = (string) $xml->record->attributes()->priref;
       $docs[] = $doc;
     }
     return $docs;
+  }
+
+  /**
+   * Try to get the value of a field.
+   *
+   * The grouped structure of adlib returns either just the value in the field or
+   * The value contained in a value tab with attribute lang.
+   * The attribute lang is either empy, neutral or has a number corresponding with some sort of language.
+   *
+   * @param SimpleXMLElement $xmlpart
+   *   The xml element
+   * @param string $fieldname
+   *   The field name
+   * @return SimpleXMLElement
+   */
+  protected function getGroupedFieldByXpath($xmlpart, $fieldname) {
+    $xml = new SimpleXMLElement($xmlpart->asXML());
+    $children = $xml->xpath('//' . $fieldname);
+    if (! $children || ! count($children)) {
+      $query = $fieldname . '/value[@lang="neutral"]';
+      $children = $xml->xpath($query);
+    }
+    // If no children are found, try the neutral language attribute
+    if (! $children || ! count($children)) {
+      $query = $fieldname . '/value[@lang="neutral"]';
+      $children = $xml->xpath($query);
+    }
+    // If this doesn't work, get the lang=0 attribute
+    if (! $children || ! count($children)) {
+      $query = $fieldname . '/value[@lang="0"]';
+      $children = $xml->xpath($query);
+    }
+    // If this doesn't work, get just all value tags
+    if (! $children || ! count($children)) {
+      $query = $fieldname . '/value[@lang=""]';
+      $children = $xml->xpath($query);
+    }
+    return $children;
   }
 
   /**
