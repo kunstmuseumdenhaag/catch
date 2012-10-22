@@ -79,7 +79,7 @@ function gemeentemuseum_adlib_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '51',
+        'weight' => '28',
       ),
     ),
   );
@@ -153,7 +153,7 @@ function gemeentemuseum_adlib_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '50',
+        'weight' => '27',
       ),
     ),
   );
@@ -301,7 +301,7 @@ function gemeentemuseum_adlib_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '32',
+        'weight' => '11',
       ),
     ),
   );
@@ -310,7 +310,7 @@ function gemeentemuseum_adlib_field_default_fields() {
   $fields['node-adlib_object-field_adlib_creation_present'] = array(
     'field_config' => array(
       'active' => '1',
-      'cardinality' => '1',
+      'cardinality' => '-1',
       'deleted' => '0',
       'entity_types' => array(),
       'field_name' => 'field_adlib_creation_present',
@@ -329,7 +329,7 @@ function gemeentemuseum_adlib_field_default_fields() {
       ),
       'module' => 'text',
       'settings' => array(
-        'max_length' => '255',
+        'max_length' => '2056',
       ),
       'translatable' => '0',
       'type' => 'text',
@@ -342,22 +342,16 @@ function gemeentemuseum_adlib_field_default_fields() {
       'display' => array(
         'adlib_object' => array(
           'label' => 'above',
-          'module' => 'adlib_display',
-          'settings' => array(
-            'adlib_display_grouped_fields' => 'field_adlib_creator
-field_adlib_acquisition_source
-field_adlib_inscription_maker
-field_adlib_institution_name',
-          ),
-          'type' => 'adlib_display_grouped_adlib_field',
-          'weight' => '3',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
         ),
         'default' => array(
           'label' => 'above',
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
-          'weight' => '6',
+          'weight' => 52,
         ),
         'teaser' => array(
           'label' => 'above',
@@ -381,7 +375,7 @@ field_adlib_institution_name',
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '9',
+        'weight' => '52',
       ),
     ),
   );
@@ -390,7 +384,7 @@ field_adlib_institution_name',
   $fields['node-adlib_object-field_adlib_creator'] = array(
     'field_config' => array(
       'active' => '1',
-      'cardinality' => '1',
+      'cardinality' => '-1',
       'deleted' => '0',
       'entity_types' => array(),
       'field_name' => 'field_adlib_creator',
@@ -455,7 +449,7 @@ field_adlib_institution_name',
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '11',
+        'weight' => '53',
       ),
     ),
   );
@@ -483,7 +477,7 @@ field_adlib_institution_name',
       ),
       'module' => 'text',
       'settings' => array(
-        'max_length' => '255',
+        'max_length' => '2056',
       ),
       'translatable' => '0',
       'type' => 'text',
@@ -505,7 +499,7 @@ field_adlib_institution_name',
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
-          'weight' => 37,
+          'weight' => 54,
         ),
         'teaser' => array(
           'label' => 'above',
@@ -529,7 +523,7 @@ field_adlib_institution_name',
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '37',
+        'weight' => '14',
       ),
     ),
   );
@@ -610,7 +604,7 @@ field_adlib_institution_name',
   $fields['node-adlib_object-field_adlib_dim_presentation'] = array(
     'field_config' => array(
       'active' => '1',
-      'cardinality' => '1',
+      'cardinality' => '-1',
       'deleted' => '0',
       'entity_types' => array(),
       'field_name' => 'field_adlib_dim_presentation',
@@ -629,7 +623,7 @@ field_adlib_institution_name',
       ),
       'module' => 'text',
       'settings' => array(
-        'max_length' => '255',
+        'max_length' => '2056',
       ),
       'translatable' => '0',
       'type' => 'text',
@@ -644,14 +638,14 @@ field_adlib_institution_name',
           'label' => 'above',
           'settings' => array(),
           'type' => 'hidden',
-          'weight' => '29',
+          'weight' => 0,
         ),
         'default' => array(
           'label' => 'above',
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
-          'weight' => '23',
+          'weight' => 53,
         ),
         'teaser' => array(
           'label' => 'above',
@@ -758,7 +752,7 @@ field_adlib_institution_name',
   $fields['node-adlib_object-field_adlib_documentation_title'] = array(
     'field_config' => array(
       'active' => '1',
-      'cardinality' => '1',
+      'cardinality' => '-1',
       'deleted' => '0',
       'entity_types' => array(),
       'field_name' => 'field_adlib_documentation_title',
@@ -897,7 +891,7 @@ field_adlib_institution_name',
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '36',
+        'weight' => '13',
       ),
     ),
   );
@@ -969,7 +963,7 @@ field_adlib_institution_name',
           'rows' => '5',
         ),
         'type' => 'text_textarea',
-        'weight' => '42',
+        'weight' => '19',
       ),
     ),
   );
@@ -1044,7 +1038,7 @@ field_adlib_institution_name',
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '7',
+        'weight' => '9',
       ),
     ),
   );
@@ -1053,7 +1047,7 @@ field_adlib_institution_name',
   $fields['node-adlib_object-field_adlib_inscription_date'] = array(
     'field_config' => array(
       'active' => '1',
-      'cardinality' => '1',
+      'cardinality' => '-1',
       'deleted' => '0',
       'entity_types' => array(),
       'field_name' => 'field_adlib_inscription_date',
@@ -1127,7 +1121,7 @@ field_adlib_institution_name',
   $fields['node-adlib_object-field_adlib_inscription_maker'] = array(
     'field_config' => array(
       'active' => '1',
-      'cardinality' => '1',
+      'cardinality' => '-1',
       'deleted' => '0',
       'entity_types' => array(),
       'field_name' => 'field_adlib_inscription_maker',
@@ -1192,7 +1186,7 @@ field_adlib_institution_name',
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '14',
+        'weight' => '54',
       ),
     ),
   );
@@ -1201,7 +1195,7 @@ field_adlib_institution_name',
   $fields['node-adlib_object-field_adlib_institution_name'] = array(
     'field_config' => array(
       'active' => '1',
-      'cardinality' => '1',
+      'cardinality' => '-1',
       'deleted' => '0',
       'entity_types' => array(),
       'field_name' => 'field_adlib_institution_name',
@@ -1266,7 +1260,7 @@ field_adlib_institution_name',
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '15',
+        'weight' => '55',
       ),
     ),
   );
@@ -1275,7 +1269,7 @@ field_adlib_institution_name',
   $fields['node-adlib_object-field_adlib_material'] = array(
     'field_config' => array(
       'active' => '1',
-      'cardinality' => '1',
+      'cardinality' => '-1',
       'deleted' => '0',
       'entity_types' => array(),
       'field_name' => 'field_adlib_material',
@@ -1349,7 +1343,7 @@ field_adlib_institution_name',
   $fields['node-adlib_object-field_adlib_material_present'] = array(
     'field_config' => array(
       'active' => '1',
-      'cardinality' => '1',
+      'cardinality' => '-1',
       'deleted' => '0',
       'entity_types' => array(),
       'field_name' => 'field_adlib_material_present',
@@ -1567,7 +1561,7 @@ field_adlib_dim_presentation',
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '47',
+        'weight' => '24',
       ),
     ),
   );
@@ -1595,7 +1589,7 @@ field_adlib_dim_presentation',
       ),
       'module' => 'text',
       'settings' => array(
-        'max_length' => '255',
+        'max_length' => '2056',
       ),
       'translatable' => '0',
       'type' => 'text',
@@ -1617,7 +1611,7 @@ field_adlib_dim_presentation',
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
-          'weight' => 38,
+          'weight' => 55,
         ),
         'teaser' => array(
           'label' => 'above',
@@ -1641,7 +1635,7 @@ field_adlib_dim_presentation',
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '38',
+        'weight' => '15',
       ),
     ),
   );
@@ -1724,7 +1718,7 @@ field_adlib_dim_presentation',
   $fields['node-adlib_object-field_adlib_part_of_title'] = array(
     'field_config' => array(
       'active' => '1',
-      'cardinality' => '1',
+      'cardinality' => '-1',
       'deleted' => '0',
       'entity_types' => array(),
       'field_name' => 'field_adlib_part_of_title',
@@ -1872,7 +1866,7 @@ field_adlib_dim_presentation',
   $fields['node-adlib_object-field_adlib_parts_title'] = array(
     'field_config' => array(
       'active' => '1',
-      'cardinality' => '1',
+      'cardinality' => '-1',
       'deleted' => '0',
       'entity_types' => array(),
       'field_name' => 'field_adlib_parts_title',
@@ -2086,7 +2080,7 @@ field_adlib_dim_presentation',
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '48',
+        'weight' => '25',
       ),
     ),
   );
@@ -2095,7 +2089,7 @@ field_adlib_dim_presentation',
   $fields['node-adlib_object-field_adlib_prod_date_end'] = array(
     'field_config' => array(
       'active' => '1',
-      'cardinality' => '1',
+      'cardinality' => '-1',
       'deleted' => '0',
       'entity_types' => array(),
       'field_name' => 'field_adlib_prod_date_end',
@@ -2169,7 +2163,7 @@ field_adlib_dim_presentation',
   $fields['node-adlib_object-field_adlib_prod_date_present'] = array(
     'field_config' => array(
       'active' => '1',
-      'cardinality' => '1',
+      'cardinality' => '-1',
       'deleted' => '0',
       'entity_types' => array(),
       'field_name' => 'field_adlib_prod_date_present',
@@ -2250,7 +2244,7 @@ field_adlib_inscription_date',
   $fields['node-adlib_object-field_adlib_prod_date_start'] = array(
     'field_config' => array(
       'active' => '1',
-      'cardinality' => '1',
+      'cardinality' => '-1',
       'deleted' => '0',
       'entity_types' => array(),
       'field_name' => 'field_adlib_prod_date_start',
@@ -2324,7 +2318,7 @@ field_adlib_inscription_date',
   $fields['node-adlib_object-field_adlib_prod_place_present'] = array(
     'field_config' => array(
       'active' => '1',
-      'cardinality' => '1',
+      'cardinality' => '-1',
       'deleted' => '0',
       'entity_types' => array(),
       'field_name' => 'field_adlib_prod_place_present',
@@ -2403,7 +2397,7 @@ field_adlib_acquisition_place
   $fields['node-adlib_object-field_adlib_production_period'] = array(
     'field_config' => array(
       'active' => '1',
-      'cardinality' => '1',
+      'cardinality' => '-1',
       'deleted' => '0',
       'entity_types' => array(),
       'field_name' => 'field_adlib_production_period',
@@ -2477,7 +2471,7 @@ field_adlib_acquisition_place
   $fields['node-adlib_object-field_adlib_production_place'] = array(
     'field_config' => array(
       'active' => '1',
-      'cardinality' => '1',
+      'cardinality' => '-1',
       'deleted' => '0',
       'entity_types' => array(),
       'field_name' => 'field_adlib_production_place',
@@ -2616,7 +2610,7 @@ field_adlib_acquisition_place
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '40',
+        'weight' => '17',
       ),
     ),
   );
@@ -2690,7 +2684,7 @@ field_adlib_acquisition_place
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '49',
+        'weight' => '26',
       ),
     ),
   );
@@ -2764,7 +2758,7 @@ field_adlib_acquisition_place
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '39',
+        'weight' => '16',
       ),
     ),
   );
@@ -2836,7 +2830,7 @@ field_adlib_acquisition_place
           'rows' => '10',
         ),
         'type' => 'text_textarea',
-        'weight' => '35',
+        'weight' => '12',
       ),
     ),
   );
@@ -2845,7 +2839,7 @@ field_adlib_acquisition_place
   $fields['node-adlib_object-field_adlib_rel_obj_reference'] = array(
     'field_config' => array(
       'active' => '1',
-      'cardinality' => '1',
+      'cardinality' => '-1',
       'deleted' => '0',
       'entity_types' => array(),
       'field_name' => 'field_adlib_rel_obj_reference',
@@ -2919,7 +2913,7 @@ field_adlib_acquisition_place
   $fields['node-adlib_object-field_adlib_rel_obj_title'] = array(
     'field_config' => array(
       'active' => '1',
-      'cardinality' => '1',
+      'cardinality' => '-1',
       'deleted' => '0',
       'entity_types' => array(),
       'field_name' => 'field_adlib_rel_obj_title',
@@ -3058,7 +3052,7 @@ field_adlib_acquisition_place
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '41',
+        'weight' => '18',
       ),
     ),
   );
@@ -3132,7 +3126,7 @@ field_adlib_acquisition_place
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '6',
+        'weight' => '7',
       ),
     ),
   );
@@ -3211,7 +3205,7 @@ field_adlib_acquisition_place
           'size' => 60,
         ),
         'type' => 'taxonomy_autocomplete',
-        'weight' => '-2',
+        'weight' => '0',
       ),
     ),
   );
@@ -3220,7 +3214,7 @@ field_adlib_acquisition_place
   $fields['node-adlib_object-field_adlib_technique'] = array(
     'field_config' => array(
       'active' => '1',
-      'cardinality' => '1',
+      'cardinality' => '-1',
       'deleted' => '0',
       'entity_types' => array(),
       'field_name' => 'field_adlib_technique',
@@ -3294,7 +3288,7 @@ field_adlib_acquisition_place
   $fields['node-adlib_object-field_adlib_title'] = array(
     'field_config' => array(
       'active' => '1',
-      'cardinality' => '1',
+      'cardinality' => '-1',
       'deleted' => '0',
       'entity_types' => array(),
       'field_name' => 'field_adlib_title',
@@ -3313,7 +3307,7 @@ field_adlib_acquisition_place
       ),
       'module' => 'text',
       'settings' => array(
-        'max_length' => '255',
+        'max_length' => '2056',
       ),
       'translatable' => '0',
       'type' => 'text',
@@ -3335,7 +3329,7 @@ field_adlib_acquisition_place
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
-          'weight' => '1',
+          'weight' => 56,
         ),
         'teaser' => array(
           'label' => 'above',
@@ -3368,7 +3362,7 @@ field_adlib_acquisition_place
   $fields['node-adlib_object-field_adlib_title_short_desc'] = array(
     'field_config' => array(
       'active' => '1',
-      'cardinality' => '1',
+      'cardinality' => '-1',
       'deleted' => '0',
       'entity_types' => array(),
       'field_name' => 'field_adlib_title_short_desc',
@@ -3507,7 +3501,7 @@ field_adlib_description',
           'rows' => '5',
         ),
         'type' => 'text_textarea',
-        'weight' => '43',
+        'weight' => '20',
       ),
     ),
   );
@@ -3579,7 +3573,7 @@ field_adlib_description',
           'rows' => '5',
         ),
         'type' => 'text_textarea',
-        'weight' => '44',
+        'weight' => '21',
       ),
     ),
   );
@@ -3651,7 +3645,7 @@ field_adlib_description',
           'rows' => '5',
         ),
         'type' => 'text_textarea',
-        'weight' => '45',
+        'weight' => '22',
       ),
     ),
   );
@@ -3723,7 +3717,7 @@ field_adlib_description',
           'rows' => '5',
         ),
         'type' => 'text_textarea',
-        'weight' => '46',
+        'weight' => '23',
       ),
     ),
   );
