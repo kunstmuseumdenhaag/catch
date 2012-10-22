@@ -121,7 +121,7 @@ function gemeentemuseum_adlib_feeds_importer_default() {
           'adlibparser:43' => '[tags]',
           'adlibparser:44' => '[chronicle.title]',
           'adlibparser:45' => '[title]',
-          'adlibparser:46' => '[object_number]',
+          'adlibparser:46' => '[PIDnumber]',
           'adlibparser:47' => '[credit_line]',
           'adlibparser:48' => '[description.paragraph_presentation]',
           'adlibparser:49' => '[description.qualification_presentation]',
