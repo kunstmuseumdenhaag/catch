@@ -10,7 +10,7 @@
  http://wiki.apache.org/solr/SchemaXml
 -->
 
-<schema name="mus-api-1.0.2" version="1.2">
+<schema name="mus-api-1.0.3" version="1.2">
     <!-- attribute "name" is the name of this schema and is only used for display purposes.
          Applications should change this to reflect the nature of the search collection.
          version="1.2" is Solr's version number for the schema syntax and semantics.  It should
@@ -421,12 +421,12 @@
      <field name="alternative_number" type="string" multiValued="true" indexed="true" stored="true" required="false" />
      <field name="alternative_number_type" type="string" multiValued="true" indexed="true" stored="true" required="false" />
 
-     <field name="how" type="string" multiValued="false" indexed="true" stored="true" required="false" />
-     <field name="what" type="string" multiValued="false" indexed="true" stored="true" required="false" />
-     <field name="when" type="string" multiValued="false" indexed="true" stored="true" required="false" />
-     <field name="where" type="string" multiValued="false" indexed="true" stored="true" required="false" />
-     <field name="who" type="string" multiValued="false" indexed="true" stored="true" required="false" />
-     <field name="raw" type="string" multiValued="false" indexed="true" stored="true" required="false" />
+     <field name="how" type="text" multiValued="false" indexed="false" stored="true" required="false" />
+     <field name="what" type="text" multiValued="false" indexed="false" stored="true" required="false" />
+     <field name="when" type="text" multiValued="false" indexed="false" stored="true" required="false" />
+     <field name="where" type="text" multiValued="false" indexed="false" stored="true" required="false" />
+     <field name="who" type="text" multiValued="false" indexed="false" stored="true" required="false" />
+     <field name="raw" type="text" multiValued="false" indexed="false" stored="true" required="false" />
 	
 	<!-- Fields for use with copyField-->
 	<field name="what_search"                            type="text" multiValued="true" indexed="true" stored="true" required="false" />
