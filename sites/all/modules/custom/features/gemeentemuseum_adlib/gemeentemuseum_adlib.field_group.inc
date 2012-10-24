@@ -21,12 +21,12 @@ function gemeentemuseum_adlib_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'How',
-    'weight' => '7',
+    'weight' => '8',
     'children' => array(
-      0 => 'field_adlib_dim_presentation',
-      1 => 'field_adlib_material',
-      2 => 'field_adlib_material_present',
-      3 => 'field_adlib_technique',
+      0 => 'field_adlib_material',
+      1 => 'field_adlib_material_present',
+      2 => 'field_adlib_technique',
+      3 => 'field_adlib_dim_presentation',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
@@ -51,7 +51,7 @@ function gemeentemuseum_adlib_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Relations',
-    'weight' => '8',
+    'weight' => '10',
     'children' => array(
       0 => 'field_adlib_chronicle_title',
       1 => 'field_adlib_doc_title_lref',
@@ -116,7 +116,7 @@ function gemeentemuseum_adlib_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'When',
-    'weight' => '5',
+    'weight' => '6',
     'children' => array(
       0 => 'field_adlib_inscription_date',
       1 => 'field_adlib_prod_date_end',
@@ -177,10 +177,10 @@ function gemeentemuseum_adlib_field_group_info() {
     'label' => 'Who',
     'weight' => '3',
     'children' => array(
-      0 => 'field_adlib_creation_present',
-      1 => 'field_adlib_creator',
-      2 => 'field_adlib_inscription_maker',
-      3 => 'field_adlib_institution_name',
+      0 => 'field_adlib_creator',
+      1 => 'field_adlib_inscription_maker',
+      2 => 'field_adlib_institution_name',
+      3 => 'field_adlib_creation_present',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(

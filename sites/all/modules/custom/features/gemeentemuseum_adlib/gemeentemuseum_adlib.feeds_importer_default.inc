@@ -21,7 +21,7 @@ function gemeentemuseum_adlib_feeds_importer_default() {
       'plugin_key' => 'AdlibFetcher',
       'config' => array(
         'database' => 'catch',
-        'changed' => '1970-01-01 09:40',
+        'changed' => '1970-10-18 17:20',
         'items' => '50',
         'fields' => array(
           0 => 'object_number',
@@ -75,10 +75,12 @@ function gemeentemuseum_adlib_feeds_importer_default() {
           48 => 'PIDnumber',
         ),
         'datesort' => 'modification',
-        'batch_results' => 0,
-        'batch_startfrom' => 0,
-        'status' => 0,
-        'xmltype' => 'unstructured',
+        'batch_results' => 161798,
+        'batch_startfrom' => 51,
+        'status' => 1,
+        'xmltype' => 'grouped',
+        'use_custom_query' => 0,
+        'custom_query' => 'routine.entry.step=minimaal',
       ),
     ),
     'parser' => array(
@@ -86,7 +88,7 @@ function gemeentemuseum_adlib_feeds_importer_default() {
       'config' => array(
         'sources' => array(
           'adlibparser:0' => '[object_number]',
-          'adlibparser:1' => '[title]',
+          'adlibparser:1' => '[title: | ]',
           'adlibparser:2' => '[title.short_description]',
           'adlibparser:3' => '[description]',
           'adlibparser:4' => '[object_name]',
@@ -119,7 +121,7 @@ function gemeentemuseum_adlib_feeds_importer_default() {
           'adlibparser:43' => '[tags]',
           'adlibparser:44' => '[chronicle.title]',
           'adlibparser:45' => '[title]',
-          'adlibparser:46' => '[object_number]',
+          'adlibparser:46' => '[PIDnumber]',
           'adlibparser:47' => '[credit_line]',
           'adlibparser:48' => '[description.paragraph_presentation]',
           'adlibparser:49' => '[description.qualification_presentation]',
@@ -152,6 +154,9 @@ function gemeentemuseum_adlib_feeds_importer_default() {
           'adlibparser:62' => '[chronicle.title.lref]',
         ),
         'rawXML' => array(),
+        'language' => array(
+          'list' => 'nl-NL,1,neutral',
+        ),
       ),
     ),
     'processor' => array(
@@ -423,7 +428,7 @@ function gemeentemuseum_adlib_feeds_importer_default() {
     ),
     'content_type' => '',
     'update' => 0,
-    'import_period' => '0',
+    'import_period' => '-1',
     'expire_period' => 3600,
     'import_on_create' => 1,
     'process_in_background' => 0,

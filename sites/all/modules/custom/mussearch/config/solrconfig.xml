@@ -22,7 +22,7 @@
      Specifically, the Solr Config can support XInclude, which may make it easier to manage
      the configuration.  See https://issues.apache.org/jira/browse/SOLR-1167
 -->
-<config name="mus-api-1.0.2">
+<config name="mus-api-1.0.3">
   <!-- Set this to 'false' if you want solr to continue working after it has
        encountered an severe configuration error.  In a production environment,
        you may want solr to keep working even if one handler is mis-configured.
@@ -561,9 +561,14 @@
       <str name="hl.fragsize">70</str>
       <str name="hl.mergeContiguous">true</str>
     </lst>
-    <arr name="last-components">
-      <str>spellcheck</str>
-	  <!--<str>privateField</str>-->
+    <arr name="components">
+      <str>query</str>
+      <str>facet</str>
+      <str>mlt</str>
+      <str>privateField</str>
+      <str>highlight</str>
+      <str>stats</str>
+      <str>debug</str>
     </arr>
   </requestHandler>
 
@@ -642,9 +647,14 @@
       <!-- The number of suggestions to return. -->
       <str name="spellcheck.count">1</str>
     </lst>
-    <arr name="last-components">
-      <str>spellcheck</str>
-      <!--<str>privateField</str>-->
+    <arr name="components">
+      <str>query</str>
+      <str>facet</str>
+      <str>mlt</str>
+      <str>privateField</str>
+      <str>highlight</str>
+      <str>stats</str>
+      <str>debug</str>
     </arr>
   </requestHandler>
 
@@ -812,14 +822,13 @@
     </arr>
   </requestHandler> -->
 
-  <!--
+
   <searchComponent name="privateField" class="nl.triquanta.solr.component.PrivateFieldComponent">
-  	<str name="allowedFields">item_id,score,title</str>
+  	<str name="allowedFields">PIDnumber, objectnummer</str>
   	<str name="privateField">publication_access</str>
   	<str name="publicValue">volledig</str>
   </searchComponent>
-  
-  -->
+
 
   <searchComponent name="tvComponent" class="org.apache.solr.handler.component.TermVectorComponent"/>
   <!-- A Req Handler for working with the tvComponent.  This is purely as an example.

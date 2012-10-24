@@ -3,11 +3,17 @@
  * Use a simple function for settings
  */
 function initializeMus() {
+  $slim = Slim::getInstance();
+  // Get the mode (legacy or normal)
+  $conf_filename = 'conf.php';
+  $legacy_setting = $slim->request()->params('legacymode');
+  if (isset($legacy_setting) && $legacy_setting == 'on' && file_exists(MUS_ROOT . '/environment/legacy_conf.php')) {
+    $conf_filename = 'legacy_conf.php';
+  }
   $settings = array();
   // try to get the conf from the environment
-  $musDir = getcwd();
-  if (file_exists(MUS_ROOT . '/environment/conf.php')) {
-    include_once MUS_ROOT . '/environment/conf.php';
+  if (file_exists(MUS_ROOT . '/environment/' . $conf_filename)) {
+    include_once MUS_ROOT . '/environment/' . $conf_filename;
   }
   if (isset($conf)) {
     $settings = $conf;
@@ -24,6 +30,5 @@ function initializeMus() {
     $settings['solr_path'] = '/solr36/gemeentemuseum';
   }
   // Now add the settings to Slim
-  $slim = Slim::getInstance();
   $slim->config($settings);
 }
