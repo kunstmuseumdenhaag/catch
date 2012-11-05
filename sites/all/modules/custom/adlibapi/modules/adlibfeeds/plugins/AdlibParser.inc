@@ -18,7 +18,7 @@ class AdlibParser extends FeedsParser {
   private $fields;
 
   private $field_regex = "[a-zA-Z0-9\._]+\s*";
-  private $separator_regex="[a-zA-Z0-9\s,;\:\._\<\>\/\|]+\s*";
+  private $separator_regex = "[a-zA-Z0-9\s,;\:\._\<\>\/\|]+\s*";
 
   /**
    * Implementation of FeedsParser::parse().
@@ -64,15 +64,17 @@ class AdlibParser extends FeedsParser {
     }
     return array(
       'adlibparser:' . $next => array(
-        'name' => t('Adlib Expression'),
+        'name'        => t('Adlib Expression'),
         'description' => t('Allows you to configure an Adlib expression that will populate this field.'),
-    ),
+      ),
     ) + parent::getMappingSources();
   }
 
   /**
    * Filters mappings, returning the ones that belong to us.
+   *
    * @param array $mappings with all mappings
+   *
    * @return array with mappings that start with 'adlibparser:'
    */
   private function filterMappings($mappings) {
@@ -107,24 +109,24 @@ class AdlibParser extends FeedsParser {
       }
     }
     $form['language'] = array(
-      '#type' => 'fieldset',
-      '#tree' => TRUE,
-      '#title' => t('Parser language settings'),
+      '#type'        => 'fieldset',
+      '#tree'        => TRUE,
+      '#title'       => t('Parser language settings'),
       '#collapsible' => TRUE,
-      '#collapsed' => FALSE,
+      '#collapsed'   => FALSE,
     );
     $form['language']['list'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Language codes, separated by comma'),
-      '#description' => t('Provide a list of language codes separated by comma. The first has preference. Eg. NL-nl,1,neutral'),
+      '#type'          => 'textfield',
+      '#title'         => t('Language codes, separated by comma'),
+      '#description'   => t('Provide a list of language codes separated by comma. The first has preference. Eg. NL-nl,1,neutral'),
       '#default_value' => isset($source_config['language']['list']) ? $source_config['language']['list'] : '',
     );
     $form['adlib'] = array(
-      '#type' => 'fieldset',
-      '#tree' => TRUE,
-      '#title' => t('Adlib Parser Settings'),
+      '#type'        => 'fieldset',
+      '#tree'        => TRUE,
+      '#title'       => t('Adlib Parser Settings'),
       '#collapsible' => TRUE,
-      '#collapsed' => TRUE,
+      '#collapsed'   => TRUE,
     );
     if (empty($mappings)) {
       $form['adlib']['error_message']['#value'] = 'AdlibParser: No mappings are defined yet. Please create at least one mapping at the processor.<br>';
@@ -133,11 +135,11 @@ class AdlibParser extends FeedsParser {
     }
     if (!empty($uniques)) {
       $items = array(
-      format_plural(count($uniques),
-      t('Field <strong>!column</strong> is mandatory and considered unique: only one item per !column value will be created.',
-      array('!column' => implode(', ', $uniques))),
-      t('Fields <strong>!columns</strong> are mandatory and values in these columns are considered unique: only one entry per value in one of these columns will be created.',
-      array('!columns' => implode(', ', $uniques)))),
+        format_plural(count($uniques),
+          t('Field <strong>!column</strong> is mandatory and considered unique: only one item per !column value will be created.',
+            array('!column' => implode(', ', $uniques))),
+          t('Fields <strong>!columns</strong> are mandatory and values in these columns are considered unique: only one entry per value in one of these columns will be created.',
+            array('!columns' => implode(', ', $uniques)))),
       );
       $form['adlib']['sources']['help']['#markup'] = '<div class="help">' . theme('item_list', array('items' => $items)) . '</div>';
     }
@@ -146,12 +148,12 @@ class AdlibParser extends FeedsParser {
       // If the type of the field starts with text_ then display a textarea, otherwise display a field.
       $input_type = (isset($field_info['type']) && strpos($field_info['type'], 'text_') !== FALSE) ? 'textarea' : 'textfield';
       $form['adlib']['sources'][$source] = array(
-        '#type' => $input_type,
-        '#title' => $target,
-        '#description' => t('The Adlib query to run.'),
+        '#type'          => $input_type,
+        '#title'         => $target,
+        '#description'   => t('The Adlib query to run.'),
         '#default_value' => isset($source_config['sources'][$source]) ? $source_config['sources'][$source] : '',
-        '#maxlength' => 1024,
-        '#size' => 80,
+        '#maxlength'     => 1024,
+        '#size'          => 80,
       );
     }
     /*
@@ -167,7 +169,7 @@ class AdlibParser extends FeedsParser {
     $tokens[] = '[raw_xml]';
     $list_vars = array(
       'items' => $tokens,
-      'type' => 'ul',
+      'type'  => 'ul',
       'title' => t('The following tokens can be used to describe the field.'),
     );
     $helpoutput = '<h3>' . t('Token usage') . '</h3>';
@@ -176,7 +178,7 @@ class AdlibParser extends FeedsParser {
     $helpoutput .= t('&lt;ul&gt;&lt;li&gt; [tags:&lt;/li&gt;&lt;li&gt;] &lt;/li&gt;&lt;/ul&gt;') . '</p>';
 
     $form['adlib']['fields'] = array(
-      '#type' => 'markup',
+      '#type'   => 'markup',
       '#markup' => '<div class="help">' . $helpoutput . theme('item_list', $list_vars) . '</div>'
     );
     return $form;
@@ -206,18 +208,18 @@ class AdlibParser extends FeedsParser {
         if (isset($all_fields[$field_name])) {
           $field_info = $all_fields[$field_name];
         }
-        if (isset($field_info) && $field_info['cardinality'] == -1 ) {
+        if (isset($field_info) && $field_info['cardinality'] == -1) {
           $cck_multiple = TRUE;
         }
         if ($cck_multiple) {
-           $adlib_value_regex = '/\[' . $this->field_regex . ':' . $this->separator_regex . '\]/';
-           if (preg_match($adlib_value_regex, $value)) {
-             form_set_error($field, t('The field %field can not have a separator in it is definition (<em>[&lt;field&gt;: &lt;separator&gt;]</em>), because it\'s a multiple CCK-field', array('%field' => $field_name)));
-           }
+          $adlib_value_regex = '/\[' . $this->field_regex . ':' . $this->separator_regex . '\]/';
+          if (preg_match($adlib_value_regex, $value)) {
+            form_set_error($field, t('The field %field can not have a separator in it is definition (<em>[&lt;field&gt;: &lt;separator&gt;]</em>), because it\'s a multiple CCK-field', array('%field' => $field_name)));
+          }
         }
         // 2) Check for each field if the expression is valid
         $token_regexp = '/\[' . $this->field_regex . ':' . $this->separator_regex . '\]|\[' . $this->field_regex . '\]/';
-        if (preg_match_all($token_regexp, $value, $tokens)==0 && $value != '') {
+        if (preg_match_all($token_regexp, $value, $tokens) == 0 && $value != '') {
           form_set_error($field, t('The expression in field %field is not valid, syntax is <em>[&lt;field&gt;]</em> or <em>[&lt;field&gt;: &lt;separator&gt;]</em>', array('%field' => $field_name)));
         }
         // 3) Do not accept empty fields
@@ -258,8 +260,8 @@ class AdlibParser extends FeedsParser {
    */
   public function configDefaults() {
     return array(
-      'sources' => array(),
-      'rawXML' => array(),
+      'sources'  => array(),
+      'rawXML'   => array(),
       'language' => array(
         'list' => '',
       )
@@ -269,6 +271,7 @@ class AdlibParser extends FeedsParser {
   /**
    * Parse the XML grouped or unstructured response from the Adlib server
    * in an array
+   *
    * @return array
    *   Array with 1 row per Adlib object.
    */
@@ -286,7 +289,7 @@ class AdlibParser extends FeedsParser {
           $field_array = array();
           // get all values
           foreach ($children as $value) {
-            if ((string) $value != '' && (string) $value != 'Array'){
+            if ((string) $value != '' && (string) $value != 'Array') {
               $field_array[] = $this->replaceTokenCharacters((string) $value);
             }
             else {
@@ -325,6 +328,7 @@ class AdlibParser extends FeedsParser {
    *   The xml element
    * @param string $fieldname
    *   The field name
+   *
    * @return SimpleXMLElement
    */
   protected function getGroupedFieldByXpath($xmlpart, $fieldname) {
@@ -341,12 +345,12 @@ class AdlibParser extends FeedsParser {
       }
     }
     // If this doesn't work, get just all value tags
-    if (! $children || ! count($children)) {
+    if (!$children || !count($children)) {
       $query = $fieldname . '/value[@lang=""]';
       $children = $xml->xpath($query);
     }
     // And maybe there are no value tags at all,
-    if (! $children || ! count($children)) {
+    if (!$children || !count($children)) {
       $children = $xml->xpath('//' . $fieldname);
     }
     return $children;
@@ -359,7 +363,7 @@ class AdlibParser extends FeedsParser {
    */
   protected function getLanguagePreferences() {
     $languages = $this->source_config['language']['list'];
-    return explode(',' ,$languages);
+    return explode(',', $languages);
   }
 
   /**
@@ -391,7 +395,9 @@ class AdlibParser extends FeedsParser {
 
   /**
    * Create array with import items filled from the array with Adlib items
+   *
    * @param $adlib_items associative array with 1 row per Adlib object
+   *
    * @return array with import-items
    */
   private function _performAdlibQuery($adlib_items) {
@@ -404,7 +410,9 @@ class AdlibParser extends FeedsParser {
 
   /**
    * Create an associative array for one import item
+   *
    * @param $adlib_item array with item parsed from the XML the adlib server returned
+   *
    * @return array with 1 import item
    */
   private function _parseAdlibSingleItem($adlib_item) {
@@ -439,10 +447,10 @@ class AdlibParser extends FeedsParser {
 
       $field_name = $mappings[$source_key];
       unset($field_info);
-        if (isset($all_fields[$field_name])) {
-          $field_info = $all_fields[$field_name];
-        }
-      if (isset($field_info) && $field_info['cardinality'] == -1 ) {
+      if (isset($all_fields[$field_name])) {
+        $field_info = $all_fields[$field_name];
+      }
+      if (isset($field_info) && $field_info['cardinality'] == -1) {
         $cck_multiple = TRUE;
       }
       // e.g. $value = '[creator] | [material]'
@@ -458,7 +466,7 @@ class AdlibParser extends FeedsParser {
          */
         //$adlib_value_regex = '/(\[' . $adlib_key . ':+[a-zA-Z\._\<\>\/]+\]|\[' . $adlib_key . '\])/';
         $adlib_value_regex = '/\[' . $adlib_key . ':' . $this->separator_regex . '\]|\[' . $adlib_key . '\]/';
-        if ($cck_multiple && ! $token_multiple) {
+        if ($cck_multiple && !$token_multiple) {
           $dummy = 'dummy';
           if (preg_match($adlib_value_regex, $value) > 0) {
             if (is_array($adlib_value)) {
@@ -482,8 +490,8 @@ class AdlibParser extends FeedsParser {
             $adlib_value_regex = '/\[(' . $adlib_key . '):(' . $this->separator_regex . ')\]/';
             $count = preg_match($adlib_value_regex, $source, $parts);
             // if count > 0 we have a field with separator, otherwise we do not have a separator
-            if ($count==0) {
-               $adlib_value_regex = '/\[' . $adlib_key . '\]/';
+            if ($count == 0) {
+              $adlib_value_regex = '/\[' . $adlib_key . '\]/';
             }
             $glue = (isset($parts[2])) ? $parts[2] : ' ';
             $glued_string = implode($glue, $adlib_value);
@@ -494,22 +502,22 @@ class AdlibParser extends FeedsParser {
           }
         }
       }
-       if (is_array($value)) {
-       foreach ($value as $key => $val) {
-         // if we have any more [<tags>] remove them here
-         $value[$key] = preg_replace('/\[.*?\]/', '' , $val);
-         // remove redundant spaces
-         $value[$key] = trim($value[$key]);
-       }
-     }
-     else {
-       // if we have any more [<tags>] remove them here
-       $value = preg_replace('/\[.*?\]/', '' , $value);
-       // remove redundant spaces
-       $value = trim($value);
-       // Replace token characters again
-       $value = $this->replaceTokenCharacters($value, TRUE);
-     }
+      if (is_array($value)) {
+        foreach ($value as $key => $val) {
+          // if we have any more [<tags>] remove them here
+          $value[$key] = preg_replace('/\[.*?\]/', '', $val);
+          // remove redundant spaces
+          $value[$key] = trim($value[$key]);
+        }
+      }
+      else {
+        // if we have any more [<tags>] remove them here
+        $value = preg_replace('/\[.*?\]/', '', $value);
+        // remove redundant spaces
+        $value = trim($value);
+        // Replace token characters again
+        $value = $this->replaceTokenCharacters($value, TRUE);
+      }
 
       $item[$source_key] = $value;
     }
