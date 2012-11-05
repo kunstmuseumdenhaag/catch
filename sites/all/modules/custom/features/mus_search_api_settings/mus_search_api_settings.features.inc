@@ -13,7 +13,7 @@ function mus_search_api_settings_default_search_api_index() {
     "name" : "MuS index 1",
     "machine_name" : "mus_index_1",
     "description" : "MuS index 1",
-    "server" : "gemeentemuseum_local",
+    "server" : "dummy",
     "item_type" : "node",
     "options" : {
       "index_directly" : 1,
