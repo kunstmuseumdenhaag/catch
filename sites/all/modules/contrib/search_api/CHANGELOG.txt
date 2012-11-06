@@ -1,8 +1,48 @@
 Search API 1.x, dev (xx/xx/xxxx):
 ---------------------------------
 
+Search API 1.3 (10/10/2012):
+----------------------------
+- Patch by mr.baileys: Fixed "enable" function doesn't use security tokens.
+- #1318904 by becw, das-peter, orakili, drunken monkey: Added improved handling
+  for NULL values in Views.
+- #1306008 by Damien Tournoud, drunken monkey: Fixed handling of negative
+  facets.
+- #1182912 by drunken monkey, sepgil: Added Rules action for indexing entities.
+- #1507882 by jsacksick: Added "Exclude unpublished nodes" data alteration.
+- #1225620 by drunken monkey: Added Batch API integration for the "Index now"
+  functionality.
+- #1777710 by dasjo: Remove dependency on $_GET['q'] for determining base paths.
+- #1715238 by jsacksick: Fixed fulltext argument handler field list is broken.
+- #1414138 by drunken monkey: Fixed internal static index property cache.
+- #1253320 by drunken monkey, fago: Fixed improper error handling.
+
+Search API 1.2 (07/07/2012):
+----------------------------
+- #1368548 by das-peter: Do not index views results by entity id.
+- #1422750 by drunken monkey, sepgil: Fixed illegal modification of entity
+  objects.
+- #1363114 by nbucknor: Fixed inclusion of upper bound in range facets.
+- #1580780 by drunken monkey: Fixed default regexps of the Tokenizer.
+- #1468678 by znerol: Fixed erroneous use of Drupal multibyte wrapper functions.
+- #1600986 by DamienMcKenna: Fixed dependencies of exported search servers.
+- #1569874 by cpliakas: Fixed removal/adding of facets when indexed fields are
+  changed.
+- #1528436 by jsacksick, drunken monkey: Fixed handling of exportable entities.
+
+Search API 1.1 (05/23/2012):
+----------------------------
+- Fixed escaping of error messages.
+- #1330506 by drunken monkey: Removed the old Facets module.
+- #1504318 by peximo: Fixed Views pager offset.
+- #1141488 by moonray, drunken monkey: Added option to use multiple values with
+  contextual filters.
+- #1535726 by bojanz, joelpittet: Fixed arguments for
+  $service->configurationFormValidate() for empty forms.
+- #1400882 by mh86: Fixed "Index hierarchy" for "All parents".
+
 Search API 1.0 (12/15/2011):
----------------------------------
+----------------------------
 - #1350322 by drunken monkey: Fixed regressions introduced with cron queue
   indexing.
 - #1352292 by das-peter, drunken monkey: Use Search API specific table groups in

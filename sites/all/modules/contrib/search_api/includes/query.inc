@@ -400,7 +400,7 @@ class SearchApiQuery implements SearchApiQueryInterface {
     if (isset($options['parse mode'])) {
       $modes = $this->parseModes();
       if (!isset($modes[$options['parse mode']])) {
-        throw new SearchApiException(t('Unknown parse mode: !mode.', array('!mode' => $options['parse mode'])));
+        throw new SearchApiException(t('Unknown parse mode: @mode.', array('@mode' => $options['parse mode'])));
       }
     }
     $this->index = $index;
@@ -468,7 +468,7 @@ class SearchApiQuery implements SearchApiQueryInterface {
             continue;
           }
           if ($quoted) {
-            if ($v[drupal_strlen($v)-1] == '"') {
+            if (substr($v, -1) == '"') {
               $v = substr($v, 0, -1);
               $str .= ' ' . $v;
               $ret[$k] = $str;
@@ -480,7 +480,7 @@ class SearchApiQuery implements SearchApiQueryInterface {
             }
           }
           elseif ($v[0] == '"') {
-            $len = drupal_strlen($v);
+            $len = strlen($v);
             if ($len > 1 && $v[$len-1] == '"') {
               $ret[$k] = substr($v, 1, -1);
             }
@@ -549,7 +549,7 @@ class SearchApiQuery implements SearchApiQueryInterface {
   public function fields(array $fields) {
     $fulltext_fields = $this->index->getFulltextFields();
     foreach (array_diff($fields, $fulltext_fields) as $field) {
-      throw new SearchApiException(t('Trying to search on field !field which is no indexed fulltext field.', array('!field' => $field)));
+      throw new SearchApiException(t('Trying to search on field @field which is no indexed fulltext field.', array('@field' => $field)));
     }
     $this->fields = $fields;
     return $this;
@@ -617,11 +617,11 @@ class SearchApiQuery implements SearchApiQueryInterface {
       'search_api_id' => array('type' => 'integer'),
     );
     if (empty($fields[$field])) {
-      throw new SearchApiException(t('Trying to sort on unknown field !field.', array('!field' => $field)));
+      throw new SearchApiException(t('Trying to sort on unknown field @field.', array('@field' => $field)));
     }
     $type = $fields[$field]['type'];
     if (search_api_is_list_type($type) || search_api_is_text_type($type)) {
-      throw new SearchApiException(t('Trying to sort on field !field of illegal type !type.', array('!field' => $field, '!type' => $type)));
+      throw new SearchApiException(t('Trying to sort on field @field of illegal type @type.', array('@field' => $field, '@type' => $type)));
     }
     $order = strtoupper(trim($order)) == 'DESC' ? 'DESC' : 'ASC';
     $this->sort[$field] = $order;
@@ -730,7 +730,7 @@ class SearchApiQuery implements SearchApiQueryInterface {
             unset($langs_to_add[$lang]);
           }
           else {
-            throw new SearchApiException(t('Impossible combination of filters and languages. There is a filter for "!language", but allowed languages are: "!languages".', array('!language' => $lang, '!languages' => implode('", "', $languages))));
+            throw new SearchApiException(t('Impossible combination of filters and languages. There is a filter for "@language", but allowed languages are: "@languages".', array('@language' => $lang, '@languages' => implode('", "', $languages))));
           }
         }
       }

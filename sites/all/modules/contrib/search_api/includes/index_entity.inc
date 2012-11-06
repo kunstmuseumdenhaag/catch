@@ -116,10 +116,10 @@ class SearchApiIndex extends Entity {
    *   - boost: (optional) A boost value for terms found in this field during
    *     searches. Usually only relevant for fulltext fields. Defaults to 1.0.
    *   - entity_type (optional): If set, the type of this field is really an
-   *     entity. The "type" key will then contain "integer", meaning that
-   *     servers will ignore this and merely index the entity's ID. Components
-   *     displaying this field, though, are advised to use the entity label
-   *     instead of the ID.
+   *     entity. The "type" key will then just contain the primitive data type
+   *     of the ID field, meaning that servers will ignore this and merely index
+   *     the entity's ID. Components displaying this field, though, are advised
+   *     to use the entity label instead of the ID.
    * - additional fields: An associative array with keys and values being the
    *   field identifiers of related entities whose fields should be displayed.
    * - data_alter_callbacks: An array of all data alterations available. Keys
@@ -272,6 +272,11 @@ class SearchApiIndex extends Entity {
     if (!$changed) {
       return 0;
     }
+
+    // Reset the index's internal property cache to correctly incorporate new
+    // settings.
+    $this->resetCaches();
+
     return $this->save();
   }
 
@@ -369,8 +374,7 @@ class SearchApiIndex extends Entity {
     if (!isset($this->server_object) || $reset) {
       $this->server_object = $this->server ? search_api_server_load($this->server) : FALSE;
       if ($this->server && !$this->server_object) {
-        throw new SearchApiException(t('Unknown server !server specified for index !name.',
-            array('!server' => $this->server, '!name' => $this->machine_name)));
+        throw new SearchApiException(t('Unknown server @server specified for index @name.', array('@server' => $this->server, '@name' => $this->machine_name)));
       }
     }
     return $this->server_object ? $this->server_object : NULL;
@@ -413,10 +417,10 @@ class SearchApiIndex extends Entity {
       return array();
     }
     if (!$this->enabled) {
-      throw new SearchApiException(t("Couldn't index values on '!name' index (index is disabled)", array('!name' => $this->name)));
+      throw new SearchApiException(t("Couldn't index values on '@name' index (index is disabled)", array('@name' => $this->name)));
     }
     if (empty($this->options['fields'])) {
-      throw new SearchApiException(t("Couldn't index values on '!name' index (no fields selected)", array('!name' => $this->name)));
+      throw new SearchApiException(t("Couldn't index values on '@name' index (no fields selected)", array('@name' => $this->name)));
     }
     $fields = $this->options['fields'];
     $custom_type_fields = array();
@@ -430,7 +434,7 @@ class SearchApiIndex extends Entity {
       }
     }
     if (empty($fields)) {
-      throw new SearchApiException(t("Couldn't index values on '!name' index (no fields selected)", array('!name' => $this->name)));
+      throw new SearchApiException(t("Couldn't index values on '@name' index (no fields selected)", array('@name' => $this->name)));
     }
 
     // Mark all items that are rejected as indexed.
@@ -452,6 +456,7 @@ class SearchApiIndex extends Entity {
     $data = array();
     foreach ($items as $id => $item) {
       $data[$id] = search_api_extract_fields($this->entityWrapper($item), $fields);
+      unset($items[$id]);
       foreach ($custom_type_fields as $type => $type_fields) {
         $info = search_api_get_data_type_info($type);
         if (isset($info['conversion callback']) && is_callable($info['conversion callback'])) {
@@ -564,13 +569,13 @@ class SearchApiIndex extends Entity {
         continue;
       }
       if (empty($infos[$id]) || !class_exists($infos[$id]['class'])) {
-        watchdog('search_api', t('Undefined data alteration !class specified in index !name', array('!class' => $id, '!name' => $this->name)), NULL, WATCHDOG_WARNING);
+        watchdog('search_api', t('Undefined data alteration @class specified in index @name', array('@class' => $id, '@name' => $this->name)), NULL, WATCHDOG_WARNING);
         continue;
       }
       $class = $infos[$id]['class'];
       $callback = new $class($this, empty($settings['settings']) ? array() : $settings['settings']);
       if (!($callback instanceof SearchApiAlterCallbackInterface)) {
-        watchdog('search_api', t('Unknown callback class !class specified for data alteration !name', array('!class' => $class, '!name' => $id)), NULL, WATCHDOG_WARNING);
+        watchdog('search_api', t('Unknown callback class @class specified for data alteration @name', array('@class' => $class, '@name' => $id)), NULL, WATCHDOG_WARNING);
         continue;
       }
 
@@ -601,13 +606,13 @@ class SearchApiIndex extends Entity {
         continue;
       }
       if (empty($infos[$id]) || !class_exists($infos[$id]['class'])) {
-        watchdog('search_api', t('Undefined processor !class specified in index !name', array('!class' => $id, '!name' => $this->name)), NULL, WATCHDOG_WARNING);
+        watchdog('search_api', t('Undefined processor @class specified in index @name', array('@class' => $id, '@name' => $this->name)), NULL, WATCHDOG_WARNING);
         continue;
       }
       $class = $infos[$id]['class'];
       $processor = new $class($this, isset($settings['settings']) ? $settings['settings'] : array());
       if (!($processor instanceof SearchApiProcessorInterface)) {
-        watchdog('search_api', t('Unknown processor class !class specified for processor !name', array('!class' => $class, '!name' => $id)), NULL, WATCHDOG_WARNING);
+        watchdog('search_api', t('Unknown processor class @class specified for processor @name', array('@class' => $class, '@name' => $id)), NULL, WATCHDOG_WARNING);
         continue;
       }
 
@@ -667,7 +672,7 @@ class SearchApiIndex extends Entity {
    *
    * @param array $response
    *   An array containing the search results. See
-   *   SearchApiServiceInterface->search() for the detailled format.
+   *   SearchApiServiceInterface->search() for the detailed format.
    * @param SearchApiQuery $query
    *   The object representing the executed query.
    *
@@ -812,7 +817,8 @@ class SearchApiIndex extends Entity {
               );
             }
             if (isset($entity_types[$type])) {
-              $flat[$key]['type'] = search_api_nest_type('integer', $info['type']);
+              $base_type = isset($entity_types[$type]['entity keys']['name']) ? 'string' : 'integer';
+              $flat[$key]['type'] = search_api_nest_type($base_type, $info['type']);
               $flat[$key]['entity_type'] = $type;
             }
           }
@@ -910,6 +916,21 @@ class SearchApiIndex extends Entity {
    */
   public function loadItems(array $ids) {
     return $this->datasource()->loadItems($ids);
+  }
+
+  /**
+   * Reset internal static caches.
+   *
+   * Should be used when things like fields or data alterations change to avoid
+   * using stale data.
+   */
+  public function resetCaches() {
+    $this->datasource = NULL;
+    $this->server_object = NULL;
+    $this->callbacks = NULL;
+    $this->processors = NULL;
+    $this->added_properties = NULL;
+    $this->fulltext_fields = array();
   }
 
 }
