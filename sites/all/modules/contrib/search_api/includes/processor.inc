@@ -117,7 +117,7 @@ interface SearchApiProcessorInterface {
    *
    * @param array $response
    *   An array containing the search results. See the return value of
-   *   SearchApiQueryInterface->execute() for the detailled format.
+   *   SearchApiQueryInterface->execute() for the detailed format.
    * @param SearchApiQuery $query
    *   The object representing the executed query.
    */
@@ -269,7 +269,7 @@ abstract class SearchApiAbstractProcessor implements SearchApiProcessorInterface
       }
     }
     else {
-        $this->processFieldValue($value);
+      $this->processFieldValue($value);
     }
     if (is_array($value)) {
       $type = 'tokens';

@@ -1,5 +1,4 @@
 <?php
-// $Id: search_api.admin.inc,v 1.1.2.76 2011/02/20 12:44:15 drunkenmonkey Exp $
 
 /**
  * Page callback that shows an overview of defined servers and indexes.
@@ -65,7 +64,7 @@ function search_api_admin_overview() {
     }
     $row[] = $t_server;
     $row[] = l($server->name, $url);
-    $row[] = $server->enabled ? l($t_disable, $url . $disable) : l($t_enable, $url . $enable);
+    $row[] = $server->enabled ? l($t_disable, $url . $disable) : l($t_enable, $url . $enable, array('query' => array('token' => drupal_get_token($server->machine_name))));
     $row[] = l($t_edit, $url . $edit);
     $row[] = _search_api_admin_delete_link($server);
     $rows[] = $row;
@@ -82,7 +81,7 @@ function search_api_admin_overview() {
         $row[] = l($index->name, $url);
         $row[] = $index->enabled
             ? l($t_disable, $url . $disable)
-            : ($server->enabled ? l($t_enable, $url . $enable) : '');
+            : ($server->enabled ? l($t_enable, $url . $enable, array('query' => array('token' => drupal_get_token($index->machine_name)))) : '');
         $row[] = l($t_edit, $url . $edit, $edit_link_options) .
             '<div class="search-api-edit-menu collapsed">' .
             theme('links', array('links' => menu_contextual_links('search-api-index', $pre_index, array($index->machine_name)))) .
@@ -188,7 +187,7 @@ function search_api_admin_add_server(array $form, array &$form_state) {
       '#type' => 'select',
       '#title' => t('Service class'),
       '#description' => t('Choose a service class to use for this server.'),
-      '#options' => array('' => '< '. t('Choose a service class') .' >'),
+      '#options' => array('' => '< ' . t('Choose a service class') . ' >'),
       '#required' => TRUE,
       '#default_value' => $class,
       '#ajax' => array(
@@ -215,7 +214,7 @@ function search_api_admin_add_server(array $form, array &$form_state) {
       $service = new $info['class']($form_state['server']);
     }
     if (!($service instanceof SearchApiServiceInterface)) {
-      watchdog('search_api', t('Service class !id specifies an illegal class: !class', array('!id' => $id, '!class' => $info['class'])), NULL, WATCHDOG_ERROR);
+      watchdog('search_api', t('Service class @id specifies an illegal class: @class', array('@id' => $id, '@class' => $info['class'])), NULL, WATCHDOG_ERROR);
       continue;
     }
     $service_form = isset($form['options']['form']) ? $form['options']['form'] : array();
@@ -275,7 +274,8 @@ function search_api_admin_add_server_validate(array $form, array &$form_state) {
     return;
   }
   $form_state['values']['options']['service'] = $service;
-  $service->configurationFormValidate($form['options']['form'], $form_state['values']['options']['form'], $form_state);
+  $values = isset($form_state['values']['options']['form']) ? $form_state['values']['options']['form'] : array();
+  $service->configurationFormValidate($form['options']['form'], $values, $form_state);
 }
 
 /**
@@ -325,13 +325,18 @@ function search_api_admin_item_title($object) {
 function search_api_admin_server_view(SearchApiServer $server, $action = NULL) {
   if (!empty($action)) {
     if ($action == 'enable') {
-      if ($server->update(array('enabled' => 1))) {
-        drupal_set_message(t('The server was successfully enabled.'));
+      if (isset($_GET['token']) && drupal_valid_token($_GET['token'], $server->machine_name)) {
+        if ($server->update(array('enabled' => 1))) {
+          drupal_set_message(t('The server was successfully enabled.'));
+        }
+        else {
+          drupal_set_message(t('The server could not be enabled. Check the logs for details.'), 'error');
+        }
+        drupal_goto('admin/config/search/search_api/server/' . $server->machine_name);
       }
       else {
-        drupal_set_message(t('The server could not be enabled. Check the logs for details.'), 'error');
+        return MENU_ACCESS_DENIED;
       }
-      drupal_goto('admin/config/search/search_api/server/' . $server->machine_name);
     }
     else {
       $ret = drupal_get_form('search_api_admin_confirm', 'server', $action, $server);
@@ -388,7 +393,7 @@ function theme_search_api_server(array $variables) {
     $output .= t('enabled (!disable_link)', array('!disable_link' => l(t('disable'), 'admin/config/search/search_api/server/' . $machine_name . '/disable')));
   }
   else {
-    $output .= t('disabled (!enable_link)', array('!enable_link' => l(t('enable'), 'admin/config/search/search_api/server/' . $machine_name . '/enable')));
+    $output .= t('disabled (!enable_link)', array('!enable_link' => l(t('enable'), 'admin/config/search/search_api/server/' . $machine_name . '/enable', array('query' => array('token' => drupal_get_token($machine_name))))));
   }
   $output .= '</dd>' . "\n";
 
@@ -640,13 +645,18 @@ function search_api_admin_index_view(SearchApiIndex $index = NULL, $action = NUL
 
   if (!empty($action)) {
     if ($action == 'enable') {
-      if ($index->update(array('enabled' => 1))) {
-        drupal_set_message(t('The index was successfully enabled.'));
+      if (isset($_GET['token']) && drupal_valid_token($_GET['token'], $index->machine_name)) {
+        if ($index->update(array('enabled' => 1))) {
+          drupal_set_message(t('The index was successfully enabled.'));
+        }
+        else {
+          drupal_set_message(t('The index could not be enabled. Check the logs for details.'), 'error');
+        }
+        drupal_goto('admin/config/search/search_api/index/' . $index->machine_name);
       }
       else {
-        drupal_set_message(t('The index could not be enabled. Check the logs for details.'), 'error');
+        return MENU_ACCESS_DENIED;
       }
-      drupal_goto('admin/config/search/search_api/index/' . $index->machine_name);
     }
     else {
       $ret = drupal_get_form('search_api_admin_confirm', 'index', $action, $index);
@@ -710,7 +720,7 @@ function theme_search_api_index(array $variables) {
     $output .= t('enabled (!disable_link)', array('!disable_link' => l(t('disable'), 'admin/config/search/search_api/index/' . $machine_name . '/disable')));
   }
   elseif ($server && $server->enabled) {
-    $output .= t('disabled (!enable_link)', array('!enable_link' => l(t('enable'), 'admin/config/search/search_api/index/' . $machine_name . '/enable')));
+    $output .= t('disabled (!enable_link)', array('!enable_link' => l(t('enable'), 'admin/config/search/search_api/index/' . $machine_name . '/enable', array('query' => array('token' => drupal_get_token($machine_name))))));
   }
   else {
     $output .= t('disabled');
@@ -847,36 +857,34 @@ function search_api_admin_index_status_form(array $form, array &$form_state, Sea
       $form['index'] = array(
         '#type' => 'fieldset',
         '#title' => t('Index now'),
-        '#attributes' => array('class' => array('container-inline')),
         '#collapsible' => TRUE,
       );
-      $limit = empty($index->options['cron_limit']) ? SEARCH_API_DEFAULT_CRON_LIMIT : $index->options['cron_limit'];
-      if ($limit > 0) {
-        $form['index']['limit'] = array(
-          '#type' => 'textfield',
-          '#title' => t('Number of batches:'),
-          '#default_value' => -1,
-          '#size' => 4,
-          '#attributes' => array('class' => array('search-api-cron-limit')),
-        );
-        $desc = format_plural($limit,
-              'Each batch contains 1 item. Set to -1 for no limit.',
-              'Each batch contains @count items. Set to -1 for no limit.');
-      }
-      else {
-        $form['index']['limit'] = array(
-          '#type' => 'value',
-          '#value' => -1,
-        );
-        $desc = t("This will immediately index all items that haven't been indexed in their latest version yet.");
-      }
+      $form['index']['settings'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Advanced settings'),
+        '#collapsible' => TRUE,
+        '#collapsed' => TRUE,
+      );
+      $form['index']['settings']['limit'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Number of items to index'),
+        '#default_value' => -1,
+        '#size' => 4,
+        '#attributes' => array('class' => array('search-api-limit')),
+        '#description' => t('Number of items to index. Set to -1 for all items.'),
+      );
+      $batch_size = empty($index->options['cron_limit']) ? SEARCH_API_DEFAULT_CRON_LIMIT : $index->options['cron_limit'];
+      $form['index']['settings']['batch_size'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Number of items per batch run'),
+        '#default_value' => $batch_size,
+        '#size' => 4,
+        '#attributes' => array('class' => array('search-api-batch-size')),
+        '#description' => t('Number of items per batch run. Set to -1 for all items at once (not recommended). Defaults to the cron batch size of the index.'),
+      );
       $form['index']['button'] = array(
         '#type' => 'submit',
         '#value' => t('Index now'),
-      );
-      $form['index']['description'] = array(
-        '#type' => 'item',
-        '#description' => '<br />' . $desc,
       );
       $form['index']['total'] = array(
         '#type' => 'value',
@@ -951,26 +959,8 @@ function search_api_admin_index_status_form_submit(array $form, array &$form_sta
       $redirect = $pre . '/disable';
       break;
     case t('Index now'):
-      $limit = $values['limit'];
-      $batch_size = empty($index->options['cron_limit']) ? SEARCH_API_DEFAULT_CRON_LIMIT : $index->options['cron_limit'];
-      // @todo Batch API?
-      try {
-        $ret = search_api_index_items($index, ($limit < 0 || $batch_size < 0) ? -1 : $limit * $batch_size);
-      }
-      catch (SearchApiException $e) {
-        $ret = FALSE;
-        watchdog('search_api', t('An error occurred while trying to index items on index !name: !message',
-            array('!name' => $index->machine_name, '!message' => $e->getMessage())), NULL, WATCHDOG_ERROR);
-      }
-      if ($ret) {
-        drupal_set_message(format_plural($ret, 'Successfully indexed 1 item.', 'Successfully indexed @count items.'));
-        if (($limit > 0 && $ret < min(array($limit, $values['remaining'])))
-            || ($limit < 0 && $ret < $values['remaining'])) {
-          drupal_set_message(t("Some items couldn't be indexed. Check the logs for details."), 'warning');
-        }
-      }
-      else {
-        drupal_set_message(t("Couldn't index items. Check the logs for details."), 'error');
+      if (!_search_api_batch_indexing_create($index, $values['batch_size'], $values['limit'], $values['remaining'])) {
+        drupal_set_message(t("Couldn't create a batch, please check the batch_sise and limit."), 'warning');
       }
       $redirect = $pre . '/status';
       break;
@@ -1136,7 +1126,7 @@ function search_api_admin_index_workflow(array $form, array &$form_state, Search
       $callback_objects[$name] = new $callback['class']($index, $settings);
     }
     if (!(class_exists($callback['class']) && $callback_objects[$name] instanceof SearchApiAlterCallbackInterface)) {
-      watchdog('search api', t('Data alteration !id specifies illegal callback class !class.', array('!id' => $name, '!class' => $callback['class'])), NULL, WATCHDOG_WARNING);
+      watchdog('search_api', t('Data alteration @id specifies illegal callback class @class.', array('@id' => $name, '@class' => $callback['class'])), NULL, WATCHDOG_WARNING);
       unset($callback_info[$name]);
       unset($callbacks[$name]);
       unset($callback_objects[$name]);
@@ -1232,7 +1222,7 @@ function search_api_admin_index_workflow(array $form, array &$form_state, Search
       $processor_objects[$name] = new $processor['class']($index, $settings);
     }
     if (!(class_exists($processor['class']) && $processor_objects[$name] instanceof SearchApiProcessorInterface)) {
-      watchdog('search api', t('Processor !id specifies illegal processor class !class.', array('!id' => $name, '!class' => $processor['class'])), NULL, WATCHDOG_WARNING);
+      watchdog('search_api', t('Processor @id specifies illegal processor class @class.', array('@id' => $name, '@class' => $processor['class'])), NULL, WATCHDOG_WARNING);
       unset($processor_info[$name]);
       unset($processors[$name]);
       unset($processor_objects[$name]);
@@ -1392,31 +1382,44 @@ function search_api_admin_index_workflow_submit(array $form, array &$form_state)
     $values['processors'][$name]['settings'] = $processor->configurationFormSubmit($processor_form, $values['processors'][$name]['settings'], $form_state);
   }
 
-  // Set default indexed status for newly added fields.
   $types = search_api_field_types();
   foreach ($form_state['callbacks'] as $name => $callback) {
-    if ($values['callbacks'][$name]['status'] && empty($options['data_alter_callbacks'][$name]['status'])) {
-      $properties = $callback->propertyInfo();
-      if ($properties) {
-        foreach ($properties as $key => $field) {
-          $type = $field['type'];
-          $inner = search_api_extract_inner_type($type);
-          if ($inner != 'token' && empty($types[$inner])) {
-            // Someone apparently added a structure or entity as a property in a data-alter callback.
-            continue;
-          }
-          if ($inner == 'token' || (search_api_is_text_type($inner) && !empty($field['options list']))) {
-            $old = $type;
-            $type = 'string';
-            while (search_api_is_list_type($old)) {
-              $old = substr($old, 5, -1);
-              $type = "list<$type>";
+    // Check whether callback status has changed.
+    if ($values['callbacks'][$name]['status'] == empty($options['data_alter_callbacks'][$name]['status'])) {
+      if ($values['callbacks'][$name]['status']) {
+        // Callback was just enabled, add its fields.
+        $properties = $callback->propertyInfo();
+        if ($properties) {
+          foreach ($properties as $key => $field) {
+            $type = $field['type'];
+            $inner = search_api_extract_inner_type($type);
+            if ($inner != 'token' && empty($types[$inner])) {
+              // Someone apparently added a structure or entity as a property in a data-alter callback.
+              continue;
             }
+            if ($inner == 'token' || (search_api_is_text_type($inner) && !empty($field['options list']))) {
+              $old = $type;
+              $type = 'string';
+              while (search_api_is_list_type($old)) {
+                $old = substr($old, 5, -1);
+                $type = "list<$type>";
+              }
+            }
+            $index->options['fields'][$key] = array(
+              'type' => $type,
+            );
           }
-          $index->options['fields'][$key] = array(
-            'type' => $type,
-          );
         }
+      }
+      else {
+        // Callback was just disabled, remove its fields.
+        $properties = $callback->propertyInfo();
+        if ($properties) {
+          foreach ($properties as $key => $field) {
+            unset($index->options['fields'][$key]);
+          }
+        }
+
       }
     }
   }
@@ -1430,6 +1433,10 @@ function search_api_admin_index_workflow_submit(array $form, array &$form_state)
     // Save the already sorted arrays to avoid having to sort them at each use.
     uasort($index->options['data_alter_callbacks'], 'search_api_admin_element_compare');
     uasort($index->options['processors'], 'search_api_admin_element_compare');
+
+    // Reset the index's internal property cache to correctly incorporate the
+    // new data alterations.
+    $index->resetCaches();
 
     $index->save();
     $index->reindex();
@@ -1483,7 +1490,7 @@ function search_api_admin_index_fields(array $form, array &$form_state, SearchAp
     '#title' => t('Select fields to index'),
     '#description' => t('<p>The datatype of a field determines how it can be used for searching and filtering. ' .
         'The boost is used to give additional weight to certain fields, e.g. titles or tags. It only takes effect for fulltext fields.</p>' .
-        '<p>Whether detailled field types are supported depends on the type of server this index resides on. ' .
+        '<p>Whether detailed field types are supported depends on the type of server this index resides on. ' .
         'In any case, fields of type "Fulltext" will always be fulltext-searchable.</p>'),
   );
   if ($index->server) {
