@@ -168,7 +168,7 @@ class MuSSolrRequestAlterator {
     // Extract what
     $this->parsedAdvancedQuery[self::PARSED_ADVANCED_WHAT] = $this->extractFieldQuery('what', $this->params['mus_aq']);
     // Extract the keywords from what
-    $parsedKeywords = $this->extractKeyWords($this->parsedAdvancedQuery[self::PARSED_ADVANCED_WHAT]);
+    $parsedKeywords = $this->extractPositiveKeyWords($this->parsedAdvancedQuery[self::PARSED_ADVANCED_WHAT]);
     if (sizeof($parsedKeywords) > 0) {
       $keywords = array_merge($keywords, $parsedKeywords);
     }
@@ -176,7 +176,7 @@ class MuSSolrRequestAlterator {
     // Extract who
     $this->parsedAdvancedQuery[self::PARSED_ADVANCED_WHO] = $this->extractFieldQuery('who', $this->params['mus_aq']);
     // Extract the keywords from who
-    $parsedKeywords = $this->extractKeyWords($this->parsedAdvancedQuery[self::PARSED_ADVANCED_WHO]);
+    $parsedKeywords = $this->extractPositiveKeyWords($this->parsedAdvancedQuery[self::PARSED_ADVANCED_WHO]);
     if (sizeof($parsedKeywords) > 0) {
       $keywords = array_merge($keywords, $parsedKeywords);
     }
@@ -184,7 +184,7 @@ class MuSSolrRequestAlterator {
     // Extract where
     $this->parsedAdvancedQuery[self::PARSED_ADVANCED_WHERE] = $this->extractFieldQuery('where', $this->params['mus_aq']);
     // Extract the keywords from where
-    $parsedKeywords = $this->extractKeyWords($this->parsedAdvancedQuery[self::PARSED_ADVANCED_WHERE]);
+    $parsedKeywords = $this->extractPositiveKeyWords($this->parsedAdvancedQuery[self::PARSED_ADVANCED_WHERE]);
     if (sizeof($parsedKeywords) > 0) {
       $keywords = array_merge($keywords, $parsedKeywords);
     }
@@ -192,7 +192,7 @@ class MuSSolrRequestAlterator {
     // Extract when
     $this->parsedAdvancedQuery[self::PARSED_ADVANCED_WHEN] = $this->extractFieldQuery('when', $this->params['mus_aq']);
     // Extract the keywords from when
-    $parsedKeywords = $this->extractKeyWords($this->parsedAdvancedQuery[self::PARSED_ADVANCED_WHEN]);
+    $parsedKeywords = $this->extractPositiveKeyWords($this->parsedAdvancedQuery[self::PARSED_ADVANCED_WHEN]);
     if (sizeof($parsedKeywords) > 0) {
       $keywords = array_merge($keywords, $parsedKeywords);
     }
@@ -200,7 +200,7 @@ class MuSSolrRequestAlterator {
     // Extract how
     $this->parsedAdvancedQuery[self::PARSED_ADVANCED_HOW] = $this->extractFieldQuery('how', $this->params['mus_aq']);
     // Extract the keywords from how
-    $parsedKeywords = $this->extractKeyWords($this->parsedAdvancedQuery[self::PARSED_ADVANCED_HOW]);
+    $parsedKeywords = $this->extractPositiveKeyWords($this->parsedAdvancedQuery[self::PARSED_ADVANCED_HOW]);
     if (sizeof($parsedKeywords) > 0) {
       $keywords = array_merge($keywords, $parsedKeywords);
     }
@@ -229,28 +229,77 @@ class MuSSolrRequestAlterator {
        * The reason there is no 0, is because of highlighting.
        * This doesn't work if the score is entirely zero.
        */
+      $positive_query = '';
+      $negative_query = '';
       if (in_array($key, $queryParts) && $query != '') {
         switch ($key) {
           case self::PARSED_ADVANCED_HOW:
-            $query = 'how_search:(' . $query . ')^0.00000001';
+            $positive_keywords = $this->extractPositiveKeyWords($query);
+            $negative_keywords = $this->extractNegativeKeyWords($query);
+            if (sizeof($positive_keywords) > 0) {
+              $positive_query = 'how_search:(' . implode(' ', $positive_keywords) . ')^0.00000001';
+            }
+            if (sizeof($negative_keywords) > 0) {
+              $negative_query = '-how_search:(' . implode(' ', $negative_keywords) . ')';
+            }
             break;
           case self::PARSED_ADVANCED_WHEN:
-            $query = 'when_search:(' . $query . ')^0.00000001';
+            $positive_keywords = $this->extractPositiveKeyWords($query);
+            $negative_keywords = $this->extractNegativeKeyWords($query);
+            if (sizeof($positive_keywords) > 0) {
+              $positive_query = 'when_search:(' . implode(' ', $positive_keywords) . ')^0.00000001';
+            }
+            if (sizeof($negative_keywords) > 0) {
+              $negative_query = '-when_search:(' . implode(' ', $negative_keywords) . ')';
+            }
             break;
           case self::PARSED_ADVANCED_WHAT:
-            $query = 'what_search:(' . $query . ')^0.00000001';
+            $positive_keywords = $this->extractPositiveKeyWords($query);
+            $negative_keywords = $this->extractNegativeKeyWords($query);
+            if (sizeof($positive_keywords) > 0) {
+              $positive_query = 'what_search:(' . implode(' ', $positive_keywords) . ')^0.00000001';
+            }
+            if (sizeof($negative_keywords) > 0) {
+              $negative_query = '-what_search:(' . implode(' ', $negative_keywords) . ')';
+            }
             break;
           case self::PARSED_ADVANCED_WHERE:
-            $query = 'where_search:(' . $query . ')^0.00000001';
+            $positive_keywords = $this->extractPositiveKeyWords($query);
+            $negative_keywords = $this->extractNegativeKeyWords($query);
+            if (sizeof($positive_keywords) > 0) {
+              $positive_query = 'where_search:(' . implode(' ', $positive_keywords) . ')^0.00000001';
+            }
+            if (sizeof($negative_keywords) > 0) {
+              $negative_query = '-where_search:(' . implode(' ', $negative_keywords) . ')';
+            }
             break;
           case self::PARSED_ADVANCED_WHO:
-            $query = 'who_search:(' . $query . ')^0.00000001';
+            $positive_keywords = $this->extractPositiveKeyWords($query);
+            $negative_keywords = $this->extractNegativeKeyWords($query);
+            if (sizeof($positive_keywords) > 0) {
+              $positive_query = 'who_search:(' . implode(' ', $positive_keywords) . ')^0.00000001';
+            }
+            if (sizeof($negative_keywords) > 0) {
+              $negative_query = '-who_search:(' . implode(' ', $negative_keywords) . ')';
+            }
             break;
           case self::PARSED_ADVANCED_REST:
-            $query = 'fulltext:(' . $query . ')^0.00000001';
+            $positive_keywords = $this->extractPositiveKeyWords($query);
+            $negative_keywords = $this->extractNegativeKeyWords($query);
+            if (sizeof($positive_keywords) > 0) {
+              $positive_query = 'fulltext:(' . implode(' ', $positive_keywords) . ')^0.00000001';
+            }
+            if (sizeof($negative_keywords) > 0) {
+              $negative_query = '-fulltext:(' . implode(' ', $negative_keywords) . ')';
+            }
             break;
         }
-        $parsedAdvanced[] = $query;
+        if ($positive_query != '') {
+          $parsedAdvanced[] = $positive_query;
+        }
+        if ($negative_query != '') {
+          $parsedAdvanced[] = $negative_query;
+        }
       }
     }
     $this->parsedAdvancedQuery[self::PARSED_ADVANCED_FULL] = implode(' ', $parsedAdvanced);
@@ -276,7 +325,7 @@ class MuSSolrRequestAlterator {
    * @return $keywords
    * 	Array containing keywords
    */
-  protected function extractKeyWords($string) {
+  protected function extractPositiveKeyWords($string) {
     // Filter out OR and AND and other characters
     $regex = '/(AND|OR)/';
     $string = preg_replace($regex, '', $string);
@@ -291,6 +340,30 @@ class MuSSolrRequestAlterator {
       trim($word);
     }
     return $keywords;
+  }
+
+  /**
+   * Extract the single keywords out of string of keywords. Negated keywords will be ignored.
+   * @param $string
+   * @return $keywords
+   * 	Array containing keywords
+   */
+  protected function extractNegativeKeyWords($string) {
+    // Filter out OR and AND and other characters
+    $regex = '/(AND|OR)/';
+    $string = preg_replace($regex, '', $string);
+    // split on spaces
+    $keywords = preg_split('/\s/', $string);
+    // Add all keywords prepended by minus sign
+    $negative_keywords = array();
+    foreach ($keywords as $key => &$word) {
+      if (preg_match('/-.+/', $word) || $word == '') {
+        $negative_keywords[] = preg_replace('/^-/', '', $word);
+      }
+      // Trim the word
+      trim($word);
+    }
+    return $negative_keywords;
   }
 
   /**
@@ -315,7 +388,7 @@ class MuSSolrRequestAlterator {
     // TODO: make nicer
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $fullUrl);
-    curl_setopt($ch, CURLOPT_HEADER, true);
+    curl_setopt($ch, CURLOPT_HEADER, TRUE);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_USERAGENT, 'MuS search proxy');
     $rawdata = curl_exec($ch);
