@@ -10,7 +10,7 @@
  http://wiki.apache.org/solr/SchemaXml
 -->
 
-<schema name="mus-api-1.0.3" version="1.2">
+<schema name="mus-api-1.0.4" version="1.2">
     <!-- attribute "name" is the name of this schema and is only used for display purposes.
          Applications should change this to reflect the nature of the search collection.
          version="1.2" is Solr's version number for the schema syntax and semantics.  It should
@@ -400,7 +400,7 @@
      <field name="related_object_title" type="text" multiValued="true" indexed="true" stored="true" required="false" />
      <field name="production_reason" type="text" multiValued="true" indexed="true" stored="true" required="false" />
      <field name="edit_date" type="string" multiValued="true" indexed="true" stored="true" required="false" />
-     <field name="institution_name" type="text" multiValued="false" indexed="true" stored="true" required="false" />
+     <field name="institution_name" type="text" multiValued="true" indexed="true" stored="true" required="false" />
      <field name="reproduction_identifier_URL" type="string" multiValued="true" indexed="true" stored="true" required="false" />
      <field name="chronicle_title" type="text" multiValued="true" indexed="true" stored="true" required="false" />
      <field name="chronicle_title_lref" type="text" multiValued="true" indexed="true" stored="true" required="false" />
@@ -439,19 +439,17 @@
 	<!-- Copy fields for the aggregated fields-->
    <copyField source="title" dest="what_search" />
    <copyField source="title" dest="fulltext" />
-   <copyField source="title_short_desc" dest="what_search" />
-   <copyField source="title_short_desc" dest="fulltext" />
+   <copyField source="title_short_description" dest="what_search" />
+   <copyField source="title_short_description" dest="fulltext" />
    <copyField source="description" dest="what_search" />
    <copyField source="description" dest="fulltext" />
    <copyField source="object_name" dest="what_search" />
    <copyField source="object_name" dest="fulltext" />
    
-   <copyField source="creation_present" dest="who_search" />
-   <copyField source="creation_present" dest="fulltext" />
+   <copyField source="creation_presentation" dest="who_search" />
+   <copyField source="creation_presentation" dest="fulltext" />
    <copyField source="creator" dest="who_search" />
    <copyField source="creator" dest="fulltext" />
-   <copyField source="acquisition_source" dest="who_search" />
-   <copyField source="acquisition_source" dest="fulltext" />
    <copyField source="inscription_maker" dest="who_search" />
    <copyField source="inscription_maker" dest="fulltext" />
    <copyField source="institution_name" dest="who_search" />
@@ -459,32 +457,28 @@
    
    <copyField source="production_place" dest="where_search" />
    <copyField source="production_place" dest="fulltext" />
-   <copyField source="acquisition_place" dest="where_search" />
-   <copyField source="acquisition_place" dest="fulltext" />
-   <copyField source="prod_place_present" dest="where_search" />
-   <copyField source="prod_place_present" dest="fulltext" />
+   <copyField source="production_place_presentation" dest="where_search" />
+   <copyField source="production_place_presentation" dest="fulltext" />
    
-   <copyField source="prod_date_present" dest="when_search" />
-   <copyField source="prod_date_present" dest="fulltext" />
+   <copyField source="production_date_presentation" dest="when_search" />
+   <copyField source="production_date_presentation" dest="fulltext" />
    <copyField source="production_period" dest="when_search" />
    <copyField source="production_period" dest="fulltext" />
-   <copyField source="prod_date_start" dest="when_search" />
-   <copyField source="prod_date_start" dest="fulltext" />
-   <copyField source="prod_date_end" dest="when_search" />
-   <copyField source="prod_date_end" dest="fulltext" />
-   <copyField source="acquisition_date" dest="when_search" />
-   <copyField source="acquisition_date" dest="fulltext" />
+   <copyField source="production_date_start" dest="when_search" />
+   <copyField source="production_date_start" dest="fulltext" />
+   <copyField source="production_date_end" dest="when_search" />
+   <copyField source="production_date_end" dest="fulltext" />
    <copyField source="inscription_date" dest="when_search" />
    <copyField source="inscription_date" dest="fulltext" />
    
-   <copyField source="material_present" dest="how_search" />
-   <copyField source="material_present" dest="fulltext" />
+   <copyField source="material_technique_presentation" dest="how_search" />
+   <copyField source="material_technique_presentation" dest="fulltext" />
    <copyField source="material" dest="how_search" />
    <copyField source="material" dest="fulltext" />
    <copyField source="technique" dest="how_search" />
    <copyField source="technique" dest="fulltext" />
-   <copyField source="dim_presentation" dest="how_search" />
-   <copyField source="dim_presentation" dest="fulltext" />
+   <copyField source="dimensions_presentation" dest="how_search" />
+   <copyField source="dimensions_presentation" dest="fulltext" />
    
    <!-- score is a field that is added by solr itself. We need it in the schema.xml because our custom component 
    
