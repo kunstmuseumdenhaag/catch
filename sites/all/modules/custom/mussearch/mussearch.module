@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Mus search primary module file. Note that most of the functionality is placed in a Drupal agnostic class.
+ * Mus api key management and search api hooks.
  */
 define('MUSSEARCH_MAPPING_CSV', 'config/mapping.csv');
 
@@ -11,26 +11,6 @@ define('MUSSEARCH_MAPPING_CSV', 'config/mapping.csv');
 function mussearch_menu() {
   $items = array();
 
-  $items['service/mus/search'] = array(
-    'title' => 'Mus service',
-    'page callback' => 'mussearch_search_callback',
-    'access arguments' => array('access content')
-  );
-  $items['service/mus/detail/%'] = array(
-    'title' => 'Mus service',
-    'page callback' => 'mussearch_detail_callback',
-    'page arguments' => array(3),
-    'access arguments' => array('access content')
-  );
-
-  $items['admin/config/search/musapi'] = array(
-    'title' => 'Administer MuS api',
-    'description' => 'Setup MuS search api settings',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('mussearch_admin_settings'),
-    'access arguments' => array('administer mus api'),
-    'file' => 'mussearch.admin.inc',
-  );
   $items['admin/config/search/musapimap'] = array(
     'title' => 'MuSapi map utility',
     'description' => 'MuS search map utility to create map and schema.xml file',
@@ -70,43 +50,6 @@ function mussearch_permission() {
 }
 
 /**
- * Main callback function for the service.
- * Writes out xml and exits
- */
-function mussearch_search_callback() {
-  $server_info = mussearch_get_server_info();
-  // Create a new mus sorl request alterator
-  $alterator = new MuSSolrRequestAlterator($server_info->host, $server_info->port, $server_info->path, $_SERVER['QUERY_STRING']);
-  $response = $alterator->doSolrRequest();
-  drupal_add_http_header('Content-type', 'text/xml');
-  print $response->getRaw();
-  exit();
-}
-
-/**
- * Detail callback of the service
- * Writes out xml and exits
- */
-function mussearch_detail_callback($id) {
-  $server_info = mussearch_get_server_info();
-  // Create a new mus sorl request alterator
-  $alterator = new MuSSolrRequestAlterator($server_info->host, $server_info->port, $server_info->path);
-  $query = 'item_id:' . check_plain($id);
-  try {
-    $alterator->addParam('q', $query);
-    $alterator->addParam('qt', 'detail');
-    $response = $alterator->doSolrRequest();
-    drupal_add_http_header('Content-type', 'text/xml');
-    print $response->getRaw();
-    exit();
-  } catch (Exception $e) {
-    // TODO: write error document
-    watchdog('mussearch', $e->getMessage(), WATCHDOG_ERROR);
-    return 'error';
-  }
-}
-
-/**
  * Change the way the index's field names are mapped to Solr field names.
  *
  * @param $index
@@ -136,24 +79,4 @@ function mussearch_search_api_solr_field_mapping_alter(SearchApiIndex $index, ar
 function mussearch_get_solr_fieldmappings() {
   $field_mappings = parse_ini_file('fieldmappings.map');
   return $field_mappings;
-}
-
-/**
- * Get the server to use
- * @return $index
- *   Server info object if the server exists, otherwise FALSE
- */
-function mussearch_get_server_info() {
-  $index_id = variable_get('mussearch_index', 0);
-  if ($index_id) {
-    $index = search_api_index_load($index_id);
-    $server = search_api_server_load($index->server);
-    $server_info = new stdClass();
-    $server_info->host = $server->options['host'];
-    $server_info->port = $server->options['port'];
-    $server_info->path = $server->options['path'];
-    $server_info->index = $index_id;
-    return $server_info;
-  }
-  return FALSE;
 }
