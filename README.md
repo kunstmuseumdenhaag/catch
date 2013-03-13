@@ -11,4 +11,5 @@ You can start by [downloading](https://github.com/gemeentemuseum/catch/zipball/m
 this project. 
 
 ##Documentation##
-You can read more about this project on our [wiki](https://github.com/gemeentemuseum/catch/wiki).
+You can read more about the technical aspects on our [wiki](https://github.com/gemeentemuseum/catch/wiki).
+Or background information about this project on our [project page](http://gemeentemuseum.github.com/catch/).
