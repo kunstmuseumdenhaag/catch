@@ -5,12 +5,12 @@
  */
 
 /**
- * Implementation of hook_feeds_tamper_default().
+ * Implements hook_feeds_tamper_default().
  */
 function gemeentemuseum_adlib_feeds_tamper_default() {
   $export = array();
 
-  $feeds_tamper = new stdClass;
+  $feeds_tamper = new stdClass();
   $feeds_tamper->disabled = FALSE; /* Edit this to true to make a default feeds_tamper disabled initially */
   $feeds_tamper->api_version = 2;
   $feeds_tamper->id = 'adlib_object_importer-adlibparser_1-truncate';
@@ -25,7 +25,7 @@ function gemeentemuseum_adlib_feeds_tamper_default() {
   $feeds_tamper->description = 'Truncate';
   $export['adlib_object_importer-adlibparser_1-truncate'] = $feeds_tamper;
 
-  $feeds_tamper = new stdClass;
+  $feeds_tamper = new stdClass();
   $feeds_tamper->disabled = FALSE; /* Edit this to true to make a default feeds_tamper disabled initially */
   $feeds_tamper->api_version = 2;
   $feeds_tamper->id = 'adlib_object_importer-adlibparser_10-truncate';
@@ -40,7 +40,7 @@ function gemeentemuseum_adlib_feeds_tamper_default() {
   $feeds_tamper->description = 'Truncate';
   $export['adlib_object_importer-adlibparser_10-truncate'] = $feeds_tamper;
 
-  $feeds_tamper = new stdClass;
+  $feeds_tamper = new stdClass();
   $feeds_tamper->disabled = FALSE; /* Edit this to true to make a default feeds_tamper disabled initially */
   $feeds_tamper->api_version = 2;
   $feeds_tamper->id = 'adlib_object_importer-adlibparser_11-truncate';
@@ -55,7 +55,7 @@ function gemeentemuseum_adlib_feeds_tamper_default() {
   $feeds_tamper->description = 'Truncate';
   $export['adlib_object_importer-adlibparser_11-truncate'] = $feeds_tamper;
 
-  $feeds_tamper = new stdClass;
+  $feeds_tamper = new stdClass();
   $feeds_tamper->disabled = FALSE; /* Edit this to true to make a default feeds_tamper disabled initially */
   $feeds_tamper->api_version = 2;
   $feeds_tamper->id = 'adlib_object_importer-adlibparser_12-truncate';
@@ -70,7 +70,7 @@ function gemeentemuseum_adlib_feeds_tamper_default() {
   $feeds_tamper->description = 'Truncate';
   $export['adlib_object_importer-adlibparser_12-truncate'] = $feeds_tamper;
 
-  $feeds_tamper = new stdClass;
+  $feeds_tamper = new stdClass();
   $feeds_tamper->disabled = FALSE; /* Edit this to true to make a default feeds_tamper disabled initially */
   $feeds_tamper->api_version = 2;
   $feeds_tamper->id = 'adlib_object_importer-adlibparser_14-truncate';
@@ -85,7 +85,7 @@ function gemeentemuseum_adlib_feeds_tamper_default() {
   $feeds_tamper->description = 'Truncate';
   $export['adlib_object_importer-adlibparser_14-truncate'] = $feeds_tamper;
 
-  $feeds_tamper = new stdClass;
+  $feeds_tamper = new stdClass();
   $feeds_tamper->disabled = FALSE; /* Edit this to true to make a default feeds_tamper disabled initially */
   $feeds_tamper->api_version = 2;
   $feeds_tamper->id = 'adlib_object_importer-adlibparser_15-truncate';
@@ -100,7 +100,7 @@ function gemeentemuseum_adlib_feeds_tamper_default() {
   $feeds_tamper->description = 'Truncate';
   $export['adlib_object_importer-adlibparser_15-truncate'] = $feeds_tamper;
 
-  $feeds_tamper = new stdClass;
+  $feeds_tamper = new stdClass();
   $feeds_tamper->disabled = FALSE; /* Edit this to true to make a default feeds_tamper disabled initially */
   $feeds_tamper->api_version = 2;
   $feeds_tamper->id = 'adlib_object_importer-adlibparser_16-truncate';
@@ -115,7 +115,7 @@ function gemeentemuseum_adlib_feeds_tamper_default() {
   $feeds_tamper->description = 'Truncate';
   $export['adlib_object_importer-adlibparser_16-truncate'] = $feeds_tamper;
 
-  $feeds_tamper = new stdClass;
+  $feeds_tamper = new stdClass();
   $feeds_tamper->disabled = FALSE; /* Edit this to true to make a default feeds_tamper disabled initially */
   $feeds_tamper->api_version = 2;
   $feeds_tamper->id = 'adlib_object_importer-adlibparser_22-truncate';
@@ -130,7 +130,7 @@ function gemeentemuseum_adlib_feeds_tamper_default() {
   $feeds_tamper->description = 'Truncate';
   $export['adlib_object_importer-adlibparser_22-truncate'] = $feeds_tamper;
 
-  $feeds_tamper = new stdClass;
+  $feeds_tamper = new stdClass();
   $feeds_tamper->disabled = FALSE; /* Edit this to true to make a default feeds_tamper disabled initially */
   $feeds_tamper->api_version = 2;
   $feeds_tamper->id = 'adlib_object_importer-adlibparser_30-truncate';
@@ -145,7 +145,7 @@ function gemeentemuseum_adlib_feeds_tamper_default() {
   $feeds_tamper->description = 'Truncate';
   $export['adlib_object_importer-adlibparser_30-truncate'] = $feeds_tamper;
 
-  $feeds_tamper = new stdClass;
+  $feeds_tamper = new stdClass();
   $feeds_tamper->disabled = FALSE; /* Edit this to true to make a default feeds_tamper disabled initially */
   $feeds_tamper->api_version = 2;
   $feeds_tamper->id = 'adlib_object_importer-adlibparser_4-truncate';
@@ -160,7 +160,7 @@ function gemeentemuseum_adlib_feeds_tamper_default() {
   $feeds_tamper->description = 'Truncate';
   $export['adlib_object_importer-adlibparser_4-truncate'] = $feeds_tamper;
 
-  $feeds_tamper = new stdClass;
+  $feeds_tamper = new stdClass();
   $feeds_tamper->disabled = FALSE; /* Edit this to true to make a default feeds_tamper disabled initially */
   $feeds_tamper->api_version = 2;
   $feeds_tamper->id = 'adlib_object_importer-adlibparser_45-truncate';
@@ -175,7 +175,7 @@ function gemeentemuseum_adlib_feeds_tamper_default() {
   $feeds_tamper->description = 'Truncate';
   $export['adlib_object_importer-adlibparser_45-truncate'] = $feeds_tamper;
 
-  $feeds_tamper = new stdClass;
+  $feeds_tamper = new stdClass();
   $feeds_tamper->disabled = FALSE; /* Edit this to true to make a default feeds_tamper disabled initially */
   $feeds_tamper->api_version = 2;
   $feeds_tamper->id = 'adlib_object_importer-adlibparser_47-truncate';
@@ -190,7 +190,7 @@ function gemeentemuseum_adlib_feeds_tamper_default() {
   $feeds_tamper->description = 'Truncate';
   $export['adlib_object_importer-adlibparser_47-truncate'] = $feeds_tamper;
 
-  $feeds_tamper = new stdClass;
+  $feeds_tamper = new stdClass();
   $feeds_tamper->disabled = FALSE; /* Edit this to true to make a default feeds_tamper disabled initially */
   $feeds_tamper->api_version = 2;
   $feeds_tamper->id = 'adlib_object_importer-adlibparser_48-truncate';
@@ -205,7 +205,7 @@ function gemeentemuseum_adlib_feeds_tamper_default() {
   $feeds_tamper->description = 'Truncate';
   $export['adlib_object_importer-adlibparser_48-truncate'] = $feeds_tamper;
 
-  $feeds_tamper = new stdClass;
+  $feeds_tamper = new stdClass();
   $feeds_tamper->disabled = FALSE; /* Edit this to true to make a default feeds_tamper disabled initially */
   $feeds_tamper->api_version = 2;
   $feeds_tamper->id = 'adlib_object_importer-adlibparser_49-truncate';
@@ -220,7 +220,7 @@ function gemeentemuseum_adlib_feeds_tamper_default() {
   $feeds_tamper->description = 'Truncate';
   $export['adlib_object_importer-adlibparser_49-truncate'] = $feeds_tamper;
 
-  $feeds_tamper = new stdClass;
+  $feeds_tamper = new stdClass();
   $feeds_tamper->disabled = FALSE; /* Edit this to true to make a default feeds_tamper disabled initially */
   $feeds_tamper->api_version = 2;
   $feeds_tamper->id = 'adlib_object_importer-adlibparser_58-find_replace_regex';
@@ -237,7 +237,7 @@ function gemeentemuseum_adlib_feeds_tamper_default() {
   $feeds_tamper->description = 'Replace empty strings.';
   $export['adlib_object_importer-adlibparser_58-find_replace_regex'] = $feeds_tamper;
 
-  $feeds_tamper = new stdClass;
+  $feeds_tamper = new stdClass();
   $feeds_tamper->disabled = FALSE; /* Edit this to true to make a default feeds_tamper disabled initially */
   $feeds_tamper->api_version = 2;
   $feeds_tamper->id = 'adlib_object_importer-adlibparser_58-set_default_value';
@@ -251,7 +251,7 @@ function gemeentemuseum_adlib_feeds_tamper_default() {
   $feeds_tamper->description = 'Set default value';
   $export['adlib_object_importer-adlibparser_58-set_default_value'] = $feeds_tamper;
 
-  $feeds_tamper = new stdClass;
+  $feeds_tamper = new stdClass();
   $feeds_tamper->disabled = FALSE; /* Edit this to true to make a default feeds_tamper disabled initially */
   $feeds_tamper->api_version = 2;
   $feeds_tamper->id = 'adlib_object_importer-adlibparser_7-truncate';
@@ -266,7 +266,7 @@ function gemeentemuseum_adlib_feeds_tamper_default() {
   $feeds_tamper->description = 'Truncate';
   $export['adlib_object_importer-adlibparser_7-truncate'] = $feeds_tamper;
 
-  $feeds_tamper = new stdClass;
+  $feeds_tamper = new stdClass();
   $feeds_tamper->disabled = FALSE; /* Edit this to true to make a default feeds_tamper disabled initially */
   $feeds_tamper->api_version = 2;
   $feeds_tamper->id = 'adlib_object_importer-adlibparser_9-truncate';

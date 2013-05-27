@@ -5,12 +5,12 @@
  */
 
 /**
- * Implementation of hook_default_adlibapi_preset().
+ * Implements hook_default_adlibapi_preset().
  */
 function gemeentemuseum_adlib_default_adlibapi_preset() {
   $export = array();
 
-  $preset = new stdClass;
+  $preset = new stdClass();
   $preset->disabled = FALSE; /* Edit this to true to make a default preset disabled initially */
   $preset->api_version = 1;
   $preset->name = 'catch';

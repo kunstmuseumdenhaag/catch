@@ -5,12 +5,12 @@
  */
 
 /**
- * Implementation of hook_field_group_info().
+ * Implements hook_field_group_info().
  */
 function gemeentemuseum_adlib_field_group_info() {
   $export = array();
 
-  $field_group = new stdClass;
+  $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
   $field_group->api_version = 1;
   $field_group->identifier = 'group_adlib_how|node|adlib_object|form';
@@ -40,7 +40,7 @@ function gemeentemuseum_adlib_field_group_info() {
   );
   $export['group_adlib_how|node|adlib_object|form'] = $field_group;
 
-  $field_group = new stdClass;
+  $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
   $field_group->api_version = 1;
   $field_group->identifier = 'group_adlib_relations|node|adlib_object|form';
@@ -75,7 +75,7 @@ function gemeentemuseum_adlib_field_group_info() {
   );
   $export['group_adlib_relations|node|adlib_object|form'] = $field_group;
 
-  $field_group = new stdClass;
+  $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
   $field_group->api_version = 1;
   $field_group->identifier = 'group_adlib_what|node|adlib_object|form';
@@ -105,7 +105,7 @@ function gemeentemuseum_adlib_field_group_info() {
   );
   $export['group_adlib_what|node|adlib_object|form'] = $field_group;
 
-  $field_group = new stdClass;
+  $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
   $field_group->api_version = 1;
   $field_group->identifier = 'group_adlib_when|node|adlib_object|form';
@@ -136,7 +136,7 @@ function gemeentemuseum_adlib_field_group_info() {
   );
   $export['group_adlib_when|node|adlib_object|form'] = $field_group;
 
-  $field_group = new stdClass;
+  $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
   $field_group->api_version = 1;
   $field_group->identifier = 'group_adlib_where|node|adlib_object|form';
@@ -164,7 +164,7 @@ function gemeentemuseum_adlib_field_group_info() {
   );
   $export['group_adlib_where|node|adlib_object|form'] = $field_group;
 
-  $field_group = new stdClass;
+  $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
   $field_group->api_version = 1;
   $field_group->identifier = 'group_adlib_who|node|adlib_object|form';

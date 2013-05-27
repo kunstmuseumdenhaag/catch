@@ -5,12 +5,12 @@
  */
 
 /**
- * Implementation of hook_feeds_importer_default().
+ * Implements hook_feeds_importer_default().
  */
 function gemeentemuseum_adlib_feeds_importer_default() {
   $export = array();
 
-  $feeds_importer = new stdClass;
+  $feeds_importer = new stdClass();
   $feeds_importer->disabled = FALSE; /* Edit this to true to make a default feeds_importer disabled initially */
   $feeds_importer->api_version = 1;
   $feeds_importer->id = 'adlib_object_importer';
@@ -421,9 +421,56 @@ function gemeentemuseum_adlib_feeds_importer_default() {
             'target' => 'field_adlib_chronicle_title_lref',
             'unique' => FALSE,
           ),
+          51 => array(
+            'source' => 'adlibparser:63',
+            'target' => 'field_adlib_title_en',
+            'unique' => FALSE,
+          ),
+          52 => array(
+            'source' => 'adlibparser:64',
+            'target' => 'field_adlib_title_short_desc_en',
+            'unique' => FALSE,
+          ),
+          53 => array(
+            'source' => 'adlibparser:65',
+            'target' => 'field_adlib_creation_present_en',
+            'unique' => FALSE,
+          ),
+          54 => array(
+            'source' => 'adlibparser:66',
+            'target' => 'field_adlib_prod_place_pres_en',
+            'unique' => FALSE,
+          ),
+          55 => array(
+            'source' => 'adlibparser:67',
+            'target' => 'field_adlib_prod_date_present_en',
+            'unique' => FALSE,
+          ),
+          56 => array(
+            'source' => 'adlibparser:68',
+            'target' => 'field_adlib_material_present_en',
+            'unique' => FALSE,
+          ),
+          57 => array(
+            'source' => 'adlibparser:69',
+            'target' => 'field_adlib_dim_presentation_en',
+            'unique' => FALSE,
+          ),
+          58 => array(
+            'source' => 'adlibparser:70',
+            'target' => 'field_adlib_credit_line_en',
+            'unique' => FALSE,
+          ),
+          59 => array(
+            'source' => 'adlibparser:71',
+            'target' => 'field_adlib_description_en',
+            'unique' => FALSE,
+          ),
         ),
         'update_existing' => '1',
         'input_format' => 'plain_text',
+        'authorize' => TRUE,
+        'skip_hash_check' => FALSE,
       ),
     ),
     'content_type' => '',
