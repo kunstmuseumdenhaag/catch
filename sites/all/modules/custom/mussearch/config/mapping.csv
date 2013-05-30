@@ -49,7 +49,7 @@
 48,"production.date_presentation_english","field_adlib_prod_date_present_en",,"Text",1,"production_date_presentation_english",,
 49,"material_technique_presentation_english","field_adlib_material_present_en",,"Text",1,"material_technique_presentation_english",,
 50,"dimensions_presentation_english","field_adlib_dim_presentation_en",,"Text",1,"dimensions_presentation_english",,
-51,"credit_line_english","field_adlib_credit_line_en",,"Text",1,"credit_line_english",,
+51,"credit_line.english","field_adlib_credit_line_en",,"Text",1,"credit_line_english",,
 52,"description_english","field_adlib_description_en",,"Text",1,"description_english",,
 "Special","---","---","--","---","---","---",,
 ,"-","field_adlib_how_raw",,"String",0,"how",,
