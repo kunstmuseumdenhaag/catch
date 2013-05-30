@@ -420,6 +420,15 @@
      <field name="PIDnumber" type="string" multiValued="false" indexed="true" stored="true" required="false" />
      <field name="alternative_number" type="string" multiValued="true" indexed="true" stored="true" required="false" />
      <field name="alternative_number_type" type="string" multiValued="true" indexed="true" stored="true" required="false" />
+     <field name="title_english" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+     <field name="title_short_description_english" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+     <field name="creation_presentation_english" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+     <field name="production_place_presentation_english" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+     <field name="production_date_presentation_english" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+     <field name="material_technique_presentation_english" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+     <field name="dimensions_presentation_english" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+     <field name="credit_line_english" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+     <field name="description_english" type="text" multiValued="true" indexed="true" stored="true" required="false" />
 
      <field name="how" type="text" multiValued="false" indexed="false" stored="true" required="false" />
      <field name="what" type="text" multiValued="false" indexed="false" stored="true" required="false" />
