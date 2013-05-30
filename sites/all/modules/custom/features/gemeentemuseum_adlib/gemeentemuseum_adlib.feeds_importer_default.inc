@@ -5,12 +5,12 @@
  */
 
 /**
- * Implementation of hook_feeds_importer_default().
+ * Implements hook_feeds_importer_default().
  */
 function gemeentemuseum_adlib_feeds_importer_default() {
   $export = array();
 
-  $feeds_importer = new stdClass;
+  $feeds_importer = new stdClass();
   $feeds_importer->disabled = FALSE; /* Edit this to true to make a default feeds_importer disabled initially */
   $feeds_importer->api_version = 1;
   $feeds_importer->id = 'adlib_object_importer';
@@ -71,8 +71,17 @@ function gemeentemuseum_adlib_feeds_importer_default() {
           44 => 'description.paragraph_presentation',
           45 => 'description.qualification_presentation',
           46 => 'description',
-          47 => 'tags',
-          48 => 'PIDnumber',
+          47 => 'description_english',
+          48 => 'tags',
+          49 => 'PIDnumber',
+          50 => 'title_english',
+          51 => 'title.short_description_english',
+          52 => 'creation_presentation_english',
+          53 => 'production.place_presentation_english',
+          54 => 'production.date_presentation_english',
+          55 => 'dimensions_presentation_english',
+          56 => 'material_technique_presentation_english',
+          57 => 'credit_line.english',
         ),
         'datesort' => 'modification',
         'batch_results' => 161798,
@@ -152,6 +161,15 @@ function gemeentemuseum_adlib_feeds_importer_default() {
           'adlibparser:60' => '[alternative_number]',
           'adlibparser:61' => '[alternative_number.type]',
           'adlibparser:62' => '[chronicle.title.lref]',
+          'adlibparser:63' => '[title_english: | ]',
+          'adlibparser:64' => '[title.short_description_english]',
+          'adlibparser:65' => '[creation_presentation_english]',
+          'adlibparser:66' => '[production.place_presentation_english]',
+          'adlibparser:67' => '[production.date_presentation_english]',
+          'adlibparser:68' => '[material_technique_presentation_english]',
+          'adlibparser:69' => '[dimensions_presentation_english]',
+          'adlibparser:70' => '[credit_line.english]',
+          'adlibparser:71' => '[description_english]',
         ),
         'rawXML' => array(),
         'language' => array(
@@ -421,9 +439,56 @@ function gemeentemuseum_adlib_feeds_importer_default() {
             'target' => 'field_adlib_chronicle_title_lref',
             'unique' => FALSE,
           ),
+          51 => array(
+            'source' => 'adlibparser:63',
+            'target' => 'field_adlib_title_en',
+            'unique' => FALSE,
+          ),
+          52 => array(
+            'source' => 'adlibparser:64',
+            'target' => 'field_adlib_title_short_desc_en',
+            'unique' => FALSE,
+          ),
+          53 => array(
+            'source' => 'adlibparser:65',
+            'target' => 'field_adlib_creation_present_en',
+            'unique' => FALSE,
+          ),
+          54 => array(
+            'source' => 'adlibparser:66',
+            'target' => 'field_adlib_prod_place_pres_en',
+            'unique' => FALSE,
+          ),
+          55 => array(
+            'source' => 'adlibparser:67',
+            'target' => 'field_adlib_prod_date_present_en',
+            'unique' => FALSE,
+          ),
+          56 => array(
+            'source' => 'adlibparser:68',
+            'target' => 'field_adlib_material_present_en',
+            'unique' => FALSE,
+          ),
+          57 => array(
+            'source' => 'adlibparser:69',
+            'target' => 'field_adlib_dim_presentation_en',
+            'unique' => FALSE,
+          ),
+          58 => array(
+            'source' => 'adlibparser:70',
+            'target' => 'field_adlib_credit_line_en',
+            'unique' => FALSE,
+          ),
+          59 => array(
+            'source' => 'adlibparser:71',
+            'target' => 'field_adlib_description_en',
+            'unique' => FALSE,
+          ),
         ),
         'update_existing' => '1',
         'input_format' => 'plain_text',
+        'authorize' => TRUE,
+        'skip_hash_check' => FALSE,
       ),
     ),
     'content_type' => '',

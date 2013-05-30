@@ -5,12 +5,12 @@
  */
 
 /**
- * Implementation of hook_field_default_fields().
+ * Implements hook_field_default_fields().
  */
 function gemeentemuseum_adlib_field_default_fields() {
   $fields = array();
 
-  // Exported field: 'node-adlib_object-field_adlib_alt_number_type'
+  // Exported field: 'node-adlib_object-field_adlib_alt_number_type'.
   $fields['node-adlib_object-field_adlib_alt_number_type'] = array(
     'field_config' => array(
       'active' => '1',
@@ -31,6 +31,7 @@ function gemeentemuseum_adlib_field_default_fields() {
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '255',
@@ -84,7 +85,7 @@ function gemeentemuseum_adlib_field_default_fields() {
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_alternative_number'
+  // Exported field: 'node-adlib_object-field_adlib_alternative_number'.
   $fields['node-adlib_object-field_adlib_alternative_number'] = array(
     'field_config' => array(
       'active' => '1',
@@ -105,6 +106,7 @@ function gemeentemuseum_adlib_field_default_fields() {
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '255',
@@ -158,7 +160,7 @@ function gemeentemuseum_adlib_field_default_fields() {
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_chronicle_title'
+  // Exported field: 'node-adlib_object-field_adlib_chronicle_title'.
   $fields['node-adlib_object-field_adlib_chronicle_title'] = array(
     'field_config' => array(
       'active' => '1',
@@ -179,6 +181,7 @@ function gemeentemuseum_adlib_field_default_fields() {
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '1024',
@@ -232,7 +235,7 @@ function gemeentemuseum_adlib_field_default_fields() {
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_chronicle_title_lref'
+  // Exported field: 'node-adlib_object-field_adlib_chronicle_title_lref'.
   $fields['node-adlib_object-field_adlib_chronicle_title_lref'] = array(
     'field_config' => array(
       'active' => '1',
@@ -253,6 +256,7 @@ function gemeentemuseum_adlib_field_default_fields() {
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '255',
@@ -306,7 +310,7 @@ function gemeentemuseum_adlib_field_default_fields() {
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_creation_present'
+  // Exported field: 'node-adlib_object-field_adlib_creation_present'.
   $fields['node-adlib_object-field_adlib_creation_present'] = array(
     'field_config' => array(
       'active' => '1',
@@ -327,6 +331,7 @@ function gemeentemuseum_adlib_field_default_fields() {
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '2056',
@@ -380,7 +385,82 @@ function gemeentemuseum_adlib_field_default_fields() {
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_creator'
+  // Exported field: 'node-adlib_object-field_adlib_creation_present_en'.
+  $fields['node-adlib_object-field_adlib_creation_present_en'] = array(
+    'field_config' => array(
+      'active' => '1',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'entity_types' => array(),
+      'field_name' => 'field_adlib_creation_present_en',
+      'foreign keys' => array(
+        'format' => array(
+          'columns' => array(
+            'format' => 'format',
+          ),
+          'table' => 'filter_format',
+        ),
+      ),
+      'indexes' => array(
+        'format' => array(
+          0 => 'format',
+        ),
+      ),
+      'locked' => '0',
+      'module' => 'text',
+      'settings' => array(
+        'max_length' => '255',
+      ),
+      'translatable' => '0',
+      'type' => 'text',
+    ),
+    'field_instance' => array(
+      'bundle' => 'adlib_object',
+      'default_value' => NULL,
+      'deleted' => '0',
+      'description' => '',
+      'display' => array(
+        'adlib_object' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+        'default' => array(
+          'label' => 'above',
+          'module' => 'text',
+          'settings' => array(),
+          'type' => 'text_default',
+          'weight' => 60,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+      ),
+      'entity_type' => 'node',
+      'field_name' => 'field_adlib_creation_present_en',
+      'label' => 'Creation presentation (en)',
+      'required' => 0,
+      'settings' => array(
+        'text_processing' => '0',
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 1,
+        'module' => 'text',
+        'settings' => array(
+          'size' => '60',
+        ),
+        'type' => 'text_textfield',
+        'weight' => '31',
+      ),
+    ),
+  );
+
+  // Exported field: 'node-adlib_object-field_adlib_creator'.
   $fields['node-adlib_object-field_adlib_creator'] = array(
     'field_config' => array(
       'active' => '1',
@@ -401,6 +481,7 @@ function gemeentemuseum_adlib_field_default_fields() {
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '255',
@@ -454,7 +535,7 @@ function gemeentemuseum_adlib_field_default_fields() {
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_credit_line'
+  // Exported field: 'node-adlib_object-field_adlib_credit_line'.
   $fields['node-adlib_object-field_adlib_credit_line'] = array(
     'field_config' => array(
       'active' => '1',
@@ -475,6 +556,7 @@ function gemeentemuseum_adlib_field_default_fields() {
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '2056',
@@ -528,7 +610,82 @@ function gemeentemuseum_adlib_field_default_fields() {
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_description'
+  // Exported field: 'node-adlib_object-field_adlib_credit_line_en'.
+  $fields['node-adlib_object-field_adlib_credit_line_en'] = array(
+    'field_config' => array(
+      'active' => '1',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'entity_types' => array(),
+      'field_name' => 'field_adlib_credit_line_en',
+      'foreign keys' => array(
+        'format' => array(
+          'columns' => array(
+            'format' => 'format',
+          ),
+          'table' => 'filter_format',
+        ),
+      ),
+      'indexes' => array(
+        'format' => array(
+          0 => 'format',
+        ),
+      ),
+      'locked' => '0',
+      'module' => 'text',
+      'settings' => array(
+        'max_length' => '255',
+      ),
+      'translatable' => '0',
+      'type' => 'text',
+    ),
+    'field_instance' => array(
+      'bundle' => 'adlib_object',
+      'default_value' => NULL,
+      'deleted' => '0',
+      'description' => '',
+      'display' => array(
+        'adlib_object' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+        'default' => array(
+          'label' => 'above',
+          'module' => 'text',
+          'settings' => array(),
+          'type' => 'text_default',
+          'weight' => 65,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+      ),
+      'entity_type' => 'node',
+      'field_name' => 'field_adlib_credit_line_en',
+      'label' => 'Credit line (en)',
+      'required' => 0,
+      'settings' => array(
+        'text_processing' => '0',
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 1,
+        'module' => 'text',
+        'settings' => array(
+          'size' => '60',
+        ),
+        'type' => 'text_textfield',
+        'weight' => '36',
+      ),
+    ),
+  );
+
+  // Exported field: 'node-adlib_object-field_adlib_description'.
   $fields['node-adlib_object-field_adlib_description'] = array(
     'field_config' => array(
       'active' => '1',
@@ -549,6 +706,7 @@ function gemeentemuseum_adlib_field_default_fields() {
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(),
       'translatable' => '0',
@@ -600,7 +758,80 @@ function gemeentemuseum_adlib_field_default_fields() {
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_dim_presentation'
+  // Exported field: 'node-adlib_object-field_adlib_description_en'.
+  $fields['node-adlib_object-field_adlib_description_en'] = array(
+    'field_config' => array(
+      'active' => '1',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'entity_types' => array(),
+      'field_name' => 'field_adlib_description_en',
+      'foreign keys' => array(
+        'format' => array(
+          'columns' => array(
+            'format' => 'format',
+          ),
+          'table' => 'filter_format',
+        ),
+      ),
+      'indexes' => array(
+        'format' => array(
+          0 => 'format',
+        ),
+      ),
+      'locked' => '0',
+      'module' => 'text',
+      'settings' => array(),
+      'translatable' => '0',
+      'type' => 'text_long',
+    ),
+    'field_instance' => array(
+      'bundle' => 'adlib_object',
+      'default_value' => NULL,
+      'deleted' => '0',
+      'description' => '',
+      'display' => array(
+        'adlib_object' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+        'default' => array(
+          'label' => 'above',
+          'module' => 'text',
+          'settings' => array(),
+          'type' => 'text_default',
+          'weight' => 66,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+      ),
+      'entity_type' => 'node',
+      'field_name' => 'field_adlib_description_en',
+      'label' => 'Description (en)',
+      'required' => 0,
+      'settings' => array(
+        'text_processing' => '0',
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 1,
+        'module' => 'text',
+        'settings' => array(
+          'rows' => '5',
+        ),
+        'type' => 'text_textarea',
+        'weight' => '37',
+      ),
+    ),
+  );
+
+  // Exported field: 'node-adlib_object-field_adlib_dim_presentation'.
   $fields['node-adlib_object-field_adlib_dim_presentation'] = array(
     'field_config' => array(
       'active' => '1',
@@ -621,6 +852,7 @@ function gemeentemuseum_adlib_field_default_fields() {
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '2056',
@@ -674,7 +906,82 @@ function gemeentemuseum_adlib_field_default_fields() {
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_doc_title_lref'
+  // Exported field: 'node-adlib_object-field_adlib_dim_presentation_en'.
+  $fields['node-adlib_object-field_adlib_dim_presentation_en'] = array(
+    'field_config' => array(
+      'active' => '1',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'entity_types' => array(),
+      'field_name' => 'field_adlib_dim_presentation_en',
+      'foreign keys' => array(
+        'format' => array(
+          'columns' => array(
+            'format' => 'format',
+          ),
+          'table' => 'filter_format',
+        ),
+      ),
+      'indexes' => array(
+        'format' => array(
+          0 => 'format',
+        ),
+      ),
+      'locked' => '0',
+      'module' => 'text',
+      'settings' => array(
+        'max_length' => '255',
+      ),
+      'translatable' => '0',
+      'type' => 'text',
+    ),
+    'field_instance' => array(
+      'bundle' => 'adlib_object',
+      'default_value' => NULL,
+      'deleted' => '0',
+      'description' => '',
+      'display' => array(
+        'adlib_object' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+        'default' => array(
+          'label' => 'above',
+          'module' => 'text',
+          'settings' => array(),
+          'type' => 'text_default',
+          'weight' => 64,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+      ),
+      'entity_type' => 'node',
+      'field_name' => 'field_adlib_dim_presentation_en',
+      'label' => 'Dimensions (en)',
+      'required' => 0,
+      'settings' => array(
+        'text_processing' => '0',
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 1,
+        'module' => 'text',
+        'settings' => array(
+          'size' => '60',
+        ),
+        'type' => 'text_textfield',
+        'weight' => '35',
+      ),
+    ),
+  );
+
+  // Exported field: 'node-adlib_object-field_adlib_doc_title_lref'.
   $fields['node-adlib_object-field_adlib_doc_title_lref'] = array(
     'field_config' => array(
       'active' => '1',
@@ -695,6 +1002,7 @@ function gemeentemuseum_adlib_field_default_fields() {
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '255',
@@ -748,7 +1056,7 @@ function gemeentemuseum_adlib_field_default_fields() {
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_documentation_title'
+  // Exported field: 'node-adlib_object-field_adlib_documentation_title'.
   $fields['node-adlib_object-field_adlib_documentation_title'] = array(
     'field_config' => array(
       'active' => '1',
@@ -769,6 +1077,7 @@ function gemeentemuseum_adlib_field_default_fields() {
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '255',
@@ -822,7 +1131,7 @@ function gemeentemuseum_adlib_field_default_fields() {
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_edit_date'
+  // Exported field: 'node-adlib_object-field_adlib_edit_date'.
   $fields['node-adlib_object-field_adlib_edit_date'] = array(
     'field_config' => array(
       'active' => '1',
@@ -843,6 +1152,7 @@ function gemeentemuseum_adlib_field_default_fields() {
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '255',
@@ -896,7 +1206,7 @@ function gemeentemuseum_adlib_field_default_fields() {
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_how_raw'
+  // Exported field: 'node-adlib_object-field_adlib_how_raw'.
   $fields['node-adlib_object-field_adlib_how_raw'] = array(
     'field_config' => array(
       'active' => '1',
@@ -917,6 +1227,7 @@ function gemeentemuseum_adlib_field_default_fields() {
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(),
       'translatable' => '0',
@@ -968,7 +1279,7 @@ function gemeentemuseum_adlib_field_default_fields() {
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_image'
+  // Exported field: 'node-adlib_object-field_adlib_image'.
   $fields['node-adlib_object-field_adlib_image'] = array(
     'field_config' => array(
       'active' => '1',
@@ -989,6 +1300,7 @@ function gemeentemuseum_adlib_field_default_fields() {
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '255',
@@ -1043,7 +1355,7 @@ function gemeentemuseum_adlib_field_default_fields() {
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_inscription_date'
+  // Exported field: 'node-adlib_object-field_adlib_inscription_date'.
   $fields['node-adlib_object-field_adlib_inscription_date'] = array(
     'field_config' => array(
       'active' => '1',
@@ -1064,6 +1376,7 @@ function gemeentemuseum_adlib_field_default_fields() {
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '255',
@@ -1117,7 +1430,7 @@ function gemeentemuseum_adlib_field_default_fields() {
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_inscription_maker'
+  // Exported field: 'node-adlib_object-field_adlib_inscription_maker'.
   $fields['node-adlib_object-field_adlib_inscription_maker'] = array(
     'field_config' => array(
       'active' => '1',
@@ -1138,6 +1451,7 @@ function gemeentemuseum_adlib_field_default_fields() {
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '255',
@@ -1191,7 +1505,7 @@ function gemeentemuseum_adlib_field_default_fields() {
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_institution_name'
+  // Exported field: 'node-adlib_object-field_adlib_institution_name'.
   $fields['node-adlib_object-field_adlib_institution_name'] = array(
     'field_config' => array(
       'active' => '1',
@@ -1212,6 +1526,7 @@ function gemeentemuseum_adlib_field_default_fields() {
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '255',
@@ -1265,7 +1580,7 @@ function gemeentemuseum_adlib_field_default_fields() {
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_material'
+  // Exported field: 'node-adlib_object-field_adlib_material'.
   $fields['node-adlib_object-field_adlib_material'] = array(
     'field_config' => array(
       'active' => '1',
@@ -1286,6 +1601,7 @@ function gemeentemuseum_adlib_field_default_fields() {
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '255',
@@ -1339,7 +1655,7 @@ function gemeentemuseum_adlib_field_default_fields() {
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_material_present'
+  // Exported field: 'node-adlib_object-field_adlib_material_present'.
   $fields['node-adlib_object-field_adlib_material_present'] = array(
     'field_config' => array(
       'active' => '1',
@@ -1360,6 +1676,7 @@ function gemeentemuseum_adlib_field_default_fields() {
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '255',
@@ -1418,7 +1735,82 @@ field_adlib_dim_presentation',
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_object_name'
+  // Exported field: 'node-adlib_object-field_adlib_material_present_en'.
+  $fields['node-adlib_object-field_adlib_material_present_en'] = array(
+    'field_config' => array(
+      'active' => '1',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'entity_types' => array(),
+      'field_name' => 'field_adlib_material_present_en',
+      'foreign keys' => array(
+        'format' => array(
+          'columns' => array(
+            'format' => 'format',
+          ),
+          'table' => 'filter_format',
+        ),
+      ),
+      'indexes' => array(
+        'format' => array(
+          0 => 'format',
+        ),
+      ),
+      'locked' => '0',
+      'module' => 'text',
+      'settings' => array(
+        'max_length' => '255',
+      ),
+      'translatable' => '0',
+      'type' => 'text',
+    ),
+    'field_instance' => array(
+      'bundle' => 'adlib_object',
+      'default_value' => NULL,
+      'deleted' => '0',
+      'description' => '',
+      'display' => array(
+        'adlib_object' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+        'default' => array(
+          'label' => 'above',
+          'module' => 'text',
+          'settings' => array(),
+          'type' => 'text_default',
+          'weight' => 63,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+      ),
+      'entity_type' => 'node',
+      'field_name' => 'field_adlib_material_present_en',
+      'label' => 'Material technique presentation (en)',
+      'required' => 0,
+      'settings' => array(
+        'text_processing' => '0',
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 1,
+        'module' => 'text',
+        'settings' => array(
+          'size' => '60',
+        ),
+        'type' => 'text_textfield',
+        'weight' => '34',
+      ),
+    ),
+  );
+
+  // Exported field: 'node-adlib_object-field_adlib_object_name'.
   $fields['node-adlib_object-field_adlib_object_name'] = array(
     'field_config' => array(
       'active' => '1',
@@ -1439,6 +1831,7 @@ field_adlib_dim_presentation',
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '255',
@@ -1492,7 +1885,7 @@ field_adlib_dim_presentation',
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_object_number'
+  // Exported field: 'node-adlib_object-field_adlib_object_number'.
   $fields['node-adlib_object-field_adlib_object_number'] = array(
     'field_config' => array(
       'active' => '1',
@@ -1513,6 +1906,7 @@ field_adlib_dim_presentation',
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '255',
@@ -1566,7 +1960,7 @@ field_adlib_dim_presentation',
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_paragraph_present'
+  // Exported field: 'node-adlib_object-field_adlib_paragraph_present'.
   $fields['node-adlib_object-field_adlib_paragraph_present'] = array(
     'field_config' => array(
       'active' => '1',
@@ -1587,6 +1981,7 @@ field_adlib_dim_presentation',
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '2056',
@@ -1640,7 +2035,7 @@ field_adlib_dim_presentation',
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_part_of_reference'
+  // Exported field: 'node-adlib_object-field_adlib_part_of_reference'.
   $fields['node-adlib_object-field_adlib_part_of_reference'] = array(
     'field_config' => array(
       'active' => '1',
@@ -1661,6 +2056,7 @@ field_adlib_dim_presentation',
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '255',
@@ -1714,7 +2110,7 @@ field_adlib_dim_presentation',
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_part_of_title'
+  // Exported field: 'node-adlib_object-field_adlib_part_of_title'.
   $fields['node-adlib_object-field_adlib_part_of_title'] = array(
     'field_config' => array(
       'active' => '1',
@@ -1735,6 +2131,7 @@ field_adlib_dim_presentation',
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '255',
@@ -1788,7 +2185,7 @@ field_adlib_dim_presentation',
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_parts_reference'
+  // Exported field: 'node-adlib_object-field_adlib_parts_reference'.
   $fields['node-adlib_object-field_adlib_parts_reference'] = array(
     'field_config' => array(
       'active' => '1',
@@ -1809,6 +2206,7 @@ field_adlib_dim_presentation',
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '255',
@@ -1862,7 +2260,7 @@ field_adlib_dim_presentation',
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_parts_title'
+  // Exported field: 'node-adlib_object-field_adlib_parts_title'.
   $fields['node-adlib_object-field_adlib_parts_title'] = array(
     'field_config' => array(
       'active' => '1',
@@ -1883,6 +2281,7 @@ field_adlib_dim_presentation',
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '255',
@@ -1936,7 +2335,7 @@ field_adlib_dim_presentation',
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_pid'
+  // Exported field: 'node-adlib_object-field_adlib_pid'.
   $fields['node-adlib_object-field_adlib_pid'] = array(
     'field_config' => array(
       'active' => '1',
@@ -1957,6 +2356,7 @@ field_adlib_dim_presentation',
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '255',
@@ -2011,7 +2411,7 @@ field_adlib_dim_presentation',
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_pidnumber'
+  // Exported field: 'node-adlib_object-field_adlib_pidnumber'.
   $fields['node-adlib_object-field_adlib_pidnumber'] = array(
     'field_config' => array(
       'active' => '1',
@@ -2032,6 +2432,7 @@ field_adlib_dim_presentation',
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '255',
@@ -2085,7 +2486,7 @@ field_adlib_dim_presentation',
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_prod_date_end'
+  // Exported field: 'node-adlib_object-field_adlib_prod_date_end'.
   $fields['node-adlib_object-field_adlib_prod_date_end'] = array(
     'field_config' => array(
       'active' => '1',
@@ -2106,6 +2507,7 @@ field_adlib_dim_presentation',
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '255',
@@ -2159,7 +2561,7 @@ field_adlib_dim_presentation',
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_prod_date_present'
+  // Exported field: 'node-adlib_object-field_adlib_prod_date_present'.
   $fields['node-adlib_object-field_adlib_prod_date_present'] = array(
     'field_config' => array(
       'active' => '1',
@@ -2180,6 +2582,7 @@ field_adlib_dim_presentation',
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '255',
@@ -2240,7 +2643,82 @@ field_adlib_inscription_date',
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_prod_date_start'
+  // Exported field: 'node-adlib_object-field_adlib_prod_date_present_en'.
+  $fields['node-adlib_object-field_adlib_prod_date_present_en'] = array(
+    'field_config' => array(
+      'active' => '1',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'entity_types' => array(),
+      'field_name' => 'field_adlib_prod_date_present_en',
+      'foreign keys' => array(
+        'format' => array(
+          'columns' => array(
+            'format' => 'format',
+          ),
+          'table' => 'filter_format',
+        ),
+      ),
+      'indexes' => array(
+        'format' => array(
+          0 => 'format',
+        ),
+      ),
+      'locked' => '0',
+      'module' => 'text',
+      'settings' => array(
+        'max_length' => '255',
+      ),
+      'translatable' => '0',
+      'type' => 'text',
+    ),
+    'field_instance' => array(
+      'bundle' => 'adlib_object',
+      'default_value' => NULL,
+      'deleted' => '0',
+      'description' => '',
+      'display' => array(
+        'adlib_object' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+        'default' => array(
+          'label' => 'above',
+          'module' => 'text',
+          'settings' => array(),
+          'type' => 'text_default',
+          'weight' => 62,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+      ),
+      'entity_type' => 'node',
+      'field_name' => 'field_adlib_prod_date_present_en',
+      'label' => 'Production date presentation (en)',
+      'required' => 0,
+      'settings' => array(
+        'text_processing' => '0',
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 1,
+        'module' => 'text',
+        'settings' => array(
+          'size' => '60',
+        ),
+        'type' => 'text_textfield',
+        'weight' => '33',
+      ),
+    ),
+  );
+
+  // Exported field: 'node-adlib_object-field_adlib_prod_date_start'.
   $fields['node-adlib_object-field_adlib_prod_date_start'] = array(
     'field_config' => array(
       'active' => '1',
@@ -2261,6 +2739,7 @@ field_adlib_inscription_date',
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '255',
@@ -2314,7 +2793,82 @@ field_adlib_inscription_date',
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_prod_place_present'
+  // Exported field: 'node-adlib_object-field_adlib_prod_place_pres_en'.
+  $fields['node-adlib_object-field_adlib_prod_place_pres_en'] = array(
+    'field_config' => array(
+      'active' => '1',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'entity_types' => array(),
+      'field_name' => 'field_adlib_prod_place_pres_en',
+      'foreign keys' => array(
+        'format' => array(
+          'columns' => array(
+            'format' => 'format',
+          ),
+          'table' => 'filter_format',
+        ),
+      ),
+      'indexes' => array(
+        'format' => array(
+          0 => 'format',
+        ),
+      ),
+      'locked' => '0',
+      'module' => 'text',
+      'settings' => array(
+        'max_length' => '255',
+      ),
+      'translatable' => '0',
+      'type' => 'text',
+    ),
+    'field_instance' => array(
+      'bundle' => 'adlib_object',
+      'default_value' => NULL,
+      'deleted' => '0',
+      'description' => '',
+      'display' => array(
+        'adlib_object' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+        'default' => array(
+          'label' => 'above',
+          'module' => 'text',
+          'settings' => array(),
+          'type' => 'text_default',
+          'weight' => 61,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+      ),
+      'entity_type' => 'node',
+      'field_name' => 'field_adlib_prod_place_pres_en',
+      'label' => 'Production place presentation (en)',
+      'required' => 0,
+      'settings' => array(
+        'text_processing' => '0',
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 1,
+        'module' => 'text',
+        'settings' => array(
+          'size' => '60',
+        ),
+        'type' => 'text_textfield',
+        'weight' => '32',
+      ),
+    ),
+  );
+
+  // Exported field: 'node-adlib_object-field_adlib_prod_place_present'.
   $fields['node-adlib_object-field_adlib_prod_place_present'] = array(
     'field_config' => array(
       'active' => '1',
@@ -2335,6 +2889,7 @@ field_adlib_inscription_date',
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '255',
@@ -2393,7 +2948,7 @@ field_adlib_acquisition_place
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_production_period'
+  // Exported field: 'node-adlib_object-field_adlib_production_period'.
   $fields['node-adlib_object-field_adlib_production_period'] = array(
     'field_config' => array(
       'active' => '1',
@@ -2414,6 +2969,7 @@ field_adlib_acquisition_place
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '255',
@@ -2467,7 +3023,7 @@ field_adlib_acquisition_place
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_production_place'
+  // Exported field: 'node-adlib_object-field_adlib_production_place'.
   $fields['node-adlib_object-field_adlib_production_place'] = array(
     'field_config' => array(
       'active' => '1',
@@ -2488,6 +3044,7 @@ field_adlib_acquisition_place
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '255',
@@ -2541,7 +3098,7 @@ field_adlib_acquisition_place
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_production_reason'
+  // Exported field: 'node-adlib_object-field_adlib_production_reason'.
   $fields['node-adlib_object-field_adlib_production_reason'] = array(
     'field_config' => array(
       'active' => '1',
@@ -2562,6 +3119,7 @@ field_adlib_acquisition_place
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '255',
@@ -2615,7 +3173,7 @@ field_adlib_acquisition_place
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_publication_access'
+  // Exported field: 'node-adlib_object-field_adlib_publication_access'.
   $fields['node-adlib_object-field_adlib_publication_access'] = array(
     'field_config' => array(
       'active' => '1',
@@ -2636,6 +3194,7 @@ field_adlib_acquisition_place
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '255',
@@ -2689,7 +3248,7 @@ field_adlib_acquisition_place
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_qualific_present'
+  // Exported field: 'node-adlib_object-field_adlib_qualific_present'.
   $fields['node-adlib_object-field_adlib_qualific_present'] = array(
     'field_config' => array(
       'active' => '1',
@@ -2710,6 +3269,7 @@ field_adlib_acquisition_place
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '255',
@@ -2763,7 +3323,7 @@ field_adlib_acquisition_place
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_raw_xml'
+  // Exported field: 'node-adlib_object-field_adlib_raw_xml'.
   $fields['node-adlib_object-field_adlib_raw_xml'] = array(
     'field_config' => array(
       'active' => '1',
@@ -2784,6 +3344,7 @@ field_adlib_acquisition_place
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(),
       'translatable' => '0',
@@ -2835,7 +3396,7 @@ field_adlib_acquisition_place
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_rel_obj_reference'
+  // Exported field: 'node-adlib_object-field_adlib_rel_obj_reference'.
   $fields['node-adlib_object-field_adlib_rel_obj_reference'] = array(
     'field_config' => array(
       'active' => '1',
@@ -2856,6 +3417,7 @@ field_adlib_acquisition_place
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '255',
@@ -2909,7 +3471,7 @@ field_adlib_acquisition_place
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_rel_obj_title'
+  // Exported field: 'node-adlib_object-field_adlib_rel_obj_title'.
   $fields['node-adlib_object-field_adlib_rel_obj_title'] = array(
     'field_config' => array(
       'active' => '1',
@@ -2930,6 +3492,7 @@ field_adlib_acquisition_place
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '255',
@@ -2983,7 +3546,7 @@ field_adlib_acquisition_place
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_repro_reference'
+  // Exported field: 'node-adlib_object-field_adlib_repro_reference'.
   $fields['node-adlib_object-field_adlib_repro_reference'] = array(
     'field_config' => array(
       'active' => '1',
@@ -3004,6 +3567,7 @@ field_adlib_acquisition_place
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '255',
@@ -3057,7 +3621,7 @@ field_adlib_acquisition_place
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_tag'
+  // Exported field: 'node-adlib_object-field_adlib_tag'.
   $fields['node-adlib_object-field_adlib_tag'] = array(
     'field_config' => array(
       'active' => '1',
@@ -3078,6 +3642,7 @@ field_adlib_acquisition_place
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '512',
@@ -3131,7 +3696,7 @@ field_adlib_acquisition_place
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_tags'
+  // Exported field: 'node-adlib_object-field_adlib_tags'.
   $fields['node-adlib_object-field_adlib_tags'] = array(
     'field_config' => array(
       'active' => '1',
@@ -3152,6 +3717,7 @@ field_adlib_acquisition_place
           0 => 'tid',
         ),
       ),
+      'locked' => '0',
       'module' => 'taxonomy',
       'settings' => array(
         'allowed_values' => array(
@@ -3210,7 +3776,7 @@ field_adlib_acquisition_place
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_technique'
+  // Exported field: 'node-adlib_object-field_adlib_technique'.
   $fields['node-adlib_object-field_adlib_technique'] = array(
     'field_config' => array(
       'active' => '1',
@@ -3231,6 +3797,7 @@ field_adlib_acquisition_place
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '255',
@@ -3284,7 +3851,7 @@ field_adlib_acquisition_place
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_title'
+  // Exported field: 'node-adlib_object-field_adlib_title'.
   $fields['node-adlib_object-field_adlib_title'] = array(
     'field_config' => array(
       'active' => '1',
@@ -3305,6 +3872,7 @@ field_adlib_acquisition_place
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '2056',
@@ -3358,7 +3926,82 @@ field_adlib_acquisition_place
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_title_short_desc'
+  // Exported field: 'node-adlib_object-field_adlib_title_en'.
+  $fields['node-adlib_object-field_adlib_title_en'] = array(
+    'field_config' => array(
+      'active' => '1',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'entity_types' => array(),
+      'field_name' => 'field_adlib_title_en',
+      'foreign keys' => array(
+        'format' => array(
+          'columns' => array(
+            'format' => 'format',
+          ),
+          'table' => 'filter_format',
+        ),
+      ),
+      'indexes' => array(
+        'format' => array(
+          0 => 'format',
+        ),
+      ),
+      'locked' => '0',
+      'module' => 'text',
+      'settings' => array(
+        'max_length' => '255',
+      ),
+      'translatable' => '0',
+      'type' => 'text',
+    ),
+    'field_instance' => array(
+      'bundle' => 'adlib_object',
+      'default_value' => NULL,
+      'deleted' => '0',
+      'description' => '',
+      'display' => array(
+        'adlib_object' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+        'default' => array(
+          'label' => 'above',
+          'module' => 'text',
+          'settings' => array(),
+          'type' => 'text_default',
+          'weight' => 59,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+      ),
+      'entity_type' => 'node',
+      'field_name' => 'field_adlib_title_en',
+      'label' => 'Title (en)',
+      'required' => 0,
+      'settings' => array(
+        'text_processing' => '0',
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 1,
+        'module' => 'text',
+        'settings' => array(
+          'size' => '60',
+        ),
+        'type' => 'text_textfield',
+        'weight' => '29',
+      ),
+    ),
+  );
+
+  // Exported field: 'node-adlib_object-field_adlib_title_short_desc'.
   $fields['node-adlib_object-field_adlib_title_short_desc'] = array(
     'field_config' => array(
       'active' => '1',
@@ -3379,6 +4022,7 @@ field_adlib_acquisition_place
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(),
       'translatable' => '0',
@@ -3434,7 +4078,80 @@ field_adlib_description',
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_what_raw'
+  // Exported field: 'node-adlib_object-field_adlib_title_short_desc_en'.
+  $fields['node-adlib_object-field_adlib_title_short_desc_en'] = array(
+    'field_config' => array(
+      'active' => '1',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'entity_types' => array(),
+      'field_name' => 'field_adlib_title_short_desc_en',
+      'foreign keys' => array(
+        'format' => array(
+          'columns' => array(
+            'format' => 'format',
+          ),
+          'table' => 'filter_format',
+        ),
+      ),
+      'indexes' => array(
+        'format' => array(
+          0 => 'format',
+        ),
+      ),
+      'locked' => '0',
+      'module' => 'text',
+      'settings' => array(),
+      'translatable' => '0',
+      'type' => 'text_long',
+    ),
+    'field_instance' => array(
+      'bundle' => 'adlib_object',
+      'default_value' => NULL,
+      'deleted' => '0',
+      'description' => '',
+      'display' => array(
+        'adlib_object' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+        'default' => array(
+          'label' => 'above',
+          'module' => 'text',
+          'settings' => array(),
+          'type' => 'text_default',
+          'weight' => 58,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+      ),
+      'entity_type' => 'node',
+      'field_name' => 'field_adlib_title_short_desc_en',
+      'label' => 'Title short description (en)',
+      'required' => 0,
+      'settings' => array(
+        'text_processing' => '0',
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 1,
+        'module' => 'text',
+        'settings' => array(
+          'rows' => '5',
+        ),
+        'type' => 'text_textarea',
+        'weight' => '30',
+      ),
+    ),
+  );
+
+  // Exported field: 'node-adlib_object-field_adlib_what_raw'.
   $fields['node-adlib_object-field_adlib_what_raw'] = array(
     'field_config' => array(
       'active' => '1',
@@ -3455,6 +4172,7 @@ field_adlib_description',
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(),
       'translatable' => '0',
@@ -3506,7 +4224,7 @@ field_adlib_description',
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_when_raw'
+  // Exported field: 'node-adlib_object-field_adlib_when_raw'.
   $fields['node-adlib_object-field_adlib_when_raw'] = array(
     'field_config' => array(
       'active' => '1',
@@ -3527,6 +4245,7 @@ field_adlib_description',
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(),
       'translatable' => '0',
@@ -3578,7 +4297,7 @@ field_adlib_description',
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_where_raw'
+  // Exported field: 'node-adlib_object-field_adlib_where_raw'.
   $fields['node-adlib_object-field_adlib_where_raw'] = array(
     'field_config' => array(
       'active' => '1',
@@ -3599,6 +4318,7 @@ field_adlib_description',
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(),
       'translatable' => '0',
@@ -3650,7 +4370,7 @@ field_adlib_description',
     ),
   );
 
-  // Exported field: 'node-adlib_object-field_adlib_who_raw'
+  // Exported field: 'node-adlib_object-field_adlib_who_raw'.
   $fields['node-adlib_object-field_adlib_who_raw'] = array(
     'field_config' => array(
       'active' => '1',
@@ -3671,6 +4391,7 @@ field_adlib_description',
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(),
       'translatable' => '0',
@@ -3729,12 +4450,16 @@ field_adlib_description',
   t('Chronicle title');
   t('Chronicle title lref');
   t('Creation presentation');
+  t('Creation presentation (en)');
   t('Creator');
   t('Credit line');
+  t('Credit line (en)');
   t('Description');
+  t('Description (en)');
   t('Description Paragraph presentation');
   t('Description qualification presentation');
   t('Dimensions');
+  t('Dimensions (en)');
   t('Documentation title');
   t('Documentation title lref');
   t('Edit date');
@@ -3745,6 +4470,7 @@ field_adlib_description',
   t('Institution name');
   t('Material');
   t('Material technique presentation');
+  t('Material technique presentation (en)');
   t('Object name');
   t('Object number');
   t('PID');
@@ -3755,10 +4481,12 @@ field_adlib_description',
   t('Parts title');
   t('Production date end');
   t('Production date presentation');
+  t('Production date presentation (en)');
   t('Production date start');
   t('Production period');
   t('Production place');
   t('Production place presentation');
+  t('Production place presentation (en)');
   t('Production reason');
   t('Publication access');
   t('Raw xml');
@@ -3768,7 +4496,9 @@ field_adlib_description',
   t('Tags');
   t('Technique');
   t('Title');
+  t('Title (en)');
   t('Title short description');
+  t('Title short description (en)');
   t('What raw output');
   t('When raw ouput');
   t('Where raw output');

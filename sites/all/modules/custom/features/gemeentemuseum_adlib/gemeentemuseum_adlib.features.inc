@@ -5,7 +5,7 @@
  */
 
 /**
- * Implementation of hook_ctools_plugin_api().
+ * Implements hook_ctools_plugin_api().
  */
 function gemeentemuseum_adlib_ctools_plugin_api() {
   list($module, $api) = func_get_args();
@@ -27,17 +27,14 @@ function gemeentemuseum_adlib_ctools_plugin_api() {
 }
 
 /**
- * Implementation of hook_views_api().
+ * Implements hook_views_api().
  */
 function gemeentemuseum_adlib_views_api() {
-  list($module, $api) = func_get_args();
-  if ($module == "views" && $api == "views_default") {
-    return array("version" => "3.0");
-  }
+  return array("version" => "3.0");
 }
 
 /**
- * Implementation of hook_node_info().
+ * Implements hook_node_info().
  */
 function gemeentemuseum_adlib_node_info() {
   $items = array(
