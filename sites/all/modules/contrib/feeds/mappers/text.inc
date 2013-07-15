@@ -35,6 +35,8 @@ function text_feeds_processor_targets_alter(&$targets, $entity_type, $bundle_nam
  */
 function text_feeds_set_target($source, $entity, $target, $value) {
   if (empty($value)) {
+    // Be sure to empty fields in which the new value is empty.
+    $entity->$target = array('und' => array());
     return;
   }
 
