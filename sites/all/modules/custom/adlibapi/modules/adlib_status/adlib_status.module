@@ -1,0 +1,60 @@
+<?php
+
+/**
+ * @file
+ *  Implements status checks for Adlib servers and Search API indexes.
+ */
+
+
+/**
+ * Implements hook_cron.
+ * Sends mail on error.
+ */
+function adlib_status_cron() {
+  // Run requirements function
+  $statuses = adlib_status_requirements('runtime');
+  $params = array();
+
+  // Store statuses and check for errors.
+  foreach ($statuses  as $index => $status) {
+    if (isset($status['severity']) && ($status['severity'] == REQUIREMENT_ERROR)) {
+      $params[] = $status;
+    }
+  }
+
+  // Send mail on error statuses.
+  if (!empty($params)) {
+    $notify_list = variable_get('update_notify_emails', '');
+    if (!empty($notify_list)) {
+      $default_language = language_default();
+      foreach ($notify_list as $target) {
+        if ($target_user = user_load_by_mail($target)) {
+          $target_language = user_preferred_language($target_user);
+        }
+        else {
+          $target_language = $default_language;
+        }
+        $message = drupal_mail('adlib_status', 'adlib_status_notify', $target, $target_language, $params);
+        // Track when the last mail was successfully.
+        if ($message['result']) {
+          variable_set('adlib_status_last_email_notification', REQUEST_TIME);
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements mail sending functionality.
+ * @param $key
+ * @param $message
+ * @param $params
+ */
+function adlib_status_mail($key, &$message, $params) {
+  $language = $message['language'];
+  $langcode = $language->language;
+  $message['subject'] .= t('Adlib status update !site_name', array('!site_name' => variable_get('site_name', 'Drupal')), array('langcode' => $langcode));
+  foreach ($params as $status) {
+    $message['body'][] = strip_tags($status['title']) . ': ' . strip_tags($status['value']);
+  }
+}
