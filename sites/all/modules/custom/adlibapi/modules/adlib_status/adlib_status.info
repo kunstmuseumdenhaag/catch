@@ -1,0 +1,8 @@
+name = Adlib Status Monitor
+description = Show status of index and Adlib connection on status report
+package = Adlib
+core = 7.x
+version = 7.x-1.x
+
+;files[] =
+;dependencies[] = 
