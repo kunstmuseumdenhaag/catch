@@ -12,7 +12,7 @@
  */
 function adlib_status_cron() {
   // Run requirements function
-  $statuses =   adlib_status_requirements('runtime');
+  $statuses = adlib_status_requirements('runtime');
   $params = array();
 
   // Store statuses and check for errors.
