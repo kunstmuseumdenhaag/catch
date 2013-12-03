@@ -409,7 +409,7 @@ function gemeentemuseum_adlib_field_default_fields() {
       'locked' => '0',
       'module' => 'text',
       'settings' => array(
-        'max_length' => '255',
+        'max_length' => '2048',
       ),
       'translatable' => '0',
       'type' => 'text',
@@ -634,7 +634,7 @@ function gemeentemuseum_adlib_field_default_fields() {
       'locked' => '0',
       'module' => 'text',
       'settings' => array(
-        'max_length' => '255',
+        'max_length' => '2048',
       ),
       'translatable' => '0',
       'type' => 'text',
@@ -930,7 +930,7 @@ function gemeentemuseum_adlib_field_default_fields() {
       'locked' => '0',
       'module' => 'text',
       'settings' => array(
-        'max_length' => '255',
+        'max_length' => '2048',
       ),
       'translatable' => '0',
       'type' => 'text',
