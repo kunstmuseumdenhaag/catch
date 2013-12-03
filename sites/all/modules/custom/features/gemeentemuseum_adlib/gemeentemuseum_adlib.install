@@ -11,9 +11,17 @@
 function gemeentemuseum_adlib_update_7000(&$sandbox) {
   $messages = array();
   // Set the fields for which the length should be altered.
-  gemeentemuseum_adlib_change_text_field_max_length('field_adlib_creation_present_en', 2048);
-  // Set the message.
-  $messages[] = t('Updated field length of field @field', array('@field' => 'field_adlib_creation_present_en'));
+  $fields = array(
+    'field_adlib_creation_present_en',
+    'field_adlib_credit_line_en',
+    'field_adlib_dim_presentation_en',
+    ''
+  );
+  foreach ($fields as $field) {
+    gemeentemuseum_adlib_change_text_field_max_length($field, 2048);
+    // Set the message.
+    $messages[] = t('Updated field length of field @field', array('@field' => $field));
+  }
 
   return implode('<br />', $messages);
 }
