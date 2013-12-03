@@ -15,7 +15,6 @@ function gemeentemuseum_adlib_update_7000(&$sandbox) {
     'field_adlib_creation_present_en',
     'field_adlib_credit_line_en',
     'field_adlib_dim_presentation_en',
-    ''
   );
   foreach ($fields as $field) {
     gemeentemuseum_adlib_change_text_field_max_length($field, 2048);
