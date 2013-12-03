@@ -12,6 +12,7 @@
  */
 function adlib_status_cron() {
   // Run requirements function
+  module_load_include('install', 'adlib_status');
   $statuses = adlib_status_requirements('runtime');
   $params = array();
 
