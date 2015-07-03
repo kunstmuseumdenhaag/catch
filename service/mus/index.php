@@ -42,6 +42,10 @@ initializeMus();
 $app->get('/search', 'musSearch');
 $app->get('/detail/:id', 'musDetail');
 
+// @TODO: add post routes.
+//$app->post('/search', 'musSearchPost');
+//$app->post('/detail/:id', 'musDetailPost');
+
 /*
  * The actual application
  */
