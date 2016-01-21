@@ -74,8 +74,11 @@ class FeedsAdlibBatch extends FeedsFetcherResult {
       $this->updateFetcher($xmlObject);
     }
     else {
-      // Write the error to the watchdog and give an error
-      drupal_set_message($response->getErrorMessage(), 'error');
+      // Write the error to the watchdog and give an error.
+      if ($catch_adlib_conection_error_drupal_message_suppress) {
+        drupal_set_message($response->getErrorMessage(), 'error');
+      }
+
       watchdog(ADLIBAPI_WATCHDOG_ERROR, 'Adlib api error: %error', array('%error' => $response->getErrorMessage()), WATCHDOG_ERROR);
     }
     return $xml;
