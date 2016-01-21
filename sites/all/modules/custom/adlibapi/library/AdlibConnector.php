@@ -250,6 +250,12 @@ class AdLibConnector{
         $response = new AdlibSearchResponse($rawdata, $httpInfo);
         break;
     }
+
+    if ($response->getError() && $response->getHTTPStatus() == -1 ) {
+      $curl_error = curl_error($ch);
+      $response->setErrorMessage($curl_error);
+    }
+
     return $response;
   }
 }
