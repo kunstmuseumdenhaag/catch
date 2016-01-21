@@ -59,6 +59,9 @@ class FeedsAdlibBatch extends FeedsFetcherResult {
     // $query->setXMLtype('grouped');
     $conn = adlibapi_api_get_connection($this->db_settings);
     $response = $conn->performQuery($query);
+    // Set empty xml, so we always have something to present to the parser.
+    $xml = "<adlibXML></adlibXML>";
+
     // check for errors
     if (!$response->getError()) {
       // only return the XML of the recordlist!
