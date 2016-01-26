@@ -75,7 +75,7 @@ class FeedsAdlibBatch extends FeedsFetcherResult {
     }
     else {
       // Write the error to the watchdog and give an error.
-      if ($catch_adlib_conection_error_drupal_message_suppress) {
+      if (variable_get('catch_adlib_conection_error_drupal_message_suppress', FALSE)) {
         drupal_set_message($response->getErrorMessage(), 'error');
       }
 
