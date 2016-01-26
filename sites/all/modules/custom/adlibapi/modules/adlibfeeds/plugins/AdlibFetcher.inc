@@ -59,6 +59,9 @@ class FeedsAdlibBatch extends FeedsFetcherResult {
     // $query->setXMLtype('grouped');
     $conn = adlibapi_api_get_connection($this->db_settings);
     $response = $conn->performQuery($query);
+    // Set empty xml, so we always have something to present to the parser.
+    $xml = "<adlibXML></adlibXML>";
+
     // check for errors
     if (!$response->getError()) {
       // only return the XML of the recordlist!
@@ -71,8 +74,11 @@ class FeedsAdlibBatch extends FeedsFetcherResult {
       $this->updateFetcher($xmlObject);
     }
     else {
-      // Write the error to the watchdog and give an error
-      drupal_set_message($response->getErrorMessage(), 'error');
+      // Write the error to the watchdog and give an error.
+      if ($catch_adlib_conection_error_drupal_message_suppress) {
+        drupal_set_message($response->getErrorMessage(), 'error');
+      }
+
       watchdog(ADLIBAPI_WATCHDOG_ERROR, 'Adlib api error: %error', array('%error' => $response->getErrorMessage()), WATCHDOG_ERROR);
     }
     return $xml;
