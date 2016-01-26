@@ -110,6 +110,15 @@ class AdlibBaseResponse{
   }
 
   /**
+   * Manually set the Error message.
+   *
+   * @param $error_message
+   */
+  public  function setErrorMessage($error_message) {
+    $this->_errorString .= $error_message;
+  }
+
+  /**
    * Get the HTTP status
    * @return string the HTTP status
    */
