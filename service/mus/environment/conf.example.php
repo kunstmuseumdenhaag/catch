@@ -1,8 +1,6 @@
 <?php
 /**
  * In this file, all local settings for MuS can be made. This includes database and solr server settings.
- * Enter description here ...
- * @var unknown_type
  */
 $conf = array();
 /*

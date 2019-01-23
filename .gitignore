@@ -6,7 +6,8 @@ sites/*/files
 sites/*/private
 
 # Ignore MuS local environment settings
-service/mus/environment/*.php
+service/mus/environment/conf.php
+service/mus/environment/legacy_conf.php
 
 .DS_Store
 
