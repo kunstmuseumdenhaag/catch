@@ -5,11 +5,11 @@
  *
  * @throws \Exception thrown when configuration could not be set.
  */
-function initializeMus() {
-    $slim = Slim::getInstance();
+function initializeMus(&$app) {
+//    $slim = Slim::getInstance();
     // Get the mode (legacy or normal)
     $conf_filename = 'conf.php';
-    $legacy_setting = $slim->request()->params('legacymode');
+    $legacy_setting = $app->request()->params('legacymode');
     if (isset($legacy_setting) && $legacy_setting == 'on' && file_exists(MUS_ROOT . '/environment/legacy_conf.php')) {
         $conf_filename = 'legacy_conf.php';
     }
@@ -20,7 +20,7 @@ function initializeMus() {
     }
     if (isset($conf)) {
         // Now add the settings to Slim
-        $slim->config($conf);
+        $app->config($conf);
     }
     else {
         throw new Exception('Configuration not found');
