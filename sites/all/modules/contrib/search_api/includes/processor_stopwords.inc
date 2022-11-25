@@ -1,9 +1,21 @@
 <?php
 
 /**
+ * @file
+ * Contains SearchApiStopWords.
+ */
+
+/**
  * Processor for removing stopwords from index and search terms.
  */
 class SearchApiStopWords extends SearchApiAbstractProcessor {
+
+  /**
+   * Holds all words ignored for the last query.
+   *
+   * @var array
+   */
+  protected $ignored = array();
 
   public function configurationForm() {
     $form = parent::configurationForm();
@@ -14,8 +26,7 @@ class SearchApiStopWords extends SearchApiAbstractProcessor {
       ),
       'file' => array(
         '#type' => 'textfield',
-        '#title' => t('Stopwords file URI'),
-        '#title' => t('Enter the URI of your stopwords.txt file'),
+        '#title' => t('Stopwords file'),
         '#description' => t('This must be a stream-type description like <code>public://stopwords/stopwords.txt</code> or <code>http://example.com/stopwords.txt</code> or <code>private://stopwords.txt</code>.'),
       ),
       'stopwords' => array(
@@ -36,13 +47,8 @@ class SearchApiStopWords extends SearchApiAbstractProcessor {
   public function configurationFormValidate(array $form, array &$values, array &$form_state) {
     parent::configurationFormValidate($form, $values, $form_state);
 
-    $stopwords = trim($values['stopwords']);
     $uri = $values['file'];
-    if (empty($stopwords) && empty($uri)) {
-      $el = $form['file'];
-      form_error($el, $el['#title'] . ': ' . t('At stopwords file or words are required.'));
-    }
-    if (!empty($uri) && !file_get_contents($uri)) {
+    if (!empty($uri) && !@file_get_contents($uri)) {
       $el = $form['file'];
       form_error($el, t('Stopwords file') . ': ' . t('The file %uri is not readable or does not exist.', array('%uri' => $uri)));
     }
@@ -50,7 +56,7 @@ class SearchApiStopWords extends SearchApiAbstractProcessor {
 
   public function process(&$value) {
     $stopwords = $this->getStopWords();
-    if (empty($stopwords)) {
+    if (empty($stopwords) || !is_string($value)) {
       return;
     }
     $words = preg_split('/\s+/', $value);
@@ -63,17 +69,26 @@ class SearchApiStopWords extends SearchApiAbstractProcessor {
     $value = implode(' ', $words);
   }
 
+  public function preprocessSearchQuery(SearchApiQuery $query) {
+    $this->ignored = array();
+    parent::preprocessSearchQuery($query);
+  }
+
   public function postprocessSearchResults(array &$response, SearchApiQuery $query) {
-    if (isset($this->ignored)) {
+    if ($this->ignored) {
       if (isset($response['ignored'])) {
         $response['ignored'] = array_merge($response['ignored'], $this->ignored);
       }
-      else $response['ignored'] = $this->ignored;
+      else {
+        $response['ignored'] = $this->ignored;
+      }
     }
   }
 
   /**
-   * @return
+   * Retrieves the processor's configured stopwords.
+   *
+   * @return array
    *   An array whose keys are the stopwords set in either the file or the text
    *   field.
    */

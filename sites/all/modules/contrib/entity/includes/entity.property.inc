@@ -46,7 +46,7 @@ function entity_get_property_info($entity_type = NULL) {
 /**
  * Returns the default information for an entity property.
  *
- * @return
+ * @return array
  *   An array of optional property information keys mapped to their defaults.
  *
  * @see hook_entity_property_info()
@@ -68,8 +68,8 @@ function entity_property_info_defaults() {
  * @param $entity_type
  *   (optiona) The entity type to return properties for.
  *
- * @return
- *   An array of info about properties. If the type is ommitted, all known
+ * @return array
+ *   An array of info about properties. If the type is omitted, all known
  *   properties are returned.
  */
 function entity_get_all_property_info($entity_type = NULL) {
@@ -102,9 +102,9 @@ function entity_get_all_property_info($entity_type = NULL) {
  * @param $value
  *   A single property value or an array of possible values to query for.
  * @param $limit
- *   Limit the numer of results. Defaults to 30.
+ *   Limit the number of results. Defaults to 30.
  *
- * @return
+ * @return array
  *   An array of entity ids or NULL if there is no information how to query for
  *   the given property.
  */
@@ -231,7 +231,7 @@ function entity_field_update_instance() {
  * of the PHP variable type of $data. Example: the string "15" is a valid
  * integer, but "15nodes" is not.
  *
- * @return
+ * @return bool
  *   Whether the data is valid for the given type.
  */
 function entity_property_verify_data_type($data, $type) {
@@ -251,7 +251,11 @@ function entity_property_verify_data_type($data, $type) {
       return TRUE;
     }
     elseif (isset($info[$type]['entity keys']['name'])) {
-      return entity_property_verify_data_type($data, 'token');
+      // Read the data type of the name key from the metadata if available.
+      $key = $info[$type]['entity keys']['name'];
+      $property_info = entity_get_property_info($type);
+      $property_type = isset($property_info['properties'][$key]['type']) ? $property_info['properties'][$key]['type'] : 'token';
+      return entity_property_verify_data_type($data, $property_type);
     }
     return entity_property_verify_data_type($data, empty($info[$type]['fieldable']) ? 'text' : 'integer');
   }
@@ -260,26 +264,35 @@ function entity_property_verify_data_type($data, $type) {
     case 'site':
     case 'unknown':
       return TRUE;
+
     case 'date':
     case 'duration':
     case 'integer':
       return is_numeric($data) && strpos($data, '.') === FALSE;
+
     case 'decimal':
       return is_numeric($data);
+
     case 'text':
       return is_scalar($data);
+
     case 'token':
       return is_scalar($data) && preg_match('!^[a-z][a-z0-9_]*$!', $data);
+
     case 'boolean':
       return is_scalar($data) && (is_bool($data) || $data == 0 || $data == 1);
+
     case 'uri':
       return valid_url($data, TRUE);
+
     case 'list':
       return (is_array($data) && array_values($data) == $data) || (is_object($data) && $data instanceof EntityMetadataArrayObject);
+
     case 'entity':
       return is_object($data) && $data instanceof EntityDrupalWrapper;
-    default:
+
     case 'struct':
+    default:
       return is_object($data) || is_array($data);
   }
 }
@@ -297,7 +310,7 @@ function entity_property_verify_data_type($data, $type) {
  *   assigned to the entity directly, without the use of the metadata-wrapper
  *   property.
  *
- * @return EntityDrupalWrapper
+ * @return EntityDrupalWrapper|false
  *   An EntityDrupalWrapper wrapping the newly created entity or FALSE, if
  *   there were no information how to create the entity.
  */
@@ -329,22 +342,21 @@ function entity_property_values_create_entity($entity_type, $values = array()) {
         }
       }
     }
-    // @todo: Once we require Drupal 7.7 or later, verify the entity has
+    // @todo Once we require Drupal 7.7 or later, verify the entity has
     // now a valid bundle and throw the EntityMalformedException if not.
     return $wrapper;
   }
   return FALSE;
 }
 
-
 /**
  * Extracts the contained type for a list type string like list<date>.
  *
- * @return
+ * @return string|false
  *   The contained type or FALSE, if the given type string is no list.
  */
 function entity_property_list_extract_type($type) {
-  if (strpos($type, 'list<') === 0 && $type[strlen($type)-1] == '>') {
+  if (strpos($type, 'list<') === 0 && $type[strlen($type) - 1] == '>') {
     return substr($type, 5, -1);
   }
   return FALSE;
@@ -356,11 +368,11 @@ function entity_property_list_extract_type($type) {
  * @param $type
  *   The type to examine.
  *
- * @return
+ * @return string
  *   For list types, the innermost type. The type itself otherwise.
  */
 function entity_property_extract_innermost_type($type) {
-  while (strpos($type, 'list<') === 0 && $type[strlen($type)-1] == '>') {
+  while (strpos($type, 'list<') === 0 && $type[strlen($type) - 1] == '>') {
     $type = substr($type, 5, -1);
   }
   return $type;
@@ -392,7 +404,12 @@ function entity_property_verbatim_get($data, array $options, $name, $type, $info
  */
 function entity_property_verbatim_date_get($data, array $options, $name, $type, $info) {
   $name = isset($info['schema field']) ? $info['schema field'] : $name;
-  return is_numeric($data[$name]) ? $data[$name] : strtotime($data[$name], REQUEST_TIME);
+  if (is_array($data) || (is_object($data) && $data instanceof ArrayAccess)) {
+    return is_numeric($data[$name]) ? $data[$name] : strtotime($data[$name], REQUEST_TIME);
+  }
+  elseif (is_object($data)) {
+    return is_numeric($data->$name) ? $data->$name : strtotime($data->$name, REQUEST_TIME);
+  }
 }
 
 /**
@@ -503,6 +520,8 @@ function entity_property_text_formatted_info() {
       'label' => t('Text format'),
       'options list' => 'entity_metadata_field_text_formats',
       'getter callback' => 'entity_property_verbatim_get',
+      'setter callback' => 'entity_property_verbatim_set',
+      'setter permissions' => 'administer filters',
     ),
   );
 }
@@ -573,7 +592,6 @@ function entity_property_field_item_image_info() {
   return $properties;
 }
 
-
 /**
  * Previously, hook_entity_property_info() has been provided by the removed
  * entity metadata module. To provide backward compatibility for provided
@@ -586,7 +604,7 @@ function entity_property_field_item_image_info() {
  * Do not make use of this function, instead use the new one.
  */
 function entity_metadata_verbatim_get($data, array $options, $name) {
-  return entity_property_verbatim_get($data, $options, $name);
+  return entity_property_verbatim_get($data, $options, $name, NULL, array());
 }
 
 /**

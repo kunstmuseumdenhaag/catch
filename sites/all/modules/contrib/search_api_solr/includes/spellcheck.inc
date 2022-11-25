@@ -11,20 +11,22 @@
 class SearchApiSpellcheckSolr extends SearchApiSpellcheck {
 
   /**
-   * Constructor.
+   * Constructs a SearchApiSpellcheckSolr object.
    *
-   * If solr has returned spelling suggestion then loop through them and add
+   * If Solr has returned spelling suggestion then loop through them and add
    * them to this spellcheck service.
    *
-   * @param Apache_Solr_Response $response
+   * @param object $response
    *   The Solr response object.
    */
-  function __construct(Apache_Solr_Response $response) {
+  function __construct($response) {
     if (isset($response->spellcheck->suggestions)) {
       $suggestions = $response->spellcheck->suggestions;
       foreach ($suggestions as $word => $data) {
-        foreach ($data->suggestion as $suggestion) {
-          $this->addSuggestion(new SearchApiSpellcheckSuggestion($word, $suggestion));
+        if (isset($data->suggestion)) {
+          foreach ($data->suggestion as $suggestion) {
+            $this->addSuggestion(new SearchApiSpellcheckSuggestion($word, $suggestion));
+          }
         }
       }
     }

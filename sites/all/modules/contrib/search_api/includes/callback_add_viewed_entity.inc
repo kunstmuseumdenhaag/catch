@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Contains SearchApiAlterAddViewedEntity.
+ */
+
+/**
  * Search API data alteration callback that adds an URL field for all items.
  */
 class SearchApiAlterAddViewedEntity extends SearchApiAbstractAlterCallback {
@@ -11,16 +16,23 @@ class SearchApiAlterAddViewedEntity extends SearchApiAbstractAlterCallback {
    * @see SearchApiAlterCallbackInterface::supportsIndex()
    */
   public function supportsIndex(SearchApiIndex $index) {
-    return (bool) entity_get_info($index->item_type);
+    return (bool) $index->getEntityType();
   }
 
   public function configurationForm() {
-    $info = entity_get_info($this->index->item_type);
     $view_modes = array();
-    foreach ($info['view modes'] as $key => $mode) {
-      $view_modes[$key] = $mode['label'];
+    if ($entity_type = $this->index->getEntityType()) {
+      $info = entity_get_info($entity_type);
+      foreach ($info['view modes'] as $key => $mode) {
+        $view_modes[$key] = $mode['label'];
+      }
     }
-    $this->options += array('mode' => reset($view_modes));
+    $this->options += array(
+      'mode' => reset($view_modes),
+      // Backward compatible definition - if this is an existing config the
+      // language processing is disabled by default.
+      'global_language_switch' => !isset($this->options['mode']),
+    );
     if (count($view_modes) > 1) {
       $form['mode'] = array(
         '#type' => 'select',
@@ -48,6 +60,12 @@ class SearchApiAlterAddViewedEntity extends SearchApiAbstractAlterCallback {
         );
       }
     }
+    $form['global_language_switch'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Adjust environment language when indexing'),
+      '#description' => t('If enabled, the indexing process will not just set the language for the entity view but also the global environment. This can prevent wrong translations leaking into the indexed data on multi-lingual sites, but causes problems in rare cases. Unless you notice any problems in connection with this, the recommended setting is enabled.'),
+      '#default_value' => !empty($this->options['global_language_switch']),
+    );
     return $form;
   }
 
@@ -55,19 +73,44 @@ class SearchApiAlterAddViewedEntity extends SearchApiAbstractAlterCallback {
     // Prevent session information from being saved while indexing.
     drupal_save_session(FALSE);
 
+    // Language handling.
+    $languages = language_list();
+    $global_language = array(
+      'language' => $GLOBALS['language'],
+      'language_url' => $GLOBALS['language_url'],
+      'language_content' => $GLOBALS['language_content'],
+    );
+
     // Force the current user to anonymous to prevent access bypass in search
     // indexes.
     $original_user = $GLOBALS['user'];
     $GLOBALS['user'] = drupal_anonymous_user();
 
-    $type = $this->index->item_type;
+    $type = $this->index->getEntityType();
     $mode = empty($this->options['mode']) ? 'full' : $this->options['mode'];
-    foreach ($items as $id => &$item) {
+    foreach ($items as &$item) {
       // Since we can't really know what happens in entity_view() and render(),
       // we use try/catch. This will at least prevent some errors, even though
       // it's no protection against fatal errors and the like.
       try {
-        $render = entity_view($type, array(entity_id($type, $item) => $item), $mode);
+        // Check if the global language switch is enabled.
+        if (!empty($this->options['global_language_switch'])) {
+          // Language handling. We need to overwrite the global language
+          // configuration because parts of entity rendering won't rely on the
+          // passed in language (for instance, URL aliases).
+          if (isset($languages[$item->search_api_language])) {
+            $GLOBALS['language'] = $languages[$item->search_api_language];
+            $GLOBALS['language_url'] = $languages[$item->search_api_language];
+            $GLOBALS['language_content'] = $languages[$item->search_api_language];
+          }
+          else {
+            $GLOBALS['language'] = $global_language['language'];
+            $GLOBALS['language_url'] = $global_language['language_url'];
+            $GLOBALS['language_content'] = $global_language['language_content'];
+          }
+        }
+
+        $render = entity_view($type, array(entity_id($type, $item) => $item), $mode, $item->search_api_language);
         $text = render($render);
         if (!$text) {
           $item->search_api_viewed = NULL;
@@ -78,6 +121,13 @@ class SearchApiAlterAddViewedEntity extends SearchApiAbstractAlterCallback {
       catch (Exception $e) {
         $item->search_api_viewed = NULL;
       }
+    }
+
+    // Restore global language settings.
+    if (!empty($this->options['global_language_switch'])) {
+      $GLOBALS['language'] = $global_language['language'];
+      $GLOBALS['language_url'] = $global_language['language_url'];
+      $GLOBALS['language_content'] = $global_language['language_content'];
     }
 
     // Restore the user.

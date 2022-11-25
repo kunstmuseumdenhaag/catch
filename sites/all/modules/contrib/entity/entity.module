@@ -35,7 +35,7 @@ define('ENTITY_IN_CODE', 0x02);
 
 /**
  * A bit flag used to mark entities as overridden, e.g. they were originally
- * definded in code and are saved now in the database. Same as
+ * defined in code and are saved now in the database. Same as
  * (ENTITY_CUSTOM | ENTITY_IN_CODE).
  */
 define('ENTITY_OVERRIDDEN', 0x03);
@@ -46,35 +46,66 @@ define('ENTITY_OVERRIDDEN', 0x03);
  */
 define('ENTITY_FIXED', 0x04 | 0x02);
 
-
-
 /**
  * Determines whether for the given entity type a given operation is available.
  *
  * @param $entity_type
  *   The type of the entity.
  * @param $op
- *   One of 'create', 'view', 'save', 'delete', 'access' or 'form'.
+ *   One of 'create', 'view', 'save', 'delete', 'revision delete', 'access' or
+ *   'form'.
+ *
+ * @return bool
+ *   Whether the entity type supports the given operation.
  */
+
+/**
+ * Implements hook_help().
+ */
+function entity_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#entity':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('The Entity API module extends the entity API included with Drupal core. It provides a unified way to deal with entities and their properties. It also provides a CRUD controller that helps to simplify creating new entity types. For more information, see the online handbook entry for <a href="@entity">Entity module</a>.', array('@entity' => 'https://www.drupal.org/node/878784')) . '</p>';
+
+      $output .= '<h3>' . t('Uses') . '</h3>';
+      $output .= '<p>' . t('Entity API is used by site-builders and developers to create lightweight and flexible solutions. Analogous to LEGO bricks, Entity API can be used to build Entity types, which can make Bundles, to which we can add Fields and then create Entities. The new relationships between Entity types > Bundles > Fields > Entities was one of the most important changes of Drupal 7, and brought components from some well-loved contributed modules -- such as CCK -- into the core system.') . '</p>';
+
+      $output .= '<dl>';
+      $output .= '<dt>' . t('For site-builders') . '</dt>';
+      $output .= '<dd>' . t('This is an API module, so it does not provide any end-user features. However, it does provide some entity generic functionality to other modules that site-builders may leverage. The first is a Views display plugin and field to render or link to any entity (by view-mode). It also includes a CTools content plugin to render an entity by view-mode, and it includes an Entity Tokens module which makes sure there are tokens for most entity properties and fields.') . '</dd>';
+      $output .= '<dt>' . t('For developers') . '</dt>';
+      $output .= '<dd>' . t('The module provides API functions allowing modules to create, save, delete, view or to determine access for any entity. It also introduces a unique place for metadata about entity relationships and entity properties. The information about entity properties contains the data type and callbacks for how to get and set the data of a property.') . '</dd>';
+      $output .= '</dl>';
+      return $output;
+  }
+}
+
 function entity_type_supports($entity_type, $op) {
   $info = entity_get_info($entity_type);
   $keys = array(
     'view' => 'view callback',
     'create' => 'creation callback',
     'delete' => 'deletion callback',
+    'revision delete' => 'revision deletion callback',
     'save' => 'save callback',
     'access' => 'access callback',
-    'form' => 'form callback'
+    'form' => 'form callback',
   );
   if (isset($info[$keys[$op]])) {
     return TRUE;
   }
-  if ($op != 'access' && in_array('EntityAPIControllerInterface', class_implements($info['controller class']))) {
-    return TRUE;
+  if ($op == 'revision delete') {
+    return in_array('EntityAPIControllerInterface', class_implements($info['controller class']));
   }
-  if ($op == 'form' && entity_ui_controller($entity_type)) {
-    return TRUE;
+  if ($op == 'form') {
+    return (bool) entity_ui_controller($entity_type);
   }
+  if ($op != 'access') {
+    return in_array('EntityAPIControllerInterface', class_implements($info['controller class']));
+  }
+  return FALSE;
 }
 
 /**
@@ -96,7 +127,8 @@ function entity_type_supports($entity_type, $op) {
  *   The ID of the entity to load, passed by the menu URL.
  * @param $entity_type
  *   The type of the entity to load.
- * @return
+ *
+ * @return object|false
  *   A fully loaded entity object, or FALSE in case of error.
  */
 function entity_object_load($entity_id, $entity_type) {
@@ -105,9 +137,114 @@ function entity_object_load($entity_id, $entity_type) {
 }
 
 /**
+ * Page callback to show links to add an entity of a specific bundle.
+ *
+ * Entity modules that provide a further description to their bundles may wish
+ * to implement their own version of this to show these.
+ *
+ * @param $entity_type
+ *   The type of the entity.
+ */
+function entity_ui_bundle_add_page($entity_type) {
+  // Set the title, as we're a MENU_LOCAL_ACTION and hence just get tab titles.
+  module_load_include('inc', 'entity', 'includes/entity.ui');
+  drupal_set_title(entity_ui_get_action_title('add', $entity_type));
+
+  // Get entity info for our bundles.
+  $info = entity_get_info($entity_type);
+  $items = array();
+  foreach ($info['bundles'] as $bundle_name => $bundle_info) {
+    // Create an empty entity with just the bundle set to check for access.
+    $dummy_entity = entity_create($entity_type, array(
+      $info['entity keys']['bundle'] => $bundle_name,
+    ));
+    // If modules use a uid, they can default to the current-user
+    // in their create() method on the storage controller.
+    if (entity_access('create', $entity_type, $dummy_entity, $account = NULL)) {
+      $add_path = $info['admin ui']['path'] . '/add/' . $bundle_name;
+      $items[] = l(t('Add @label', array('@label' => $bundle_info['label'])), $add_path);
+    }
+  }
+  return theme('item_list', array('items' => $items));
+}
+
+/**
+ * Page callback to add an entity of a specific bundle.
+ *
+ * @param $entity_type
+ *   The type of the entity.
+ * @param $bundle_name
+ *   The bundle machine name.
+ */
+function entity_ui_get_bundle_add_form($entity_type, $bundle_name) {
+  $info = entity_get_info($entity_type);
+  $bundle_key = $info['entity keys']['bundle'];
+
+  // Make a stub entity of the right bundle to pass to the entity_ui_get_form().
+  $values = array(
+    $bundle_key => $bundle_name,
+  );
+  $entity = entity_create($entity_type, $values);
+
+  return entity_ui_get_form($entity_type, $entity, 'add');
+}
+
+/**
+ * Page callback for viewing an entity.
+ *
+ * @param Entity $entity
+ *   The entity to be rendered.
+ *
+ * @return array
+ *   A renderable array of the entity in full view mode.
+ */
+function entity_ui_entity_page_view($entity) {
+  module_load_include('inc', 'entity', 'includes/entity.ui');
+  return $entity->view('full', NULL, TRUE);
+}
+
+/**
+ * Gets the page title for the passed operation.
+ */
+function entity_ui_get_page_title($op, $entity_type, $entity = NULL) {
+  if (isset($entity)) {
+    module_load_include('inc', 'entity', 'includes/entity.ui');
+    $label = entity_label($entity_type, $entity);
+    list(, , $bundle) = entity_extract_ids($entity_type, $entity);
+  }
+  else {
+    $info = entity_get_info($entity_type);
+    $label = $info['label'];
+    $bundle = NULL;
+  }
+
+  switch ($op) {
+    case 'view':
+      return $label;
+
+    case 'edit':
+      return t('Edit @label', array('@label' => $label));
+
+    case 'clone':
+      return t('Clone @label', array('@label' => $label));
+
+    case 'revert':
+      return t('Revert @label', array('@label' => $label));
+
+    case 'delete':
+      return t('Delete @label', array('@label' => $label));
+
+    case 'export':
+      return t('Export @label', array('@label' => $label));
+  }
+
+  return entity_ui_get_action_title($op, $entity_type, $bundle);
+}
+
+/**
  * A wrapper around entity_load() to load a single entity by name or numeric id.
  *
- * @todo: Re-name entity_load() to entity_load_multiple() in d8 core and this
+ * @todo Re-name entity_load() to entity_load_multiple() in d8 core and this
  * to entity_load().
  *
  * @param $entity_type
@@ -117,7 +254,7 @@ function entity_object_load($entity_id, $entity_type) {
  *   type has specified a name key, both the numeric id and the name may be
  *   passed.
  *
- * @return
+ * @return object|false
  *   The entity object, or FALSE.
  *
  * @see entity_load()
@@ -140,7 +277,7 @@ function entity_load_single($entity_type, $id) {
  *   fields must have. Instead, it is preferable to use EntityFieldQuery to
  *   retrieve a list of entity IDs loadable by this function.
  *
- * @return
+ * @return array
  *   An array of entity objects indexed by their names (or ids if the entity
  *   type has no name key).
  *
@@ -165,7 +302,7 @@ function entity_load_multiple_by_name($entity_type, $names = FALSE, $conditions 
  * @param $entity
  *   The entity to save.
  *
- * @return
+ * @return int|false
  *   For entity types provided by the CRUD API, SAVED_NEW or SAVED_UPDATED is
  *   returned depending on the operation performed. If there is no information
  *   how to save the entity, FALSE is returned.
@@ -215,6 +352,7 @@ function entity_delete($entity_type, $id) {
  * @param $ids
  *   An array of entity ids of the entities to delete. In case the entity makes
  *   use of a name key, both the names or numeric ids may be passed.
+ *
  * @return
  *   FALSE if the given entity type isn't compatible to the CRUD API.
  */
@@ -234,6 +372,109 @@ function entity_delete_multiple($entity_type, $ids) {
 }
 
 /**
+ * Loads an entity revision.
+ *
+ * @param $entity_type
+ *   The type of the entity.
+ * @param $revision_id
+ *   The id of the revision to load.
+ *
+ * @return object|false
+ *   The entity object, or FALSE if there is no entity with the given revision
+ *   id.
+ */
+function entity_revision_load($entity_type, $revision_id) {
+  $info = entity_get_info($entity_type);
+  if (!empty($info['entity keys']['revision'])) {
+    $entity_revisions = entity_load($entity_type, FALSE, array($info['entity keys']['revision'] => $revision_id));
+    return reset($entity_revisions);
+  }
+  return FALSE;
+}
+
+/**
+ * Deletes an entity revision.
+ *
+ * @param $entity_type
+ *   The type of the entity.
+ * @param $revision_id
+ *   The revision ID to delete.
+ *
+ * @return bool
+ *   TRUE if the entity revision could be deleted, FALSE otherwise.
+ */
+function entity_revision_delete($entity_type, $revision_id) {
+  $info = entity_get_info($entity_type);
+  if (isset($info['revision deletion callback'])) {
+    return $info['revision deletion callback']($revision_id, $entity_type);
+  }
+  elseif (in_array('EntityAPIControllerRevisionableInterface', class_implements($info['controller class']))) {
+    return entity_get_controller($entity_type)->deleteRevision($revision_id);
+  }
+  return FALSE;
+}
+
+/**
+ * Checks whether the given entity is the default revision.
+ *
+ * Note that newly created entities will always be created in default revision,
+ * thus TRUE is returned for not yet saved entities.
+ *
+ * @param $entity_type
+ *   The type of the entity.
+ * @param $entity
+ *   The entity object to check.
+ *
+ * @return bool
+ *   A boolean indicating whether the entity is in default revision is returned.
+ *   If the entity is not revisionable or is new, TRUE is returned.
+ *
+ * @see entity_revision_set_default()
+ */
+function entity_revision_is_default($entity_type, $entity) {
+  $info = entity_get_info($entity_type);
+  if (empty($info['entity keys']['revision'])) {
+    return TRUE;
+  }
+  // Newly created entities will always be created in default revision.
+  if (!empty($entity->is_new) || empty($entity->{$info['entity keys']['id']})) {
+    return TRUE;
+  }
+  if (in_array('EntityAPIControllerRevisionableInterface', class_implements($info['controller class']))) {
+    $key = !empty($info['entity keys']['default revision']) ? $info['entity keys']['default revision'] : 'default_revision';
+    return !empty($entity->$key);
+  }
+  else {
+    // Else, just load the default entity and compare the ID. Usually, the
+    // entity should be already statically cached anyway.
+    $default = entity_load_single($entity_type, $entity->{$info['entity keys']['id']});
+    return $default->{$info['entity keys']['revision']} == $entity->{$info['entity keys']['revision']};
+  }
+}
+
+/**
+ * Sets a given entity revision as default revision.
+ *
+ * Note that the default revision flag will only be supported by entity types
+ * based upon the EntityAPIController, i.e. implementing the
+ * EntityAPIControllerRevisionableInterface.
+ *
+ * @param $entity_type
+ *   The type of the entity.
+ * @param $entity
+ *   The entity revision to update.
+ *
+ * @see entity_revision_is_default()
+ */
+function entity_revision_set_default($entity_type, $entity) {
+  $info = entity_get_info($entity_type);
+  if (!empty($info['entity keys']['revision'])) {
+    $key = !empty($info['entity keys']['default revision']) ? $info['entity keys']['default revision'] : 'default_revision';
+    $entity->$key = TRUE;
+  }
+}
+
+/**
  * Create a new entity object.
  *
  * @param $entity_type
@@ -241,7 +482,8 @@ function entity_delete_multiple($entity_type, $ids) {
  * @param $values
  *   An array of values to set, keyed by property name. If the entity type has
  *   bundles the bundle key has to be specified.
- * @return
+ *
+ * @return object|false
  *   A new instance of the entity type or FALSE if there is no information for
  *   the given entity type.
  *
@@ -270,7 +512,8 @@ function entity_create($entity_type, array $values) {
  *   The entity to export.
  * @param $prefix
  *   An optional prefix for each line.
- * @return
+ *
+ * @return string
  *   The exported entity as serialized string. The format is determined by the
  *   respective entity controller, e.g. it is JSON for the EntityAPIController.
  *   The output is suitable for entity_import().
@@ -296,7 +539,8 @@ function entity_export($entity_type, $entity, $prefix = '') {
  * @param string $export
  *   The string containing the serialized entity as produced by
  *   entity_export().
- * @return
+ *
+ * @return object
  *   The imported entity object not yet saved.
  */
 function entity_import($entity_type, $export) {
@@ -312,7 +556,7 @@ function entity_import($entity_type, $export) {
  * @param $entity_type
  *   The type of the entity.
  *
- * @return
+ * @return bool
  *   TRUE if the entity type is fieldable, FALSE otherwise.
  */
 function entity_type_is_fieldable($entity_type) {
@@ -338,7 +582,8 @@ function entity_type_is_fieldable($entity_type) {
  * @param $langcode
  *   (optional) A language code to use for rendering. Defaults to the global
  *   content language of the current request.
- * @return
+ *
+ * @return array
  *   The renderable array.
  */
 function entity_build_content($entity_type, $entity, $view_mode = 'full', $langcode = NULL) {
@@ -392,14 +637,15 @@ function entity_id($entity_type, $entity) {
  *   content language of the current request.
  * @param $page
  *   (optional) If set will control if the entity is rendered: if TRUE
- *   the entity will be rendered without its title, so that it can be embeded
+ *   the entity will be rendered without its title, so that it can be embedded
  *   in another context. If FALSE the entity will be displayed with its title
  *   in a mode suitable for lists.
  *   If unset, the page mode will be enabled if the current path is the URI
  *   of the entity, as returned by entity_uri().
  *   This parameter is only supported for entities which controller is a
  *   EntityAPIControllerInterface.
- * @return
+ *
+ * @return array
  *   The renderable array, keyed by the entity type and by entity identifiers,
  *   for which the entity name is used if existing - see entity_id(). If there
  *   is no information on how to view an entity, FALSE is returned.
@@ -417,7 +663,15 @@ function entity_view($entity_type, $entities, $view_mode = 'full', $langcode = N
 }
 
 /**
- * Determines whether the given user has access to an entity.
+ * Determines whether the given user can perform actions on an entity.
+ *
+ * For create operations, the pattern is to create an entity and then
+ * check if the user has create access.
+ *
+ * @code
+ * $node = entity_create('node', array('type' => 'page'));
+ * $access = entity_access('create', 'node', $node, $account);
+ * @endcode
  *
  * @param $op
  *   The operation being performed. One of 'view', 'update', 'create' or
@@ -430,7 +684,7 @@ function entity_view($entity_type, $entities, $view_mode = 'full', $langcode = N
  * @param $account
  *   The user to check for. Leave it to NULL to check for the global user.
  *
- * @return boolean
+ * @return bool
  *   Whether access is allowed or not. If the entity type does not specify any
  *   access information, NULL is returned.
  *
@@ -455,7 +709,8 @@ function entity_access($op, $entity_type, $entity = NULL, $account = NULL) {
  *   The type of the entity.
  * @param $entity
  *   The entity to show the edit form for.
- * @return
+ *
+ * @return array|false
  *   The renderable array of the form. If there is no entity form or missing
  *   metadata, FALSE is returned.
  *
@@ -498,9 +753,9 @@ function entity_key_array_by_property(array $entities, $property) {
 /**
  * Get the entity info for the entity types provided via the entity CRUD API.
  *
- * @return
- *  An array in the same format as entity_get_info(), containing the entities
- *  whose controller class implements the EntityAPIControllerInterface.
+ * @return array
+ *   An array in the same format as entity_get_info(), containing the entities
+ *   whose controller class implements the EntityAPIControllerInterface.
  */
 function entity_crud_get_info() {
   $types = array();
@@ -523,7 +778,7 @@ function entity_crud_get_info() {
  *   The constant status like ENTITY_CUSTOM, ENTITY_IN_CODE, ENTITY_OVERRIDDEN
  *   or ENTITY_FIXED.
  *
- * @return
+ * @return bool
  *   TRUE if the entity has the status, FALSE otherwise.
  */
 function entity_has_status($entity_type, $entity, $status) {
@@ -716,7 +971,12 @@ function _entity_defaults_rebuild($entity_type) {
       // implementations.
       $originals[$name] = $entity->original;
 
-      $entity->{$keys['status']} |= ENTITY_IN_CODE;
+      if (!isset($entity->{$keys['status']})) {
+        $entity->{$keys['status']} = ENTITY_IN_CODE;
+      }
+      else {
+        $entity->{$keys['status']} |= ENTITY_IN_CODE;
+      }
       $entity->is_rebuild = TRUE;
       entity_save($entity_type, $entity);
       unset($entity->is_rebuild);
@@ -728,6 +988,22 @@ function _entity_defaults_rebuild($entity_type) {
 
     lock_release('entity_rebuild_' . $entity_type);
   }
+}
+
+/**
+ * Implements hook_modules_installed().
+ */
+function entity_modules_installed($modules) {
+  module_load_install('entity');
+  entity_entitycache_installed_modules($modules);
+}
+
+/**
+ * Implements hook_modules_uninstalled().
+ */
+function entity_modules_uninstalled($modules) {
+  module_load_install('entity');
+  entity_entitycache_uninstalled_modules($modules);
 }
 
 /**
@@ -839,8 +1115,21 @@ function entity_flush_caches() {
   // case of enabling or disabling modules we already rebuild defaults in
   // entity_modules_enabled() and entity_modules_disabled(), so we do not need
   // to do it again.
-  if (current_path() != 'admin/modules/list/confirm') {
+  // Also check if rebuilding on cache flush is explicitly disabled.
+  if (current_path() != 'admin/modules/list/confirm' && variable_get('entity_rebuild_on_flush', TRUE)) {
     entity_defaults_rebuild();
+  }
+
+  // Care about entitycache tables.
+  if (module_exists('entitycache')) {
+    $tables = array();
+    $tables_created = variable_get('entity_cache_tables_created');
+    if (is_array($tables_created)) {
+      foreach ($tables_created as $module => $entity_cache_tables) {
+        $tables = array_merge($tables, $entity_cache_tables);
+      }
+    }
+    return $tables;
   }
 }
 
@@ -848,101 +1137,35 @@ function entity_flush_caches() {
  * Implements hook_theme().
  */
 function entity_theme() {
+  // Build a pattern in the form of "(type1|type2|...)(\.|__)" such that all
+  // templates starting with an entity type or named like the entity type
+  // are found.
+  // This has to match the template suggestions provided in
+  // template_preprocess_entity().
+  $types = array_keys(entity_crud_get_info());
+  $pattern = '(' . implode('|', $types) . ')(\.|__)';
+
   return array(
     'entity_status' => array(
       'variables' => array('status' => NULL, 'html' => TRUE),
+      'file' => 'theme/entity.theme.inc',
     ),
     'entity' => array(
       'render element' => 'elements',
       'template' => 'entity',
+      'pattern' => $pattern,
+      'path' => drupal_get_path('module', 'entity') . '/theme',
+      'file' => 'entity.theme.inc',
+    ),
+    'entity_property' => array(
+      'render element' => 'elements',
+      'file' => 'theme/entity.theme.inc',
     ),
     'entity_ui_overview_item' => array(
       'variables' => array('label' => NULL, 'entity_type' => NULL, 'url' => FALSE, 'name' => FALSE),
-      'file' => 'includes/entity.ui.inc'
+      'file' => 'includes/entity.ui.inc',
     ),
   );
-}
-
-/**
- * Themes the exportable status of an entity.
- */
-function theme_entity_status($variables) {
-  $status = $variables['status'];
-  $html = $variables['html'];
-  if (($status & ENTITY_FIXED) == ENTITY_FIXED) {
-    $label = t('Fixed');
-    $help = t('The configuration is fixed and cannot be changed.');
-    return $html ? "<span class='entity-status-fixed' title='$help'>" . $label . "</span>" : $label;
-  }
-  elseif (($status & ENTITY_OVERRIDDEN) == ENTITY_OVERRIDDEN) {
-    $label = t('Overridden');
-    $help = t('This configuration is provided by a module, but has been changed.');
-    return $html ? "<span class='entity-status-overridden' title='$help'>" . $label . "</span>" : $label;
-  }
-  elseif ($status & ENTITY_IN_CODE) {
-    $label = t('Default');
-    $help = t('A module provides this configuration.');
-    return $html ? "<span class='entity-status-default' title='$help'>" . $label . "</span>" : $label;
-  }
-  elseif ($status & ENTITY_CUSTOM) {
-    $label = t('Custom');
-    $help = t('A custom configuration by a user.');
-    return $html ? "<span class='entity-status-custom' title='$help'>" . $label . "</span>" : $label;
-  }
-}
-
-/**
- * Process variables for entity.tpl.php.
- */
-function template_preprocess_entity(&$variables) {
-  $variables['view_mode'] = $variables['elements']['#view_mode'];
-  $entity_type = $variables['elements']['#entity_type'];
-  $variables['entity_type'] = $entity_type;
-  $entity = $variables['elements']['#entity'];
-  $variables[$variables['elements']['#entity_type']] = $entity;
-  $info = entity_get_info($entity_type);
-
-  $variables['title'] = check_plain(entity_label($entity_type, $entity));
-  if (isset($variables['elements']['#page'])) {
-    // If set by the caller, respect the page property.
-    $variables['page'] = $variables['elements']['#page'];
-  }
-  else {
-    // Else, try to automatically detect it.
-    $uri = entity_uri($entity_type, $entity);
-    $variables['url'] = $uri ? url($uri['path'], $uri['options']) : FALSE;
-    $variables['page'] = $uri && $uri['path'] == $_GET['q'];
-  }
-
-  // Helpful $content variable for templates.
-  $variables['content'] = array();
-  foreach (element_children($variables['elements']) as $key) {
-    $variables['content'][$key] = $variables['elements'][$key];
-  }
-
-  if (!empty($info['fieldable'])) {
-    // Make the field variables available with the appropriate language.
-    field_attach_preprocess($entity_type, $entity, $variables['content'], $variables);
-  }
-  list(, , $bundle) = entity_extract_ids($entity_type, $entity);
-
-  // Gather css classes.
-  $variables['classes_array'][] = drupal_html_class('entity-' . $entity_type);
-  $variables['classes_array'][] = drupal_html_class($entity_type . '-' . $bundle);
-
-  // Add RDF type and about URI.
-  if (module_exists('rdf')) {
-    $variables['attributes_array']['about'] = empty($uri['path']) ? NULL: url($uri['path']);
-    $variables['attributes_array']['typeof'] = empty($entity->rdf_mapping['rdftype']) ? NULL : $entity->rdf_mapping['rdftype'];
-  }
-
-  // Add suggestions.
-  $variables['theme_hook_suggestions'][] = $entity_type;
-  $variables['theme_hook_suggestions'][] = $entity_type . '__' . $bundle;
-  $variables['theme_hook_suggestions'][] = $entity_type . '__' . $bundle . '__' . $variables['view_mode'];
-  if ($id = entity_id($entity_type, $entity)) {
-    $variables['theme_hook_suggestions'][] = $entity_type . '__' . $id;
-  }
 }
 
 /**
@@ -1058,7 +1281,7 @@ function entity_forms($form_id, $args) {
  *   (optional) A pre-populated form state, e.g. to add in form include files.
  *   See entity_metadata_form_entity_ui().
  *
- * @return
+ * @return array
  *   The fully built and processed form, ready to be rendered.
  *
  * @see EntityDefaultUIController::hook_forms()
@@ -1096,6 +1319,36 @@ function entity_ui_get_form($entity_type, $entity, $op = 'edit', $form_state = a
 }
 
 /**
+ * Gets the page/menu title for local action operations.
+ *
+ * @param $op
+ *   The current operation. One of 'add' or 'import'.
+ * @param $entity_type
+ *   The entity type.
+ * @param $bundle_name
+ *   (Optional) The name of the bundle. May be NULL if the bundle name is not
+ *   relevant to the current page. If the entity type has only one bundle, or no
+ *   bundles, this will be the same as the entity type.
+ */
+function entity_ui_get_action_title($op, $entity_type, $bundle_name = NULL) {
+  $info = entity_get_info($entity_type);
+  switch ($op) {
+    case 'add':
+      if (isset($bundle_name) && $bundle_name != $entity_type) {
+        return t('Add @bundle_name @entity_type', array(
+          '@bundle_name' => drupal_strtolower($info['bundles'][$bundle_name]['label']),
+          '@entity_type' => drupal_strtolower($info['label']),
+        ));
+      }
+      else {
+        return t('Add @entity_type', array('@entity_type' => drupal_strtolower($info['label'])));
+      }
+    case 'import':
+      return t('Import @entity_type', array('@entity_type' => drupal_strtolower($info['label'])));
+  }
+}
+
+/**
  * Helper for using i18n_string().
  *
  * @param $name
@@ -1123,10 +1376,43 @@ function entity_views_api() {
 }
 
 /**
+ * Implements hook_field_extra_fields().
+ */
+function entity_field_extra_fields() {
+  // Invoke specified controllers for entity types provided by the CRUD API.
+  $items = array();
+  foreach (entity_crud_get_info() as $type => $info) {
+    if (!empty($info['extra fields controller class'])) {
+      $items = array_merge_recursive($items, entity_get_extra_fields_controller($type)->fieldExtraFields());
+    }
+  }
+  return $items;
+}
+
+/**
+ * Gets the extra field controller class for a given entity type.
+ *
+ * @return EntityExtraFieldsControllerInterface|false
+ *   The controller for the given entity type or FALSE if none is specified.
+ */
+function entity_get_extra_fields_controller($type = NULL) {
+  $static = &drupal_static(__FUNCTION__);
+
+  if (!isset($static[$type])) {
+    $static[$type] = FALSE;
+    $info = entity_get_info($type);
+    if (!empty($info['extra fields controller class'])) {
+      $static[$type] = new $info['extra fields controller class']($type);
+    }
+  }
+  return $static[$type];
+}
+
+/**
  * Returns a property wrapper for the given data.
  *
  * If an entity is wrapped, the wrapper can be used to retrieve further wrappers
- * for the entitity properties. For that the wrapper support chaining, e.g. you
+ * for the entity properties. For that the wrapper support chaining, e.g. you
  * can use a node wrapper to get the node authors mail address:
  *
  * @code
@@ -1140,7 +1426,7 @@ function entity_views_api() {
  *   without any data for getting information about properties.
  * @param $info
  *   (optional) Specify additional information for the passed data:
- *    - langcode: (optional) If the data is language specific, its langauge
+ *    - langcode: (optional) If the data is language specific, its language
  *      code. Defaults to NULL, what means language neutral.
  *    - bundle: (optional) If an entity is wrapped but not passed, use this key
  *      to specify the bundle to return a wrapper for.
@@ -1151,8 +1437,9 @@ function entity_views_api() {
  *      info before it is utilized by the wrapper.
  *    - property defaults: (optional) An array of defaults for the info of
  *      each property of the wrapped data item.
+ *
  * @return EntityMetadataWrapper
- *   Dependend on the passed data the right wrapper is returned.
+ *   Dependent on the passed data the right wrapper is returned.
  */
 function entity_metadata_wrapper($type, $data = NULL, array $info = array()) {
   if ($type == 'entity' || (($entity_info = entity_get_info()) && isset($entity_info[$type]))) {
@@ -1219,19 +1506,17 @@ function entity_module_implements_alter(&$implementations, $hook) {
 function entity_entity_info_alter(&$entity_info) {
   _entity_info_add_metadata($entity_info);
 
-  // Modules are using entity_load() in hook_entity_info_alter() to add
-  // their bundle-info. This might trigger the field API cache to be built,
-  // which makes use of the bundle-info. In that case the field-info cache would
-  // have been built with in-complete bundle-info, thus we clear it so it is
-  // rebuilt with complete bundle-info the next time field-info is requested.
-  _field_info_collate_fields(TRUE);
-  // To be sure, also clear the property info cache as it depends on field info.
-  entity_property_info_cache_clear();
-
   // Populate a default value for the 'configuration' key of all entity types.
   foreach ($entity_info as $type => $info) {
     if (!isset($info['configuration'])) {
       $entity_info[$type]['configuration'] = !empty($info['exportable']);
+    }
+
+    if (isset($info['controller class']) && in_array('EntityAPIControllerInterface', class_implements($info['controller class']))) {
+      // Automatically disable field cache when entity cache is used.
+      if (!empty($info['entity cache']) && module_exists('entitycache')) {
+        $entity_info[$type]['field cache'] = FALSE;
+      }
     }
   }
 }
@@ -1253,11 +1538,16 @@ function _entity_info_add_metadata(&$entity_info) {
   // Set access callbacks.
   $entity_info['node']['access callback'] = 'entity_metadata_no_hook_node_access';
   $entity_info['user']['access callback'] = 'entity_metadata_user_access';
+  // File entity has it's own entity_access function.
+  if (!module_exists('file_entity')) {
+    $entity_info['file']['access callback'] = 'entity_metadata_file_access';
+  }
 
   // CRUD function callbacks.
   $entity_info['node']['creation callback'] = 'entity_metadata_create_node';
   $entity_info['node']['save callback'] = 'node_save';
   $entity_info['node']['deletion callback'] = 'node_delete';
+  $entity_info['node']['revision deletion callback'] = 'node_revision_delete';
   $entity_info['user']['creation callback'] = 'entity_metadata_create_object';
   $entity_info['user']['save callback'] = 'entity_metadata_user_save';
   $entity_info['user']['deletion callback'] = 'user_delete';
@@ -1267,6 +1557,11 @@ function _entity_info_add_metadata(&$entity_info) {
   // Form callbacks.
   $entity_info['node']['form callback'] = 'entity_metadata_form_node';
   $entity_info['user']['form callback'] = 'entity_metadata_form_user';
+
+  // URI callbacks.
+  if (!isset($entity_info['file']['uri callback'])) {
+    $entity_info['file']['uri callback'] = 'entity_metadata_uri_file';
+  }
 
   // View callbacks.
   $entity_info['node']['view callback'] = 'entity_metadata_view_node';
@@ -1309,7 +1604,7 @@ function _entity_info_add_metadata(&$entity_info) {
  * Implements hook_ctools_plugin_directory().
  */
 function entity_ctools_plugin_directory($module, $plugin) {
-  if ($module == 'ctools' && $plugin == 'content_types') {
-    return 'ctools/content_types';
+  if ($module == 'ctools') {
+    return "ctools/$plugin";
   }
 }

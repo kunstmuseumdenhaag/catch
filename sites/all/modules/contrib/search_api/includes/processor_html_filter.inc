@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Contains SearchApiHtmlFilter.
+ */
+
+/**
  * Processor for stripping HTML from indexed fulltext data. Supports assigning
  * custom boosts for any HTML element.
  */
@@ -96,7 +101,7 @@ class SearchApiHtmlFilter extends SearchApiAbstractProcessor {
       $value = $this->parseText($text);
     }
     else {
-      $value = strip_tags($text);
+      $value = $this->decodeHtml(strip_tags($text));
     }
   }
 
@@ -104,13 +109,16 @@ class SearchApiHtmlFilter extends SearchApiAbstractProcessor {
     $ret = array();
     while (($pos = strpos($text, '<')) !== FALSE) {
       if ($boost && $pos > 0) {
+        $token = substr($text, 0, $pos);
         $ret[] = array(
-          'value' => html_entity_decode(substr($text, 0, $pos), ENT_QUOTES, 'UTF-8'),
+          'value' => $this->decodeHtml($token),
           'score' => $boost,
         );
       }
       $text = substr($text, $pos + 1);
-      preg_match('#^(/?)([-:_a-zA-Z]+)#', $text, $m);
+      if (!preg_match('#^(/?)([:_a-zA-Z][-:_a-zA-Z0-9.]*)#', $text, $m)) {
+        continue;
+      }
       $text = substr($text, strpos($text, '>') + 1);
       if ($m[1]) {
         // Closing tag.
@@ -126,12 +134,31 @@ class SearchApiHtmlFilter extends SearchApiAbstractProcessor {
     }
     if ($text) {
       $ret[] = array(
-        'value' => html_entity_decode($text, ENT_QUOTES, 'UTF-8'),
+        'value' => $this->decodeHtml($text),
         'score' => $boost,
       );
       $text = '';
     }
     return $ret;
+  }
+
+  /**
+   * Decodes HTML entities in a token and normalizes whitespace.
+   *
+   * All whitespace in the token will be converted to single spaces, with no
+   * leading or trailing whitespace.
+   *
+   * @param string $token
+   *   The token to process.
+   *
+   * @return string
+   *   The processed token.
+   */
+  protected function decodeHtml($token) {
+    $token = html_entity_decode($token, ENT_QUOTES, 'UTF-8');
+    // Remove any multiple/leading/trailing spaces we might have introduced.
+    $token = trim(preg_replace('/[\pZ\pC]+/u', ' ', $token));
+    return $token;
   }
 
 }

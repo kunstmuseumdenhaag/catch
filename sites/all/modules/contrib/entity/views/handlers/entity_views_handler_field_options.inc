@@ -13,6 +13,7 @@
  * selection.
  *
  * @see entity_views_field_definition()
+ *
  * @ingroup views_field_handlers
  */
 class entity_views_handler_field_options extends views_handler_field {
@@ -112,8 +113,9 @@ class entity_views_handler_field_options extends views_handler_field {
     if ($this->options['format_name'] && isset($this->option_list[$value])) {
       $value = $this->option_list[$value];
     }
-
-    return $this->sanitize_value($value);
+    // Sanitization is handled by the wrapper, see
+    // EntityFieldHandlerHelper::get_value().
+    return $value;
   }
 
 }

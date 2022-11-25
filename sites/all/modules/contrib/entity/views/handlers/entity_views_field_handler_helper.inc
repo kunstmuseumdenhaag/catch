@@ -18,7 +18,7 @@ class EntityFieldHandlerHelper {
    * Provide appropriate default options for a handler.
    */
   public static function option_definition($handler) {
-    if (entity_property_list_extract_type($handler->definition['type'])) {
+    if (isset($handler->definition['type']) && entity_property_list_extract_type($handler->definition['type'])) {
       $options['list']['contains']['mode'] = array('default' => 'collapse');
       $options['list']['contains']['separator'] = array('default' => ', ');
       $options['list']['contains']['type'] = array('default' => 'ul');
@@ -32,7 +32,7 @@ class EntityFieldHandlerHelper {
    * Provide an appropriate default option form for a handler.
    */
   public static function options_form($handler, &$form, &$form_state) {
-    if (entity_property_list_extract_type($handler->definition['type'])) {
+    if (isset($handler->definition['type']) && entity_property_list_extract_type($handler->definition['type'])) {
       $form['list']['mode'] = array(
         '#type' => 'select',
         '#title' => t('List handling'),
@@ -108,7 +108,7 @@ class EntityFieldHandlerHelper {
    * @param $selector
    *   The data selector.
    *
-   * @return
+   * @return string
    *   The last component of the data selector.
    */
   public static function get_selector_field_name($selector) {
@@ -188,7 +188,7 @@ class EntityFieldHandlerHelper {
    *   If TRUE, the complete selector for the field is returned, not just the
    *   one for its parent. Defaults to FALSE.
    *
-   * @return
+   * @return string
    *   An Entity API data selector for the given handler's relationship.
    */
   public static function construct_property_selector($handler, $complete = FALSE) {
@@ -196,8 +196,14 @@ class EntityFieldHandlerHelper {
     if ($handler->relationship) {
       $current_handler = $handler;
       $view = $current_handler->view;
-      while (!empty($current_handler->relationship) && !empty($view->relationship[$current_handler->relationship])) {
-        $current_handler = $view->relationship[$current_handler->relationship];
+      $relationships = array();
+      // Collect all relationships, keyed by alias.
+      foreach ($view->relationship as $key => $relationship) {
+        $key = $relationship->alias ? $relationship->alias : $key;
+        $relationships[$key] = $relationship;
+      }
+      while (!empty($current_handler->relationship) && !empty($relationships[$current_handler->relationship])) {
+        $current_handler = $relationships[$current_handler->relationship];
         $return = $current_handler->real_field . ($return ? ":$return" : '');
       }
     }
@@ -233,7 +239,7 @@ class EntityFieldHandlerHelper {
    *   An array with numeric indices, containing the type of the extracted
    *   wrappers in the first element. The second element of the array contains
    *   the extracted property value(s) for each wrapper, keyed to the same key
-   *   that was used for the respecive wrapper in $wrappers. All extracted
+   *   that was used for the respective wrapper in $wrappers. All extracted
    *   properties are returned as metadata wrappers.
    */
   public static function extract_property_multiple(array $wrappers, $selector) {
@@ -337,7 +343,7 @@ class EntityFieldHandlerHelper {
             $values->_entity_properties[$selector] = $wrapper->value();
           }
           else {
-            $values->_entity_properties[$selector] = isset($wrapper->$field) ? $wrapper->$field->value(array('identifier' => TRUE)) : $default;
+            $values->_entity_properties[$selector] = isset($wrapper->$field) ? $wrapper->$field->value(array('identifier' => TRUE, 'sanitize' => TRUE)) : $default;
           }
         }
         catch (EntityMetadataWrapperException $e) {
@@ -393,7 +399,7 @@ class EntityFieldHandlerHelper {
    *   The values for the current row retrieved from the Views query, as an
    *   object.
    *
-   * @return
+   * @return string
    *   The rendered value for the field.
    */
   public static function render($handler, $values) {
@@ -415,7 +421,7 @@ class EntityFieldHandlerHelper {
    *   The values for the current row retrieved from the Views query, as an
    *   object.
    *
-   * @return
+   * @return string
    *   The rendered value for the given list.
    */
   public static function render_list($handler, $list, $values) {
@@ -473,7 +479,7 @@ class EntityFieldHandlerHelper {
    *   The values for the current row retrieved from the Views query, as an
    *   object.
    *
-   * @return
+   * @return string
    *   The rendered value.
    */
   public static function render_entity_link($handler, $value, $values) {
@@ -503,7 +509,7 @@ class EntityFieldHandlerHelper {
    *   The values for the current row retrieved from the Views query, as an
    *   object.
    *
-   * @return
+   * @return string
    *   The rendered value.
    */
   public static function render_single_value($handler, $value, $values) {

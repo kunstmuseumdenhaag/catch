@@ -45,12 +45,7 @@ class SearchApiFacetapiAdapter extends FacetapiAdapter {
    * Overrides FacetapiAdapter::getSearchPath().
    */
   public function getSearchPath() {
-    $search = $this->getCurrentSearch();
-    if ($search && $search[0]->getOption('search_api_base_path')) {
-      return $search[0]->getOption('search_api_base_path');
-    }
-    $item = menu_get_item();
-    return $item['href'];
+    return search_api_facetapi_current_search_path();
   }
 
   /**
@@ -62,6 +57,10 @@ class SearchApiFacetapiAdapter extends FacetapiAdapter {
   public function initActiveFilters($query) {
     $search_id = $query->getOption('search id');
     $index_id = $this->info['instance'];
+    // Only act on queries from the right index.
+    if ($index_id != $query->getIndex()->machine_name) {
+      return;
+    }
     $facets = facetapi_get_enabled_facets($this->info['name']);
     $this->fields = array();
 
@@ -79,21 +78,21 @@ class SearchApiFacetapiAdapter extends FacetapiAdapter {
       // displayed.
       $facet_search_ids = isset($options['facet_search_ids']) ? $options['facet_search_ids'] : array();
 
+      // Remember this search ID, if necessary.
+      $this->rememberSearchId($index_id, $search_id);
+
       if (array_search($search_id, $facet_search_ids) === FALSE) {
-        $search_ids = variable_get('search_api_facets_search_ids', array());
-        if (empty($search_ids[$index_id][$search_id])) {
-          // Remember this search ID.
-          $search_ids[$index_id][$search_id] = $search_id;
-          variable_set('search_api_facets_search_ids', $search_ids);
-        }
         if (!$default_true) {
-          continue; // We are only to show facets for explicitly named search ids.
+          // We are only to show facets for explicitly named search ids.
+          continue;
         }
       }
       elseif ($default_true) {
-        continue; // The 'facet_search_ids' in the settings are to be excluded.
+        // The 'facet_search_ids' in the settings are to be excluded.
+        continue;
       }
-      $active[$facet['name']] = $search_id;
+      $facet_key = $facet['name'] . '@' . $this->getSearcher();
+      $active[$facet_key] = $search_id;
       $this->fields[$facet['name']] = array(
         'field'             => $facet['field'],
         'limit'             => $options['hard_limit'],
@@ -105,12 +104,34 @@ class SearchApiFacetapiAdapter extends FacetapiAdapter {
   }
 
   /**
+   * Adds a search ID to the list of known searches for an index.
+   *
+   * @param string $index_id
+   *   The machine name of the search index.
+   * @param string $search_id
+   *   The identifier of the executed search.
+   */
+  protected function rememberSearchId($index_id, $search_id) {
+    $search_ids = variable_get('search_api_facets_search_ids', array());
+    if (empty($search_ids[$index_id][$search_id])) {
+      $search_ids[$index_id][$search_id] = $search_id;
+      asort($search_ids[$index_id]);
+      variable_set('search_api_facets_search_ids', $search_ids);
+    }
+  }
+
+  /**
    * Add the given facet to the query.
    */
   public function addFacet(array $facet, SearchApiQueryInterface $query) {
     if (isset($this->fields[$facet['name']])) {
       $options = &$query->getOptions();
-      $options['search_api_facets'][$facet['name']] = $this->fields[$facet['name']];
+      $facet_info = $this->fields[$facet['name']];
+      if (!empty($facet['query_options'])) {
+        // Let facet-specific query options override the set options.
+        $facet_info = $facet['query_options'] + $facet_info;
+      }
+      $options['search_api_facets'][$facet['name']] = $facet_info;
     }
   }
 
@@ -129,8 +150,10 @@ class SearchApiFacetapiAdapter extends FacetapiAdapter {
    *   search_api_current_search(). Or NULL, if no match was found.
    */
   public function getCurrentSearch() {
+    // Even if this fails once, there might be a search query later in the page
+    // request. We therefore don't store anything in $this->current_search in
+    // case of failure, but just try again if the method is called again.
     if (!isset($this->current_search)) {
-      $this->current_search = FALSE;
       $index_id = $this->info['instance'];
       // There is currently no way to configure the "current search" block to
       // show on a per-searcher basis as we do with the facets. Therefore we
@@ -138,13 +161,13 @@ class SearchApiFacetapiAdapter extends FacetapiAdapter {
       // I suspect that http://drupal.org/node/593658 would help.
       // For now, just taking the first current search for this index. :-/
       foreach (search_api_current_search() as $search) {
-        list($query, $results) = $search;
+        list($query) = $search;
         if ($query->getIndex()->machine_name == $index_id) {
           $this->current_search = $search;
         }
       }
     }
-    return $this->current_search ? $this->current_search : NULL;
+    return $this->current_search;
   }
 
   /**
@@ -165,6 +188,12 @@ class SearchApiFacetapiAdapter extends FacetapiAdapter {
    */
   public function getSearchKeys() {
     $search = $this->getCurrentSearch();
+
+    // If the search is empty then there's no reason to continue.
+    if (!$search) {
+      return NULL;
+    }
+
     $keys = $search[0]->getOriginalKeys();
     if (is_array($keys)) {
       // This will happen nearly never when displaying the search keys to the
@@ -172,16 +201,6 @@ class SearchApiFacetapiAdapter extends FacetapiAdapter {
       // If someone complains, we can easily add a method for printing them
       // properly.
       $keys = '[' . t('complex query') . ']';
-    }
-    elseif (!$keys) {
-      // If a base path other than the current one is set, we assume that we
-      // shouldn't report on the current search. Highly hack-y, of course.
-      if ($search[0]->getOption('search_api_base_path', $_GET['q']) !== $_GET['q']) {
-        return NULL;
-      }
-      // Work-around since Facet API won't show the "Current search" block
-      // without keys.
-      $keys = '[' . t('all items') . ']';
     }
     drupal_alter('search_api_facetapi_keys', $keys, $search[0]);
     return $keys;
@@ -205,7 +224,6 @@ class SearchApiFacetapiAdapter extends FacetapiAdapter {
    */
   public function settingsForm(&$form, &$form_state) {
     $facet = $form['#facetapi']['facet'];
-    $realm = $form['#facetapi']['realm'];
     $facet_settings = $this->getFacet($facet)->getSettings();
     $options = $facet_settings->settings;
     $search_ids = variable_get('search_api_facets_search_ids', array());
@@ -214,6 +232,7 @@ class SearchApiFacetapiAdapter extends FacetapiAdapter {
       $form['global']['default_true'] = array(
         '#type' => 'select',
         '#title' => t('Display for searches'),
+        '#prefix' => '<div class="facetapi-global-setting">',
         '#options' => array(
           TRUE => t('For all except the selected'),
           FALSE => t('Only for the selected'),
@@ -223,6 +242,7 @@ class SearchApiFacetapiAdapter extends FacetapiAdapter {
       $form['global']['facet_search_ids'] = array(
         '#type' => 'select',
         '#title' => t('Search IDs'),
+        '#suffix' => '</div>',
         '#options' => $search_ids,
         '#size' => min(4, count($search_ids)),
         '#multiple' => TRUE,
@@ -237,6 +257,56 @@ class SearchApiFacetapiAdapter extends FacetapiAdapter {
       $form['global']['facet_search_ids'] = array(
         '#type' => 'value',
         '#value' => array(),
+      );
+    }
+
+    // Add a granularity option to date query types.
+    if (isset($facet['query type']) && $facet['query type'] == 'date') {
+      $granularity_options = array(
+        FACETAPI_DATE_YEAR => t('Years'),
+        FACETAPI_DATE_MONTH => t('Months'),
+        FACETAPI_DATE_DAY => t('Days'),
+        FACETAPI_DATE_HOUR => t('Hours'),
+        FACETAPI_DATE_MINUTE => t('Minutes'),
+        FACETAPI_DATE_SECOND => t('Seconds'),
+      );
+
+      $form['global']['date_granularity'] = array(
+        '#type' => 'select',
+        '#title' => t('Granularity'),
+        '#description' => t('Determine the maximum drill-down level'),
+        '#prefix' => '<div class="facetapi-global-setting">',
+        '#suffix' => '</div>',
+        '#options' => $granularity_options,
+        '#default_value' => isset($options['date_granularity']) ? $options['date_granularity'] : FACETAPI_DATE_MINUTE,
+      );
+
+      $default_value = FACETAPI_DATE_YEAR;
+      if (isset($options['date_granularity_min'])) {
+        $default_value = $options['date_granularity_min'];
+      }
+      $form['global']['date_granularity_min'] = array(
+        '#type' => 'select',
+        '#title' => t('Minimum granularity'),
+        '#description' => t('Determine the minimum drill-down level to start at'),
+        '#prefix' => '<div class="facetapi-global-setting">',
+        '#suffix' => '</div>',
+        '#options' => $granularity_options,
+        '#default_value' => $default_value,
+      );
+    }
+
+    // Add an "Exclude" option for terms.
+    if (!empty($facet['query types']) && in_array('term', $facet['query types'])) {
+      $form['global']['operator']['#weight'] = -2;
+      unset($form['global']['operator']['#suffix']);
+      $form['global']['exclude'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Exclude'),
+        '#description' => t('Make the search exclude selected facets, instead of restricting it to them.'),
+        '#suffix' => '</div>',
+        '#weight' => -1,
+        '#default_value' => !empty($options['exclude']),
       );
     }
   }

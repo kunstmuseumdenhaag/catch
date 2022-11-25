@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Contains SearchApiIndex.
+ */
+
+/**
  * Class representing a search index.
  */
 class SearchApiIndex extends Entity {
@@ -42,6 +47,15 @@ class SearchApiIndex extends Entity {
    * @var array
    */
   protected $added_properties = NULL;
+
+  /**
+   * Static cache for the results of getFields().
+   *
+   * Can be accessed as follows: $this->fields[$only_indexed][$get_additional].
+   *
+   * @var array
+   */
+  protected $fields = array();
 
   /**
    * An array containing two arrays.
@@ -101,7 +115,8 @@ class SearchApiIndex extends Entity {
   public $item_type;
 
   /**
-   * An array of options for configuring this index. The layout is as follows:
+   * An array of options for configuring this index. The layout is as follows
+   * (with all keys being optional):
    * - cron_limit: The maximum number of items to be indexed per cron batch.
    * - index_directly: Boolean setting whether entities are indexed immediately
    *   after they are created or updated.
@@ -136,6 +151,8 @@ class SearchApiIndex extends Entity {
    *   - weight: Used for sorting the processors.
    *   - settings: Processor-specific settings, configured via the processor's
    *     configuration form.
+   * - datasource: Datasource-specific settings, configured via the datasource's
+   *   configuration form.
    *
    * @var array
    */
@@ -158,29 +175,25 @@ class SearchApiIndex extends Entity {
   /**
    * Constructor as a helper to the parent constructor.
    */
-  public function __construct(array $values = array()) {
-    parent::__construct($values, 'search_api_index');
+  public function __construct(array $values = array(), $entity_type = 'search_api_index') {
+    parent::__construct($values, $entity_type);
   }
 
   /**
    * Execute necessary tasks for a newly created index.
    */
   public function postCreate() {
-    if ($this->enabled) {
-      $this->queueItems();
-    }
-    $server = $this->server();
-    if ($server) {
-      // Tell the server about the new index.
-      if ($server->enabled) {
+    try {
+      if ($server = $this->server()) {
+        // Tell the server about the new index.
         $server->addIndex($this);
+        if ($this->enabled) {
+          $this->queueItems();
+        }
       }
-      else {
-        $tasks = variable_get('search_api_tasks', array());
-        // When we add or remove an index, we can ignore all other tasks.
-        $tasks[$server->machine_name][$this->machine_name] = array('add');
-        variable_set('search_api_tasks', $tasks);
-      }
+    }
+    catch (SearchApiException $e) {
+      watchdog_exception('search_api', $e);
     }
   }
 
@@ -188,15 +201,13 @@ class SearchApiIndex extends Entity {
    * Execute necessary tasks when the index is removed from the database.
    */
   public function postDelete() {
-    if ($server = $this->server()) {
-      if ($server->enabled) {
+    try {
+      if ($server = $this->server()) {
         $server->removeIndex($this);
       }
-      else {
-        $tasks = variable_get('search_api_tasks', array());
-        $tasks[$server->machine_name][$this->machine_name] = array('remove');
-        variable_set('search_api_tasks', $tasks);
-      }
+    }
+    catch (SearchApiException $e) {
+      watchdog_exception('search_api', $e);
     }
 
     // Stop tracking entities for indexing.
@@ -208,7 +219,12 @@ class SearchApiIndex extends Entity {
    */
   public function queueItems() {
     if (!$this->read_only) {
-      $this->datasource()->startTracking(array($this));
+      try {
+        $this->datasource()->startTracking(array($this));
+      }
+      catch (SearchApiException $e) {
+        watchdog_exception('search_api', $e);
+      }
     }
   }
 
@@ -216,15 +232,20 @@ class SearchApiIndex extends Entity {
    * Remove all records of entities to index.
    */
   public function dequeueItems() {
-    $this->datasource()->stopTracking(array($this));
-    _search_api_empty_cron_queue($this);
+    try {
+      $this->datasource()->stopTracking(array($this));
+    }
+    catch (SearchApiException $e) {
+      watchdog_exception('search_api', $e);
+    }
   }
 
   /**
-   * Saves this index to the database, either creating a new record or updating
-   * an existing one.
+   * Saves this index to the database.
    *
-   * @return
+   * Either creates a new record or updates the existing one with the same ID.
+   *
+   * @return int|false
    *   Failure to save the index will return FALSE. Otherwise, SAVED_NEW or
    *   SAVED_UPDATED is returned depending on the operation performed. $this->id
    *   will be set if a new index was inserted.
@@ -233,14 +254,24 @@ class SearchApiIndex extends Entity {
     if (empty($this->description)) {
       $this->description = NULL;
     }
-    if (empty($this->server)) {
+    $server = FALSE;
+    if (!empty($this->server)) {
+      $server = search_api_server_load($this->server);
+      if (!$server) {
+        $vars['%server'] = $this->server;
+        $vars['%index'] = $this->name;
+        watchdog('search_api', 'Unknown server %server specified for index %index.', $vars, WATCHDOG_ERROR);
+      }
+    }
+    if (!$server) {
       $this->server = NULL;
       $this->enabled = FALSE;
     }
-    // This will also throw an exception if the server doesn't exist – which is good.
-    elseif (!$this->server(TRUE)->enabled) {
-      $this->enabled = FALSE;
+    if (!empty($this->options['fields'])) {
+      ksort($this->options['fields']);
     }
+
+    $this->resetCaches();
 
     return parent::save();
   }
@@ -254,7 +285,7 @@ class SearchApiIndex extends Entity {
    * @param array $fields
    *   The new field values.
    *
-   * @return
+   * @return int|false
    *   SAVE_UPDATED on success, FALSE on failure, 0 if the fields already had
    *   the specified values.
    */
@@ -283,7 +314,7 @@ class SearchApiIndex extends Entity {
   /**
    * Schedules this search index for re-indexing.
    *
-   * @return
+   * @return bool
    *   TRUE on success, FALSE on failure.
    */
   public function reindex() {
@@ -298,7 +329,7 @@ class SearchApiIndex extends Entity {
   /**
    * Clears this search index and schedules all of its items for re-indexing.
    *
-   * @return
+   * @return bool
    *   TRUE on success, FALSE on failure.
    */
   public function clear() {
@@ -306,19 +337,11 @@ class SearchApiIndex extends Entity {
       return TRUE;
     }
 
-    $server = $this->server();
-    if ($server->enabled) {
-      $server->deleteItems('all', $this);
+    try {
+      $this->server()->deleteItems('all', $this);
     }
-    else {
-      $tasks = variable_get('search_api_tasks', array());
-      // If the index was cleared or newly added since the server was last enabled, we don't need to do anything.
-      if (!isset($tasks[$server->machine_name][$this->machine_name])
-          || (array_search('add', $tasks[$server->machine_name][$this->machine_name]) === FALSE
-              && array_search('clear', $tasks[$server->machine_name][$this->machine_name]) === FALSE)) {
-        $tasks[$server->machine_name][$this->machine_name][] = 'clear';
-        variable_set('search_api_tasks', $tasks);
-      }
+    catch (SearchApiException $e) {
+      watchdog_exception('search_api', $e);
     }
 
     _search_api_index_reindex($this);
@@ -357,6 +380,22 @@ class SearchApiIndex extends Entity {
   }
 
   /**
+   * Get the entity type of items in this index.
+   *
+   * @return string|null
+   *   An entity type string if the items in this index are entities; NULL
+   *   otherwise.
+   */
+  public function getEntityType() {
+    try {
+      return $this->datasource()->getEntityType();
+    }
+    catch (SearchApiException $e) {
+      return NULL;
+    }
+  }
+
+  /**
    * Get the server this index lies on.
    *
    * @param $reset
@@ -388,7 +427,7 @@ class SearchApiIndex extends Entity {
    *   SearchApiQueryInterface::__construct().
    *
    * @throws SearchApiException
-   *   If the index is currently disabled.
+   *   If the index is currently disabled or its server doesn't exist.
    *
    * @return SearchApiQueryInterface
    *   A query object for searching this index.
@@ -400,17 +439,21 @@ class SearchApiIndex extends Entity {
     return $this->server()->query($this, $options);
   }
 
-
   /**
-   * Indexes items on this index. Will return an array of IDs of items that
-   * should be marked as indexed – i.e., items that were either rejected by a
-   * data-alter callback or were successfully indexed.
+   * Indexes items on this index.
+   *
+   * Will return an array of IDs of items that should be marked as indexed –
+   * i.e., items that were either rejected by a data-alter callback or were
+   * successfully indexed.
    *
    * @param array $items
-   *   An array of items to index.
+   *   An array of items to index, of this index's item type.
    *
    * @return array
    *   An array of the IDs of all items that should be marked as indexed.
+   *
+   * @throws SearchApiException
+   *   If an error occurred during indexing.
    */
   public function index(array $items) {
     if ($this->read_only) {
@@ -528,8 +571,8 @@ class SearchApiIndex extends Entity {
           'options list' => 'entity_metadata_language_list',
         ),
       );
-      // We use the reverse order here so the hierarchy for overwriting property infos is the same
-      // as for actually overwriting the properties.
+      // We use the reverse order here so the hierarchy for overwriting property
+      // infos is the same as for actually overwriting the properties.
       foreach (array_reverse($this->getAlterCallbacks()) as $callback) {
         $props = $callback->propertyInfo();
         if ($props) {
@@ -543,16 +586,14 @@ class SearchApiIndex extends Entity {
     return $property_info;
   }
 
-   /**
-   * Fills the $processors array for use by the pre-/postprocessing functions.
+  /**
+   * Loads all enabled data alterations for this index in proper order.
    *
-   * @return SearchApiIndex
-   *   The called object.
    * @return array
    *   All enabled callbacks for this index, as SearchApiAlterCallbackInterface
    *   objects.
    */
-  protected function getAlterCallbacks() {
+  public function getAlterCallbacks() {
     if (isset($this->callbacks)) {
       return $this->callbacks;
     }
@@ -585,11 +626,13 @@ class SearchApiIndex extends Entity {
   }
 
   /**
+   * Loads all enabled processors for this index in proper order.
+   *
    * @return array
    *   All enabled processors for this index, as SearchApiProcessorInterface
    *   objects.
    */
-  protected function getProcessors() {
+  public function getProcessors() {
     if (isset($this->processors)) {
       return $this->processors;
     }
@@ -721,140 +764,162 @@ class SearchApiIndex extends Entity {
    *   "additional fields" key.
    */
   public function getFields($only_indexed = TRUE, $get_additional = FALSE) {
-    $fields = empty($this->options['fields']) ? array() : $this->options['fields'];
-    $wrapper = $this->entityWrapper();
-    $additional = array();
-    $entity_types = entity_get_info();
+    global $language;
 
-    // First we need all already added prefixes.
-    $added = ($only_indexed || empty($this->options['additional fields'])) ? array() : $this->options['additional fields'];
-    foreach (array_keys($fields) as $key) {
-      $len = strlen($key) + 1;
-      $pos = $len;
-      // The third parameter ($offset) to strrpos has rather weird behaviour,
-      // necessitating this rather awkward code. It will iterate over all
-      // prefixes of each field, beginning with the longest, adding all of them
-      // to $added until one is encountered that was already added (which means
-      // all shorter ones will have already been added, too).
-      while ($pos = strrpos($key, ':', $pos - $len)) {
-        $prefix = substr($key, 0, $pos);
-        if (isset($added[$prefix])) {
-          break;
-        }
-        $added[$prefix] = $prefix;
+    $only_indexed = $only_indexed ? 1 : 0;
+    $get_additional = $get_additional ? 1 : 0;
+
+    // First, try the static cache and the persistent cache bin.
+    if (empty($this->fields[$only_indexed][$get_additional])) {
+      $cid = $this->getCacheId() . "-$only_indexed-$get_additional-{$language->language}";
+      $cache = cache_get($cid);
+      if ($cache) {
+        $this->fields[$only_indexed][$get_additional] = $cache->data;
       }
     }
 
-    // Then we walk through all properties and look if they are already
-    // contained in one of the arrays.
-    // Since this uses an iterative instead of a recursive approach, it is a bit
-    // complicated, with three arrays tracking the current depth.
+    // Otherwise, we have to compute the result.
+    if (empty($this->fields[$only_indexed][$get_additional])) {
+      $fields = empty($this->options['fields']) ? array() : $this->options['fields'];
+      $wrapper = $this->entityWrapper();
+      $additional = array();
+      $entity_types = entity_get_info();
 
-    // A wrapper for a specific field name prefix, e.g. 'user:' mapped to the user wrapper
-    $wrappers = array('' => $wrapper);
-    // Display names for the prefixes
-    $prefix_names = array('' => '');
-      // The list nesting level for entities with a certain prefix
-    $nesting_levels = array('' => 0);
-
-    $types = search_api_default_field_types();
-    $flat = array();
-    while ($wrappers) {
-      foreach ($wrappers as $prefix => $wrapper) {
-        $prefix_name = $prefix_names[$prefix];
-        // Deal with lists of entities.
-        $nesting_level = $nesting_levels[$prefix];
-        $type_prefix = str_repeat('list<', $nesting_level);
-        $type_suffix = str_repeat('>', $nesting_level);
-        if ($nesting_level) {
-          $info = $wrapper->info();
-          // The real nesting level of the wrapper, not the accumulated one.
-          $level = search_api_list_nesting_level($info['type']);
-          for ($i = 0; $i < $level; ++$i) {
-            $wrapper = $wrapper[0];
+      // First we need all already added prefixes.
+      $added = ($only_indexed || empty($this->options['additional fields'])) ? array() : $this->options['additional fields'];
+      foreach (array_keys($fields) as $key) {
+        $len = strlen($key) + 1;
+        $pos = $len;
+        // The third parameter ($offset) to strrpos has rather weird behaviour,
+        // necessitating this rather awkward code. It will iterate over all
+        // prefixes of each field, beginning with the longest, adding all of them
+        // to $added until one is encountered that was already added (which means
+        // all shorter ones will have already been added, too).
+        while ($pos = strrpos($key, ':', $pos - $len)) {
+          $prefix = substr($key, 0, $pos);
+          if (isset($added[$prefix])) {
+            break;
           }
+          $added[$prefix] = $prefix;
         }
-        // Now look at all properties.
-        foreach ($wrapper as $property => $value) {
-          $info = $value->info();
-          // We hide the complexity of multi-valued types from the user here.
-          $type = search_api_extract_inner_type($info['type']);
-          // Treat Entity API type "token" as our "string" type.
-          // Also let text fields with limited options be of type "string" by default.
-          if ($type == 'token' || ($type == 'text' && !empty($info['options list']))) {
-            // Inner type is changed to "string".
-            $type = 'string';
-            // Set the field type accordingly.
-            $info['type'] = search_api_nest_type('string', $info['type']);
-          }
-          $info['type'] = $type_prefix . $info['type'] . $type_suffix;
-          $key = $prefix . $property;
-          if ((isset($types[$type]) || isset($entity_types[$type])) && (!$only_indexed || !empty($fields[$key]))) {
-            if (!empty($fields[$key])) {
-              // This field is already known in the index configuration.
-              $flat[$key] = $fields[$key] + array(
-                'name' => $prefix_name . $info['label'],
-                'description' => empty($info['description']) ? NULL : $info['description'],
-                'boost' => '1.0',
-                'indexed' => TRUE,
-              );
-              // Update the type and its nesting level for non-entity properties.
-              if (!isset($entity_types[$type])) {
-                $flat[$key]['type'] = search_api_nest_type(search_api_extract_inner_type($flat[$key]['type']), $info['type']);
-                if (isset($flat[$key]['real_type'])) {
-                  $real_type = search_api_extract_inner_type($flat[$key]['real_type']);
-                  $flat[$key]['real_type'] = search_api_nest_type($real_type, $info['type']);
-                }
-              }
-            }
-            else {
-              $flat[$key] = array(
-                'name'    => $prefix_name . $info['label'],
-                'description' => empty($info['description']) ? NULL : $info['description'],
-                'type'    => $info['type'],
-                'boost' => '1.0',
-                'indexed' => FALSE,
-              );
-            }
-            if (isset($entity_types[$type])) {
-              $base_type = isset($entity_types[$type]['entity keys']['name']) ? 'string' : 'integer';
-              $flat[$key]['type'] = search_api_nest_type($base_type, $info['type']);
-              $flat[$key]['entity_type'] = $type;
-            }
-          }
-          if (empty($types[$type])) {
-            if (isset($added[$key])) {
-              // Visit this entity/struct in a later iteration.
-              $wrappers[$key . ':'] = $value;
-              $prefix_names[$key . ':'] = $prefix_name . $info['label'] . ' » ';
-              $nesting_levels[$key . ':'] = search_api_list_nesting_level($info['type']);
-            }
-            else {
-              $name = $prefix_name . $info['label'];
-              // Add machine names to discern fields with identical labels.
-              if (isset($used_names[$name])) {
-                if ($used_names[$name] !== FALSE) {
-                  $additional[$used_names[$name]] .= ' [' . $used_names[$name] . ']';
-                  $used_names[$name] = FALSE;
-                }
-                $name .= ' [' . $key . ']';
-              }
-              $additional[$key] = $name;
-              $used_names[$name] = $key;
-            }
-          }
-        }
-        unset($wrappers[$prefix]);
       }
+
+      // Then we walk through all properties and look if they are already
+      // contained in one of the arrays.
+      // Since this uses an iterative instead of a recursive approach, it is a bit
+      // complicated, with three arrays tracking the current depth.
+
+      // A wrapper for a specific field name prefix, e.g. 'user:' mapped to the user wrapper
+      $wrappers = array('' => $wrapper);
+      // Display names for the prefixes
+      $prefix_names = array('' => '');
+        // The list nesting level for entities with a certain prefix
+      $nesting_levels = array('' => 0);
+
+      $types = search_api_default_field_types();
+      $flat = array();
+      while ($wrappers) {
+        foreach ($wrappers as $prefix => $wrapper) {
+          $prefix_name = $prefix_names[$prefix];
+          // Deal with lists of entities.
+          $nesting_level = $nesting_levels[$prefix];
+          $type_prefix = str_repeat('list<', $nesting_level);
+          $type_suffix = str_repeat('>', $nesting_level);
+          if ($nesting_level) {
+            $info = $wrapper->info();
+            // The real nesting level of the wrapper, not the accumulated one.
+            $level = search_api_list_nesting_level($info['type']);
+            for ($i = 0; $i < $level; ++$i) {
+              $wrapper = $wrapper[0];
+            }
+          }
+          // Now look at all properties.
+          foreach ($wrapper as $property => $value) {
+            $info = $value->info();
+            // We hide the complexity of multi-valued types from the user here.
+            $type = search_api_extract_inner_type($info['type']);
+            // Treat Entity API type "token" as our "string" type.
+            // Also let text fields with limited options be of type "string" by default.
+            if ($type == 'token' || ($type == 'text' && !empty($info['options list']))) {
+              // Inner type is changed to "string".
+              $type = 'string';
+              // Set the field type accordingly.
+              $info['type'] = search_api_nest_type('string', $info['type']);
+            }
+            $info['type'] = $type_prefix . $info['type'] . $type_suffix;
+            $key = $prefix . $property;
+            if ((isset($types[$type]) || isset($entity_types[$type])) && (!$only_indexed || !empty($fields[$key]))) {
+              if (!empty($fields[$key])) {
+                // This field is already known in the index configuration.
+                $flat[$key] = $fields[$key] + array(
+                  'name' => $prefix_name . $info['label'],
+                  'description' => empty($info['description']) ? NULL : $info['description'],
+                  'boost' => '1.0',
+                  'indexed' => TRUE,
+                );
+                // Update the type and its nesting level for non-entity properties.
+                if (!isset($entity_types[$type])) {
+                  $flat[$key]['type'] = search_api_nest_type(search_api_extract_inner_type($flat[$key]['type']), $info['type']);
+                  if (isset($flat[$key]['real_type'])) {
+                    $real_type = search_api_extract_inner_type($flat[$key]['real_type']);
+                    $flat[$key]['real_type'] = search_api_nest_type($real_type, $info['type']);
+                  }
+                }
+              }
+              else {
+                $flat[$key] = array(
+                  'name'    => $prefix_name . $info['label'],
+                  'description' => empty($info['description']) ? NULL : $info['description'],
+                  'type'    => $info['type'],
+                  'boost' => '1.0',
+                  'indexed' => FALSE,
+                );
+              }
+              if (isset($entity_types[$type])) {
+                $base_type = isset($entity_types[$type]['entity keys']['name']) ? 'string' : 'integer';
+                $flat[$key]['type'] = search_api_nest_type($base_type, $info['type']);
+                $flat[$key]['entity_type'] = $type;
+              }
+            }
+            if (empty($types[$type])) {
+              if (isset($added[$key])) {
+                // Visit this entity/struct in a later iteration.
+                $wrappers[$key . ':'] = $value;
+                $prefix_names[$key . ':'] = $prefix_name . $info['label'] . ' » ';
+                $nesting_levels[$key . ':'] = search_api_list_nesting_level($info['type']);
+              }
+              else {
+                $name = $prefix_name . $info['label'];
+                // Add machine names to discern fields with identical labels.
+                if (isset($used_names[$name])) {
+                  if ($used_names[$name] !== FALSE) {
+                    $additional[$used_names[$name]] .= ' [' . $used_names[$name] . ']';
+                    $used_names[$name] = FALSE;
+                  }
+                  $name .= ' [' . $key . ']';
+                }
+                $additional[$key] = $name;
+                $used_names[$name] = $key;
+              }
+            }
+          }
+          unset($wrappers[$prefix]);
+        }
+      }
+
+      if (!$get_additional) {
+        $this->fields[$only_indexed][$get_additional] = $flat;
+      }
+      else {
+        $options = array();
+        $options['fields'] = $flat;
+        $options['additional fields'] = $additional;
+        $this->fields[$only_indexed][$get_additional] =  $options;
+      }
+      cache_set($cid, $this->fields[$only_indexed][$get_additional]);
     }
 
-    if (!$get_additional) {
-      return $flat;
-    }
-    $options = array();
-    $options['fields'] = $flat;
-    $options['additional fields'] = $additional;
-    return $options;
+    return $this->fields[$only_indexed][$get_additional];
   }
 
   /**
@@ -871,7 +936,12 @@ class SearchApiIndex extends Entity {
     $i = $only_indexed ? 1 : 0;
     if (!isset($this->fulltext_fields[$i])) {
       $this->fulltext_fields[$i] = array();
-      $fields = $only_indexed ? $this->options['fields'] : $this->getFields(FALSE);
+      if ($only_indexed) {
+        $fields = isset($this->options['fields']) ? $this->options['fields'] : array();
+      }
+      else {
+        $fields = $this->getFields(FALSE);
+      }
       foreach ($fields as $key => $field) {
         if (search_api_is_text_type($field['type'])) {
           $this->fulltext_fields[$i][] = $key;
@@ -879,6 +949,19 @@ class SearchApiIndex extends Entity {
       }
     }
     return $this->fulltext_fields[$i];
+  }
+
+  /**
+   * Get the cache ID prefix used for this index's caches.
+   *
+   * @param $type
+   *   The type of cache. Currently only "fields" is used.
+   *
+   * @return
+   *   The cache ID (prefix) for this index's caches.
+   */
+  public function getCacheId($type = 'fields') {
+    return 'search_api:index-' . $this->machine_name . '--' . $type;
   }
 
   /**
@@ -895,12 +978,18 @@ class SearchApiIndex extends Entity {
    * @return EntityMetadataWrapper
    *   A wrapper for the item type of this index, optionally loaded with the
    *   given data and having additional fields according to the data alterations
-   *   of this index.
+   *   of this index (if $alter wasn't set to FALSE).
    */
   public function entityWrapper($item = NULL, $alter = TRUE) {
-    $info['property info alter'] = $alter ? array($this, 'propertyInfoAlter') : '_search_api_wrapper_add_all_properties';
-    $info['property defaults']['property info alter'] = '_search_api_wrapper_add_all_properties';
-    return $this->datasource()->getMetadataWrapper($item, $info);
+    try {
+      $info['property info alter'] = $alter ? array($this, 'propertyInfoAlter') : '_search_api_wrapper_add_all_properties';
+      $info['property defaults']['property info alter'] = '_search_api_wrapper_add_all_properties';
+      return $this->datasource()->getMetadataWrapper($item, $info);
+    }
+    catch (SearchApiException $e) {
+      watchdog_exception('search_api', $e);
+      return entity_metadata_wrapper($this->item_type);
+    }
   }
 
   /**
@@ -915,21 +1004,30 @@ class SearchApiIndex extends Entity {
    * @see SearchApiDataSourceControllerInterface::loadItems()
    */
   public function loadItems(array $ids) {
-    return $this->datasource()->loadItems($ids);
+    try {
+      return $this->datasource()->loadItems($ids);
+    }
+    catch (SearchApiException $e) {
+      watchdog_exception('search_api', $e);
+      return array();
+    }
   }
 
   /**
-   * Reset internal static caches.
+   * Reset internal caches.
    *
    * Should be used when things like fields or data alterations change to avoid
    * using stale data.
    */
   public function resetCaches() {
+    cache_clear_all($this->getCacheId(''), 'cache', TRUE);
+
     $this->datasource = NULL;
     $this->server_object = NULL;
     $this->callbacks = NULL;
     $this->processors = NULL;
     $this->added_properties = NULL;
+    $this->fields = array();
     $this->fulltext_fields = array();
   }
 

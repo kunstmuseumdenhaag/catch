@@ -123,7 +123,7 @@ function entity_views_data() {
  *   excluded. Defaults to TRUE, as they are available for all views tables for
  *   the entity type anyways.
  *
- * @return
+ * @return array
  *   An array containing the data selection Views table definition for the
  *   entity type.
  *
@@ -316,6 +316,7 @@ function entity_views_plugins() {
     $base_tables = $data->data;
   }
   else {
+    $base_tables = array();
     foreach (views_fetch_data() as $table => $data) {
       if (!empty($data['table']['entity type']) && !empty($data['table']['base'])) {
         $base_tables[] = $table;
@@ -371,13 +372,14 @@ class EntityDefaultViewsController {
       $table = $this->info['base table'];
       // Define the base group of this table. Fields that don't
       // have a group defined will go into this field by default.
-      $data[$table]['table']['group']  = drupal_ucfirst($this->info['label']);
+      $data[$table]['table']['group'] = drupal_ucfirst($this->info['label']);
       $data[$table]['table']['entity type'] = $this->type;
 
       // If the plural label isn't available, use the regular label.
       $label = isset($this->info['plural label']) ? $this->info['plural label'] : $this->info['label'];
       $data[$table]['table']['base'] = array(
         'field' => $this->info['entity keys']['id'],
+        'access query tag' => $this->type . '_access',
         'title' => drupal_ucfirst($label),
         'help' => isset($this->info['description']) ? $this->info['description'] : '',
       );
@@ -386,6 +388,50 @@ class EntityDefaultViewsController {
 
       // Add in any reverse-relationships which have been determined.
       $data += $this->relationships;
+    }
+    if (!empty($this->info['revision table']) && !empty($this->info['entity keys']['revision'])) {
+      $revision_table = $this->info['revision table'];
+
+      $data[$table]['table']['default_relationship'] = array(
+        $revision_table => array(
+          'table' => $revision_table,
+          'field' => $this->info['entity keys']['revision'],
+        ),
+      );
+
+      // Define the base group of this table. Fields that don't
+      // have a group defined will go into this field by default.
+      $data[$revision_table]['table']['group'] = drupal_ucfirst($this->info['label']) . ' ' . t('Revisions');
+      $data[$revision_table]['table']['entity type'] = $this->type;
+
+      // If the plural label isn't available, use the regular label.
+      $label = isset($this->info['plural label']) ? $this->info['plural label'] : $this->info['label'];
+      $data[$revision_table]['table']['base'] = array(
+        'field' => $this->info['entity keys']['revision'],
+        'access query tag' => $this->type . '_access',
+        'title' => drupal_ucfirst($label) . ' ' . t('Revisions'),
+        'help' => (isset($this->info['description']) ? $this->info['description'] . ' ' : '') . t('Revisions'),
+      );
+      $data[$revision_table]['table']['entity type'] = $this->type;
+      $data[$revision_table] += $this->schema_revision_fields();
+
+      // Add in any reverse-relationships which have been determined.
+      $data += $this->relationships;
+
+      // For other base tables, explain how we join.
+      $data[$revision_table]['table']['join'] = array(
+        // Directly links to base table.
+        $table => array(
+          'left_field' => $this->info['entity keys']['revision'],
+          'field' => $this->info['entity keys']['revision'],
+        ),
+      );
+      $data[$revision_table]['table']['default_relationship'] = array(
+        $table => array(
+          'table' => $table,
+          'field' => $this->info['entity keys']['id'],
+        ),
+      );
     }
     return $data;
   }
@@ -403,6 +449,27 @@ class EntityDefaultViewsController {
       if (isset($property_info['schema field']) && isset($schema['fields'][$property_info['schema field']])) {
         if ($views_info = $this->map_from_schema_info($name, $schema['fields'][$property_info['schema field']], $property_info)) {
           $data[$name] = $views_info;
+        }
+      }
+    }
+    return $data;
+  }
+
+  /**
+   * Try to come up with some views fields with the help of the revision schema
+   * and the entity property information.
+   */
+  protected function schema_revision_fields() {
+    $data = array();
+    if (!empty($this->info['revision table'])) {
+      $schema = drupal_get_schema($this->info['revision table']);
+      $properties = entity_get_property_info($this->type) + array('properties' => array());
+
+      foreach ($properties['properties'] as $name => $property_info) {
+        if (isset($property_info['schema field']) && isset($schema['fields'][$property_info['schema field']])) {
+          if ($views_info = $this->map_from_schema_info($name, $schema['fields'][$property_info['schema field']], $property_info)) {
+            $data[$name] = $views_info;
+          }
         }
       }
     }
@@ -428,7 +495,7 @@ class EntityDefaultViewsController {
       'help' => isset($property_info['description']) ? $property_info['description'] : NULL,
     );
 
-      // Add in relationships to related entities.
+    // Add in relationships to related entities.
     if (($info = entity_get_info($type)) && !empty($info['base table'])) {
 
       // Prepare reversed relationship data.
@@ -476,7 +543,7 @@ class EntityDefaultViewsController {
             'real field' => $views_field_name,
             'handler' => 'views_handler_field',
             'click sortable' => TRUE,
-           ),
+          ),
           'sort' => array(
             'real field' => $views_field_name,
             'handler' => 'views_handler_sort',
@@ -490,7 +557,7 @@ class EntityDefaultViewsController {
             'handler' => 'views_handler_argument_string',
           ),
         );
-      break;
+        break;
 
       case 'decimal':
       case 'integer':
@@ -500,7 +567,7 @@ class EntityDefaultViewsController {
             'handler' => 'views_handler_field_numeric',
             'click sortable' => TRUE,
             'float' => ($type == 'decimal'),
-           ),
+          ),
           'sort' => array(
             'real field' => $views_field_name,
             'handler' => 'views_handler_sort',
@@ -514,7 +581,7 @@ class EntityDefaultViewsController {
             'handler' => 'views_handler_argument_numeric',
           ),
         );
-      break;
+        break;
 
       case 'date':
         $return += $description + array(
@@ -522,7 +589,7 @@ class EntityDefaultViewsController {
             'real field' => $views_field_name,
             'handler' => 'views_handler_field_date',
             'click sortable' => TRUE,
-           ),
+          ),
           'sort' => array(
             'real field' => $views_field_name,
             'handler' => 'views_handler_sort_date',
@@ -536,7 +603,29 @@ class EntityDefaultViewsController {
             'handler' => 'views_handler_argument_date',
           ),
         );
-      break;
+        break;
+
+      case 'duration':
+        $return += $description + array(
+          'field' => array(
+            'real field' => $views_field_name,
+            'handler' => 'entity_views_handler_field_duration',
+            'click sortable' => TRUE,
+          ),
+          'sort' => array(
+            'real field' => $views_field_name,
+            'handler' => 'views_handler_sort',
+          ),
+          'filter' => array(
+            'real field' => $views_field_name,
+            'handler' => 'views_handler_filter_numeric',
+          ),
+          'argument' => array(
+            'real field' => $views_field_name,
+            'handler' => 'views_handler_argument_numeric',
+          ),
+        );
+        break;
 
       case 'uri':
         $return += $description + array(
@@ -544,7 +633,7 @@ class EntityDefaultViewsController {
             'real field' => $views_field_name,
             'handler' => 'views_handler_field_url',
             'click sortable' => TRUE,
-           ),
+          ),
           'sort' => array(
             'real field' => $views_field_name,
             'handler' => 'views_handler_sort',
@@ -558,7 +647,7 @@ class EntityDefaultViewsController {
             'handler' => 'views_handler_argument_string',
           ),
         );
-      break;
+        break;
 
       case 'boolean':
         $return += $description + array(
@@ -566,7 +655,7 @@ class EntityDefaultViewsController {
             'real field' => $views_field_name,
             'handler' => 'views_handler_field_boolean',
             'click sortable' => TRUE,
-           ),
+          ),
           'sort' => array(
             'real field' => $views_field_name,
             'handler' => 'views_handler_sort',
@@ -580,7 +669,7 @@ class EntityDefaultViewsController {
             'handler' => 'views_handler_argument_string',
           ),
         );
-      break;
+        break;
     }
 
     // If there is an options list callback, add to the filter and field.
@@ -589,7 +678,7 @@ class EntityDefaultViewsController {
       $return['filter']['options callback'] = array('EntityDefaultViewsController', 'optionsListCallback');
       $return['filter']['options arguments'] = array($this->type, $property_name, 'view');
     }
-    // @todo: This class_exists is needed until views 3.2.
+    // @todo This class_exists is needed until views 3.2.
     if (isset($return['field']) && !empty($property_info['options list']) && class_exists('views_handler_field_machine_name')) {
       $return['field']['handler'] = 'views_handler_field_machine_name';
       $return['field']['options callback'] = array('EntityDefaultViewsController', 'optionsListCallback');
@@ -606,7 +695,7 @@ class EntityDefaultViewsController {
    * @param $left_type
    *   The data type from which to join.
    */
-  function getRelationshipHandlerClass($entity_type, $left_type) {
+  public function getRelationshipHandlerClass($entity_type, $left_type) {
     // Look for an entity type which is used as bundle for the given entity
     // type. If there is one, allow filtering the relation by bundle by using
     // our own handler.
@@ -631,4 +720,5 @@ class EntityDefaultViewsController {
     }
     return $wrapper->optionsList($op);
   }
+
 }

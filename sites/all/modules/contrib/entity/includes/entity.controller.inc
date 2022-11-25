@@ -35,7 +35,7 @@ interface EntityAPIControllerInterface extends DrupalEntityControllerInterface {
    * @param $entity
    *   The entity to save.
    *
-   * @return
+   * @return int
    *   SAVED_NEW or SAVED_UPDATED is returned depending on the operation
    *   performed.
    */
@@ -46,7 +46,8 @@ interface EntityAPIControllerInterface extends DrupalEntityControllerInterface {
    *
    * @param array $values
    *   An array of values to set, keyed by property name.
-   * @return
+   *
+   * @return object
    *   A new instance of the entity type.
    */
   public function create(array $values = array());
@@ -59,7 +60,7 @@ interface EntityAPIControllerInterface extends DrupalEntityControllerInterface {
    * @param $prefix
    *   An optional prefix for each line.
    *
-   * @return
+   * @return string
    *   The exported entity as serialized string. The format is determined by
    *   the controller and has to be compatible with the format that is accepted
    *   by the import() method.
@@ -72,7 +73,7 @@ interface EntityAPIControllerInterface extends DrupalEntityControllerInterface {
    * @param string $export
    *   An exported entity as serialized string.
    *
-   * @return
+   * @return object
    *   An entity object not yet saved.
    */
   public function import($export);
@@ -90,7 +91,8 @@ interface EntityAPIControllerInterface extends DrupalEntityControllerInterface {
    * @param $langcode
    *   (optional) A language code to use for rendering. Defaults to the global
    *   content language of the current request.
-   * @return
+   *
+   * @return array
    *   The renderable array.
    */
   public function buildContent($entity, $view_mode = 'full', $langcode = NULL);
@@ -107,29 +109,53 @@ interface EntityAPIControllerInterface extends DrupalEntityControllerInterface {
    *   content language of the current request.
    * @param $page
    *   (optional) If set will control if the entity is rendered: if TRUE
-   *   the entity will be rendered without its title, so that it can be embeded
+   *   the entity will be rendered without its title, so that it can be embedded
    *   in another context. If FALSE the entity will be displayed with its title
    *   in a mode suitable for lists.
    *   If unset, the page mode will be enabled if the current path is the URI
    *   of the entity, as returned by entity_uri().
    *   This parameter is only supported for entities which controller is a
    *   EntityAPIControllerInterface.
-   * @return
+   *
+   * @return array
    *   The renderable array, keyed by entity name or numeric id.
    */
   public function view($entities, $view_mode = 'full', $langcode = NULL, $page = NULL);
+
+}
+
+/**
+ * Interface for EntityControllers of entities that support revisions.
+ */
+interface EntityAPIControllerRevisionableInterface extends EntityAPIControllerInterface {
+
+  /**
+   * Delete an entity revision.
+   *
+   * Note that the default revision of an entity cannot be deleted.
+   *
+   * @param $revision_id
+   *   The ID of the revision to delete.
+   *
+   * @return bool
+   *   TRUE if the entity revision could be deleted, FALSE otherwise.
+   */
+  public function deleteRevision($revision_id);
+
 }
 
 /**
  * A controller implementing EntityAPIControllerInterface for the database.
  */
-class EntityAPIController extends DrupalDefaultEntityController implements EntityAPIControllerInterface {
+class EntityAPIController extends DrupalDefaultEntityController implements EntityAPIControllerRevisionableInterface {
 
   protected $cacheComplete = FALSE;
   protected $bundleKey;
+  protected $defaultRevisionKey;
 
   /**
    * Overridden.
+   *
    * @see DrupalDefaultEntityController#__construct()
    */
   public function __construct($entityType) {
@@ -139,12 +165,27 @@ class EntityAPIController extends DrupalDefaultEntityController implements Entit
       $info = entity_get_info($this->entityInfo['bundle of']);
       $this->bundleKey = $info['bundle keys']['bundle'];
     }
+    $this->defaultRevisionKey = !empty($this->entityInfo['entity keys']['default revision']) ? $this->entityInfo['entity keys']['default revision'] : 'default_revision';
+  }
+
+  /**
+   * Overrides DrupalDefaultEntityController::buildQuery().
+   */
+  protected function buildQuery($ids, $conditions = array(), $revision_id = FALSE) {
+    $query = parent::buildQuery($ids, $conditions, $revision_id);
+    if ($this->revisionKey) {
+      // Compare revision id of the base and revision table, if equal then this
+      // is the default revision.
+      $query->addExpression('CASE WHEN base.' . $this->revisionKey . ' = revision.' . $this->revisionKey . ' THEN 1 ELSE 0 END', $this->defaultRevisionKey);
+    }
+    return $query;
   }
 
   /**
    * Builds and executes the query for loading.
    *
-   * @return The results in a Traversable object.
+   * @return Traversable
+   *   The results in a Traversable object.
    */
   public function query($ids, $conditions, $revision_id = FALSE) {
     // Build the query.
@@ -158,6 +199,7 @@ class EntityAPIController extends DrupalDefaultEntityController implements Entit
 
   /**
    * Overridden.
+   *
    * @see DrupalDefaultEntityController#load($ids, $conditions)
    *
    * In contrast to the parent implementation we factor out query execution, so
@@ -275,6 +317,9 @@ class EntityAPIController extends DrupalDefaultEntityController implements Entit
     return $entities;
   }
 
+  /**
+   * Overrides DrupalDefaultEntityController::resetCache().
+   */
   public function resetCache(array $ids = NULL) {
     $this->cacheComplete = FALSE;
     parent::resetCache($ids);
@@ -288,7 +333,12 @@ class EntityAPIController extends DrupalDefaultEntityController implements Entit
    * Implements EntityAPIControllerInterface.
    */
   public function invoke($hook, $entity) {
-    if (!empty($this->entityInfo['fieldable']) && function_exists($function = 'field_attach_' . $hook)) {
+    // entity_revision_delete() invokes hook_entity_revision_delete() and
+    // hook_field_attach_delete_revision() just as node module does. So we need
+    // to adjust the name of our revision deletion field attach hook in order to
+    // stick to this pattern.
+    $field_attach_hook = ($hook == 'revision_delete' ? 'delete_revision' : $hook);
+    if (!empty($this->entityInfo['fieldable']) && function_exists($function = 'field_attach_' . $field_attach_hook)) {
       $function($this->entityType, $entity);
     }
 
@@ -330,10 +380,7 @@ class EntityAPIController extends DrupalDefaultEntityController implements Entit
       // Do nothing, in case invalid or no ids have been passed.
       return;
     }
-    // This transaction causes troubles on MySQL, see
-    // http://drupal.org/node/1007830. So we deactivate this by default until
-    // is shipped in a point release.
-    // $transaction = isset($transaction) ? $transaction : db_transaction();
+    $transaction = isset($transaction) ? $transaction : db_transaction();
 
     try {
       $ids = array_keys($entities);
@@ -341,6 +388,12 @@ class EntityAPIController extends DrupalDefaultEntityController implements Entit
       db_delete($this->entityInfo['base table'])
         ->condition($this->idKey, $ids, 'IN')
         ->execute();
+
+      if (isset($this->revisionTable)) {
+        db_delete($this->revisionTable)
+          ->condition($this->idKey, $ids, 'IN')
+          ->execute();
+      }
       // Reset the cache as soon as the changes have been applied.
       $this->resetCache($ids);
 
@@ -351,12 +404,30 @@ class EntityAPIController extends DrupalDefaultEntityController implements Entit
       db_ignore_slave();
     }
     catch (Exception $e) {
-      if (isset($transaction)) {
-        $transaction->rollback();
-      }
+      $transaction->rollback();
       watchdog_exception($this->entityType, $e);
       throw $e;
     }
+  }
+
+  /**
+   * Implements EntityAPIControllerRevisionableInterface::deleteRevision().
+   */
+  public function deleteRevision($revision_id) {
+    if ($entity_revision = entity_revision_load($this->entityType, $revision_id)) {
+      // Prevent deleting the default revision.
+      if (entity_revision_is_default($this->entityType, $entity_revision)) {
+        return FALSE;
+      }
+
+      db_delete($this->revisionTable)
+        ->condition($this->revisionKey, $revision_id)
+        ->execute();
+
+      $this->invoke('revision_delete', $entity_revision);
+      return TRUE;
+    }
+    return FALSE;
   }
 
   /**
@@ -375,21 +446,40 @@ class EntityAPIController extends DrupalDefaultEntityController implements Entit
         // entity using the id key if it is available.
         $entity->original = entity_load_unchanged($this->entityType, $entity->{$this->idKey});
       }
-
+      $entity->is_new = !empty($entity->is_new) || empty($entity->{$this->idKey});
       $this->invoke('presave', $entity);
 
-      if (!empty($entity->{$this->idKey}) && empty($entity->is_new)) {
-        $return = drupal_write_record($this->entityInfo['base table'], $entity, $this->idKey);
-        $this->resetCache(array($entity->{$this->idKey}));
-        $this->invoke('update', $entity);
-      }
-      else {
+      if ($entity->is_new) {
         $return = drupal_write_record($this->entityInfo['base table'], $entity);
+        if ($this->revisionKey) {
+          $this->saveRevision($entity);
+        }
         $this->invoke('insert', $entity);
       }
+      else {
+        // Update the base table if the entity doesn't have revisions or
+        // we are updating the default revision.
+        if (!$this->revisionKey || !empty($entity->{$this->defaultRevisionKey})) {
+          $return = drupal_write_record($this->entityInfo['base table'], $entity, $this->idKey);
+        }
+        if ($this->revisionKey) {
+          $return = $this->saveRevision($entity);
+        }
+        $this->resetCache(array($entity->{$this->idKey}));
+        $this->invoke('update', $entity);
+
+        // Field API always saves as default revision, so if the revision saved
+        // is not default we have to restore the field values of the default
+        // revision now by invoking field_attach_update() once again.
+        if ($this->revisionKey && !$entity->{$this->defaultRevisionKey} && !empty($this->entityInfo['fieldable'])) {
+          field_attach_update($this->entityType, $entity->original);
+        }
+      }
+
       // Ignore slave server temporarily.
       db_ignore_slave();
       unset($entity->is_new);
+      unset($entity->is_new_revision);
       unset($entity->original);
 
       return $return;
@@ -399,6 +489,52 @@ class EntityAPIController extends DrupalDefaultEntityController implements Entit
       watchdog_exception($this->entityType, $e);
       throw $e;
     }
+  }
+
+  /**
+   * Saves an entity revision.
+   *
+   * @param Entity $entity
+   *   Entity revision to save.
+   */
+  protected function saveRevision($entity) {
+    // Convert the entity into an array as it might not have the same properties
+    // as the entity, it is just a raw structure.
+    $record = (array) $entity;
+    // File fields assumes we are using $entity->revision instead of
+    // $entity->is_new_revision, so we also support it and make sure it's set to
+    // the same value.
+    $entity->is_new_revision = !empty($entity->is_new_revision) || !empty($entity->revision) || $entity->is_new;
+    $entity->revision = &$entity->is_new_revision;
+    $entity->{$this->defaultRevisionKey} = !empty($entity->{$this->defaultRevisionKey}) || $entity->is_new;
+
+    // When saving a new revision, set any existing revision ID to NULL so as to
+    // ensure that a new revision will actually be created.
+    if ($entity->is_new_revision && isset($record[$this->revisionKey])) {
+      $record[$this->revisionKey] = NULL;
+    }
+
+    if ($entity->is_new_revision) {
+      drupal_write_record($this->revisionTable, $record);
+      $update_default_revision = $entity->{$this->defaultRevisionKey};
+    }
+    else {
+      drupal_write_record($this->revisionTable, $record, $this->revisionKey);
+      // @todo Fix original entity to be of the same revision and check whether
+      // the default revision key has been set.
+      $update_default_revision = $entity->{$this->defaultRevisionKey} && $entity->{$this->revisionKey} != $entity->original->{$this->revisionKey};
+    }
+    // Make sure to update the new revision key for the entity.
+    $entity->{$this->revisionKey} = $record[$this->revisionKey];
+
+    // Mark this revision as the default one.
+    if ($update_default_revision) {
+      db_update($this->entityInfo['base table'])
+        ->fields(array($this->revisionKey => $record[$this->revisionKey]))
+        ->condition($this->idKey, $entity->{$this->idKey})
+        ->execute();
+    }
+    return $entity->is_new_revision ? SAVED_NEW : SAVED_UPDATED;
   }
 
   /**
@@ -416,7 +552,7 @@ class EntityAPIController extends DrupalDefaultEntityController implements Entit
   /**
    * Implements EntityAPIControllerInterface.
    *
-   * @return
+   * @return string
    *   A serialized string in JSON format suitable for the import() method.
    */
   public function export($entity, $prefix = '') {
@@ -443,13 +579,37 @@ class EntityAPIController extends DrupalDefaultEntityController implements Entit
    * Implements EntityAPIControllerInterface.
    *
    * @param $content
-   *   Optionally. Allows pre-populating the built content to ease overridding
+   *   Optionally. Allows pre-populating the built content to ease overriding
    *   this method.
    */
   public function buildContent($entity, $view_mode = 'full', $langcode = NULL, $content = array()) {
     // Remove previously built content, if exists.
     $entity->content = $content;
     $langcode = isset($langcode) ? $langcode : $GLOBALS['language_content']->language;
+
+    // Allow modules to change the view mode.
+    $context = array(
+      'entity_type' => $this->entityType,
+      'entity' => $entity,
+      'langcode' => $langcode,
+    );
+    drupal_alter('entity_view_mode', $view_mode, $context);
+    // Make sure the used view-mode gets stored.
+    $entity->content += array('#view_mode' => $view_mode);
+
+    // By default add in properties for all defined extra fields.
+    if ($extra_field_controller = entity_get_extra_fields_controller($this->entityType)) {
+      $wrapper = entity_metadata_wrapper($this->entityType, $entity);
+      $extra = $extra_field_controller->fieldExtraFields();
+      $type_extra = &$extra[$this->entityType][$this->entityType]['display'];
+      $bundle_extra = &$extra[$this->entityType][$wrapper->getBundle()]['display'];
+
+      foreach ($wrapper as $name => $property) {
+        if (isset($type_extra[$name]) || isset($bundle_extra[$name])) {
+          $this->renderEntityProperty($wrapper, $name, $property, $view_mode, $langcode, $entity->content);
+        }
+      }
+    }
 
     // Add in fields.
     if (!empty($this->entityInfo['fieldable'])) {
@@ -470,6 +630,24 @@ class EntityAPIController extends DrupalDefaultEntityController implements Entit
     $build = $entity->content;
     unset($entity->content);
     return $build;
+  }
+
+  /**
+   * Renders a single entity property.
+   */
+  protected function renderEntityProperty($wrapper, $name, $property, $view_mode, $langcode, &$content) {
+    $info = $property->info();
+
+    $content[$name] = array(
+      '#label_hidden' => FALSE,
+      '#label' => $info['label'],
+      '#entity_wrapped' => $wrapper,
+      '#theme' => 'entity_property',
+      '#property_name' => $name,
+      '#access' => $property->access('view'),
+      '#entity_type' => $this->entityType,
+    );
+    $content['#attached']['css']['entity.theme'] = drupal_get_path('module', 'entity') . '/theme/entity.theme.css';
   }
 
   /**
@@ -506,6 +684,7 @@ class EntityAPIController extends DrupalDefaultEntityController implements Entit
     }
     return $view;
   }
+
 }
 
 /**
@@ -593,6 +772,7 @@ class EntityAPIControllerExportable extends EntityAPIController {
 
   /**
    * Overridden.
+   *
    * @see DrupalDefaultEntityController::cacheGet()
    */
   protected function cacheGet($ids, $conditions = array()) {
@@ -621,8 +801,17 @@ class EntityAPIControllerExportable extends EntityAPIController {
     if ($conditions) {
       foreach ($entities as $key => $entity) {
         $entity_values = (array) $entity;
-        if (array_diff_assoc($conditions, $entity_values)) {
-          unset($entities[$key]);
+        // We cannot use array_diff_assoc() here because condition values can
+        // also be arrays, e.g. '$conditions = array('status' => array(1, 2))'.
+        foreach ($conditions as $condition_key => $condition_value) {
+          if (is_array($condition_value)) {
+            if (!isset($entity_values[$condition_key]) || !in_array($entity_values[$condition_key], $condition_value)) {
+              unset($entities[$key]);
+            }
+          }
+          elseif (!isset($entity_values[$condition_key]) || $entity_values[$condition_key] != $condition_value) {
+            unset($entities[$key]);
+          }
         }
       }
     }
@@ -631,6 +820,7 @@ class EntityAPIControllerExportable extends EntityAPIController {
 
   /**
    * Overridden.
+   *
    * @see DrupalDefaultEntityController::cacheSet()
    */
   protected function cacheSet($entities) {
@@ -643,10 +833,11 @@ class EntityAPIControllerExportable extends EntityAPIController {
 
   /**
    * Overridden.
-   * @see DrupalDefaultEntityController::attachLoad()
    *
    * Changed to call type-specific hook with the entities keyed by name if they
    * have one.
+   *
+   * @see DrupalDefaultEntityController::attachLoad()
    */
   protected function attachLoad(&$queried_entities, $revision_id = FALSE) {
     // Attach fields.
@@ -796,4 +987,5 @@ class EntityAPIControllerExportable extends EntityAPIController {
     }
     return $view;
   }
+
 }

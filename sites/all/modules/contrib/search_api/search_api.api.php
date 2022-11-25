@@ -15,8 +15,6 @@
  *
  * Note: The ids should be valid PHP identifiers.
  *
- * @see hook_search_api_service_info_alter()
- *
  * @return array
  *   An associative array of search service classes, keyed by a unique
  *   identifier and containing associative arrays with the following keys:
@@ -24,9 +22,12 @@
  *   - description: A translated string to be shown to administrators when
  *     selecting a service class. Should contain all peculiarities of the
  *     service class, like field type support, supported features (like facets),
- *     the "direct" parse mode and other specific things to keep in mind.
+ *     the "direct" parse mode and other specific things to keep in mind. The
+ *     text can contain HTML.
  *   - class: The service class, which has to implement the
  *     SearchApiServiceInterface interface.
+ *
+ * @see hook_search_api_service_info_alter()
  */
 function hook_search_api_service_info() {
   $services['example_some'] = array(
@@ -49,13 +50,14 @@ function hook_search_api_service_info() {
  * Alter the Search API service info.
  *
  * Modules may implement this hook to alter the information that defines Search
- * API service. All properties that are available in
- * hook_search_api_service_info() can be altered here.
- *
- * @see hook_search_api_service_info()
+ * API services. All properties that are available in
+ * hook_search_api_service_info() can be altered here, with the addition of the
+ * "module" key specifying the module that originally defined the service class.
  *
  * @param array $service_info
  *   The Search API service info array, keyed by service id.
+ *
+ * @see hook_search_api_service_info()
  */
 function hook_search_api_service_info_alter(array &$service_info) {
   foreach ($service_info as $id => $info) {
@@ -95,6 +97,9 @@ function hook_search_api_service_info_alter(array &$service_info) {
  *   - datasource controller: A class implementing the
  *     SearchApiDataSourceControllerInterface interface which will be used as
  *     the data source controller for this type.
+ *   - entity_type: (optional) If the type represents entities, the entity type.
+ *     This is used by SearchApiAbstractDataSourceController for determining the
+ *     entity type of items. Other datasource controllers might ignore this.
  *   Other, datasource-specific settings might also be placed here. These should
  *   be specified with the data source controller in question.
  *
@@ -109,6 +114,7 @@ function hook_search_api_item_type_info() {
       $types[$type] = array(
         'name' => $info['label'],
         'datasource controller' => 'SearchApiEntityDataSourceController',
+        'entity_type' => $type,
       );
     }
   }
@@ -121,7 +127,8 @@ function hook_search_api_item_type_info() {
  *
  * Modules may implement this hook to alter the information that defines an
  * item type. All properties that are available in
- * hook_search_api_item_type_info() can be altered here.
+ * hook_search_api_item_type_info() can be altered here, with the addition of
+ * the "module" key specifying the module that originally defined the type.
  *
  * @param array $infos
  *   The item type info array, keyed by type identifier.
@@ -186,6 +193,8 @@ function hook_search_api_data_type_info_alter(array &$infos) {
 }
 
 /**
+ * Define available data alterations.
+ *
  * Registers one or more callbacks that can be called at index time to add
  * additional data to the indexed items (e.g. comments or attachments to nodes),
  * alter the data in other forms or remove items from the array.
@@ -218,6 +227,21 @@ function hook_search_api_alter_callback_info() {
   );
 
   return $callbacks;
+}
+
+/**
+ * Alter the available data alterations.
+ *
+ * @param array $callbacks
+ *   The callback information to be altered, keyed by callback IDs.
+ *
+ * @see hook_search_api_alter_callback_info()
+ */
+function hook_search_api_alter_callback_info_alter(array &$callbacks) {
+  if (!empty($callbacks['example_random_alter'])) {
+    $callbacks['example_random_alter']['name'] = t('Even more random alteration');
+    $callbacks['example_random_alter']['class'] = 'ExampleUltraRandomAlter';
+  }
 }
 
 /**
@@ -256,6 +280,20 @@ function hook_search_api_processor_info() {
 }
 
 /**
+ * Alter the available processors.
+ *
+ * @param array $processors
+ *   The processor information to be altered, keyed by processor IDs.
+ *
+ * @see hook_search_api_processor_info()
+ */
+function hook_search_api_processor_info_alter(array &$processors) {
+  if (!empty($processors['example_processor'])) {
+    $processors['example_processor']['weight'] = -20;
+  }
+}
+
+/**
  * Allows you to log or alter the items that are indexed.
  *
  * Please be aware that generally preventing the indexing of certain items is
@@ -279,14 +317,52 @@ function hook_search_api_index_items_alter(array &$items, SearchApiIndex $index)
 }
 
 /**
+ * Allows modules to react after items were indexed.
+ *
+ * @param SearchApiIndex $index
+ *   The used index.
+ * @param array $item_ids
+ *   An array containing the indexed items' IDs.
+ */
+function hook_search_api_items_indexed(SearchApiIndex $index, array $item_ids) {
+  if ($index->getEntityType() == 'node') {
+    // Flush page cache of the search page.
+    cache_clear_all(url('search'), 'cache_page');
+  }
+}
+
+/**
  * Lets modules alter a search query before executing it.
  *
  * @param SearchApiQueryInterface $query
- *   The SearchApiQueryInterface object representing the search query.
+ *   The search query being executed.
  */
 function hook_search_api_query_alter(SearchApiQueryInterface $query) {
-  $info = entity_get_info($index->item_type);
-  $query->condition($info['entity keys']['id'], 0, '!=');
+  // Exclude entities with ID 0. (Assume the ID field is always indexed.)
+  if ($query->getIndex()->getEntityType()) {
+    $info = entity_get_info($query->getIndex()->getEntityType());
+    $query->condition($info['entity keys']['id'], 0, '<>');
+  }
+}
+
+/**
+ * Alter the search results before they are returned.
+ *
+ * @param array $results
+ *   The results returned by the server, which may be altered. The data
+ *   structure is the same as returned by SearchApiQueryInterface::execute().
+ * @param SearchApiQueryInterface $query
+ *   The search query that was executed.
+ */
+function hook_search_api_results_alter(array &$results, SearchApiQueryInterface $query) {
+  if ($query->getOption('search id') == 'search_api_views:my_search_view:page') {
+    // Log the number of results.
+    $vars = array(
+      '@keys' => $query->getOriginalKeys(),
+      '@num' => $results['result count'],
+    );
+    watchdog('my_module', 'Search view with query "@keys" had @num results.', $vars, WATCHDOG_DEBUG);
+  }
 }
 
 /**
@@ -508,15 +584,15 @@ function hook_default_search_api_index_alter(array &$defaults) {
  * This function will be called for fields of the specific data type to convert
  * all individual values of the field to the correct format.
  *
- * @param $value
+ * @param mixed $value
  *   The raw, single value, as extracted from an entity wrapper.
- * @param $original_type
+ * @param string $original_type
  *   The original Entity API type of the value.
- * @param $type
+ * @param string $type
  *   The custom data type to which the value should be converted. Can be ignored
  *   if the callback is only used for a single data type.
  *
- * @return
+ * @return mixed|null
  *   The converted value, if a conversion could be executed. NULL otherwise.
  *
  * @see hook_search_api_data_type_info()
