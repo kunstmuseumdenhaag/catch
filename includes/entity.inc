@@ -684,6 +684,9 @@ class EntityFieldQuery {
 
   /**
    * Adds a condition on field values.
+   * 
+   * Note that entities with empty field values will be excluded from the
+   * EntityFieldQuery results when using this method.
    *
    * Note that entities with empty field values will be excluded from the
    * EntityFieldQuery results when using this method.

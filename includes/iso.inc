@@ -75,6 +75,7 @@ function _country_get_predefined_list() {
     'CO' => $t('Colombia'),
     'CR' => $t('Costa Rica'),
     'CU' => $t('Cuba'),
+    'CW' => $t('Curaçao'),
     'CV' => $t('Cape Verde'),
     'CW' => $t('Curaçao'),
     'CX' => $t('Christmas Island'),
