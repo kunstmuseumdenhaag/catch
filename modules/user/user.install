@@ -49,6 +49,9 @@ function user_schema() {
         'columns' => array('uid' => 'uid'),
       ),
     ),
+    'indexes' => array(
+      'uid_module' => array('uid', 'module'),
+    ),
   );
 
   $schema['role_permission'] = array(
@@ -81,7 +84,7 @@ function user_schema() {
     ),
     'foreign keys' => array(
       'role' => array(
-        'table' => 'roles',
+        'table' => 'role',
         'columns' => array('rid' => 'rid'),
       ),
     ),
@@ -179,6 +182,12 @@ function user_schema() {
         'default' => 0,
         'description' => 'Timestamp for when user was created.',
       ),
+      'changed' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Timestamp for when user was changed.',
+      ),
       'access' => array(
         'type' => 'int',
         'not null' => TRUE,
@@ -235,6 +244,7 @@ function user_schema() {
     'indexes' => array(
       'access' => array('access'),
       'created' => array('created'),
+      'changed' => array('changed'),
       'mail' => array('mail'),
       'picture' => array('picture'),
     ),
@@ -278,7 +288,7 @@ function user_schema() {
         'columns' => array('uid' => 'uid'),
       ),
       'role' => array(
-        'table' => 'roles',
+        'table' => 'role',
         'columns' => array('rid' => 'rid'),
       ),
     ),
@@ -309,6 +319,7 @@ function user_install() {
       'name' => 'placeholder-for-uid-1',
       'mail' => 'placeholder-for-uid-1',
       'created' => REQUEST_TIME,
+      'changed' => REQUEST_TIME,
       'status' => 1,
       'data' => NULL,
     ))
@@ -356,11 +367,13 @@ function user_update_dependencies() {
     'filter' => 7000,
   );
 
-  // user_update_7012() uses the file API, which relies on the {file_managed}
-  // table, so it must run after system_update_7034(), which creates that
-  // table.
+  // user_update_7012() uses the file API and inserts records into the
+  // {file_managed} table, so it therefore must run after system_update_7061(),
+  // which inserts files with specific IDs into the table and therefore relies
+  // on the table being empty (otherwise it would accidentally overwrite
+  // existing records).
   $dependencies['user'][7012] = array(
-    'system' => 7034,
+    'system' => 7061,
   );
 
   // user_update_7013() uses the file usage API, which relies on the
@@ -384,7 +397,7 @@ function user_update_dependencies() {
  *   An array of permissions names.
  * @param $module
  *   The name of the module defining the permissions.
- * @ingroup update-api-6.x-to-7.x
+ * @ingroup update_api
  */
 function _update_7000_user_role_grant_permissions($rid, array $permissions, $module) {
   // Grant new permissions for the role.
@@ -535,7 +548,7 @@ function user_update_7002(&$sandbox) {
     if ($sandbox['user_from'] == $sandbox['user_count']) {
       if ($sandbox['user_not_migrated'] > 0) {
         variable_set('empty_timezone_message', 1);
-        drupal_set_message('Some user time zones have been emptied and need to be set to the correct values. Use the new ' . l('time zone options', 'admin/config/regional/settings') . ' to choose whether to remind users at login to set the correct time zone.', 'warning');
+        drupal_set_message(format_string('Some user time zones have been emptied and need to be set to the correct values. Use the new <a href="@config-url">time zone options</a> to choose whether to remind users at login to set the correct time zone.', array('@config-url' => url('admin/config/regional/settings'))), 'warning');
       }
       return t('Migrated user time zones');
     }
@@ -908,6 +921,54 @@ function user_update_7018() {
   }
 }
 
+/**
+ * Ensure there is a combined index on {authmap}.uid and {authmap}.module.
+ */
+function user_update_7019() {
+  // Check first in case it was already added manually.
+  if (!db_index_exists('authmap', 'uid_module')) {
+    db_add_index('authmap', 'uid_module', array('uid', 'module'));
+  }
+}
+
+/**
+ * Add changed field to users table.
+ */
+function user_update_7020() {
+  // The "changed" column was renamed to "access" in system_update_136(), and
+  // the "changed" index on "access" column may persist on old MySQL databases.
+  if (db_index_exists('users', 'changed')) {
+    if (!db_index_exists('users', 'access')) {
+      db_add_index('users', 'access', array('access'));
+    }
+    db_drop_index('users', 'changed');
+  }
+
+  $spec = array(
+    'type' => 'int',
+    'not null' => TRUE,
+    'default' => 0,
+    'description' => 'Timestamp for when user was changed.',
+  );
+  $keys = array(
+    'indexes' => array(
+      'changed' => array('changed'),
+    ),
+  );
+  // In some cases sites have added the changed field themselves e.g. via a
+  // contrib or custom module. Ensure the field uses core's new schema.
+  if (db_field_exists('users', 'changed')) {
+    db_change_field('users', 'changed', 'changed', $spec, $keys);
+  }
+  else {
+    db_add_field('users', 'changed', $spec, $keys);
+    // Set the initial value for existing users.
+    db_update('users')
+      ->expression('changed', 'created')
+      ->execute();
+  }
+
+}
 /**
  * @} End of "addtogroup updates-7.x-extra".
  */

@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Content type editing UI.
+ * Content type editing user interface.
  */
 
 /**
@@ -11,7 +11,7 @@
 function node_overview_types() {
   $types = node_type_get_types();
   $names = node_type_get_names();
-  $field_ui = module_exists('field_ui');
+  $field_ui = module_exists('field_ui') && user_access('administer fields');
   $header = array(t('Name'), array('data' => t('Operations'), 'colspan' => $field_ui ? '4' : '2'));
   $rows = array();
 
@@ -255,11 +255,11 @@ function _node_characters($length) {
  */
 function node_type_form_validate($form, &$form_state) {
   $type = new stdClass();
-  $type->type = trim($form_state['values']['type']);
+  $type->type = $form_state['values']['type'];
   $type->name = trim($form_state['values']['name']);
 
   // Work out what the type was before the user submitted this form
-  $old_type = trim($form_state['values']['old_type']);
+  $old_type = $form_state['values']['old_type'];
 
   $types = node_type_get_names();
 
@@ -288,7 +288,7 @@ function node_type_form_submit($form, &$form_state) {
 
   $type = node_type_set_defaults();
 
-  $type->type = trim($form_state['values']['type']);
+  $type->type = $form_state['values']['type'];
   $type->name = trim($form_state['values']['name']);
   $type->orig_type = trim($form_state['values']['orig_type']);
   $type->old_type = isset($form_state['values']['old_type']) ? $form_state['values']['old_type'] : $type->type;
@@ -388,8 +388,7 @@ function node_node_type_update($info) {
 }
 
 /**
- * Resets all of the relevant fields of a module-defined node type to their
- * default values.
+ * Resets relevant fields of a module-defined node type to their default values.
  *
  * @param $type
  *   The node type to reset. The node type is passed back by reference with its
@@ -410,26 +409,32 @@ function node_type_reset($type) {
 
 /**
  * Menu callback; delete a single content type.
+ *
+ * @ingroup forms
  */
 function node_type_delete_confirm($form, &$form_state, $type) {
   $form['type'] = array('#type' => 'value', '#value' => $type->type);
   $form['name'] = array('#type' => 'value', '#value' => $type->name);
 
   $message = t('Are you sure you want to delete the content type %type?', array('%type' => $type->name));
-  $caption = '';
 
   $num_nodes = db_query("SELECT COUNT(*) FROM {node} WHERE type = :type", array(':type' => $type->type))->fetchField();
   if ($num_nodes) {
-    $caption .= '<p>' . format_plural($num_nodes, '%type is used by 1 piece of content on your site. If you remove this content type, you will not be able to edit the %type content and it may not display correctly.', '%type is used by @count pieces of content on your site. If you remove %type, you will not be able to edit the %type content and it may not display correctly.', array('%type' => $type->name)) . '</p>';
+    drupal_set_title($message, PASS_THROUGH);
+    $caption = '<p>' . format_plural($num_nodes, '%type is used by 1 piece of content on your site. You cannot remove this content type until you have removed all of the %type content.', '%type is used by @count pieces of content on your site. You cannot remove this content type until you have removed all of the %type content.', array('%type' => $type->name)) . '</p>';
+    $form['description'] = array('#markup' => $caption);
+    return $form;
   }
 
-  $caption .= '<p>' . t('This action cannot be undone.') . '</p>';
+  $caption = '<p>' . t('This action cannot be undone.') . '</p>';
 
   return confirm_form($form, $message, 'admin/structure/types', $caption, t('Delete'));
 }
 
 /**
  * Process content type delete confirm submissions.
+ *
+ * @see node_type_delete_confirm()
  */
 function node_type_delete_confirm_submit($form, &$form_state) {
   node_type_delete($form_state['values']['type']);

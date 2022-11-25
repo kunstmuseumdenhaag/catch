@@ -40,9 +40,30 @@ abstract class DrupalTestCase {
   protected $originalFileDirectory = NULL;
 
   /**
+   * URL to the verbose output file directory.
+   *
+   * @var string
+   */
+  protected $verboseDirectoryUrl;
+
+  /**
    * Time limit for the test.
    */
   protected $timeLimit = 500;
+
+  /**
+   * Whether to cache the installation part of the setUp() method.
+   *
+   * @var bool
+   */
+  public $useSetupInstallationCache = FALSE;
+
+  /**
+   * Whether to cache the modules installation part of the setUp() method.
+   *
+   * @var bool
+   */
+  public $useSetupModulesCache = FALSE;
 
   /**
    * Current results of this test case.
@@ -143,15 +164,7 @@ abstract class DrupalTestCase {
     );
 
     // Store assertion for display after the test has completed.
-    try {
-      $connection = Database::getConnection('default', 'simpletest_original_default');
-    }
-    catch (DatabaseConnectionNotDefinedException $e) {
-      // If the test was not set up, the simpletest_original_default
-      // connection does not exist.
-      $connection = Database::getConnection('default', 'default');
-    }
-    $connection
+    self::getDatabaseConnection()
       ->insert('simpletest')
       ->fields($assertion)
       ->execute();
@@ -164,6 +177,25 @@ abstract class DrupalTestCase {
     else {
       return FALSE;
     }
+  }
+
+  /**
+   * Returns the database connection to the site running Simpletest.
+   *
+   * @return DatabaseConnection
+   *   The database connection to use for inserting assertions.
+   */
+  public static function getDatabaseConnection() {
+    try {
+      $connection = Database::getConnection('default', 'simpletest_original_default');
+    }
+    catch (DatabaseConnectionNotDefinedException $e) {
+      // If the test was not set up, the simpletest_original_default
+      // connection does not exist.
+      $connection = Database::getConnection('default', 'default');
+    }
+
+    return $connection;
   }
 
   /**
@@ -205,7 +237,8 @@ abstract class DrupalTestCase {
       'file' => $caller['file'],
     );
 
-    return db_insert('simpletest')
+    return self::getDatabaseConnection()
+      ->insert('simpletest')
       ->fields($assertion)
       ->execute();
   }
@@ -221,7 +254,8 @@ abstract class DrupalTestCase {
    * @see DrupalTestCase::insertAssert()
    */
   public static function deleteAssert($message_id) {
-    return (bool) db_delete('simpletest')
+    return (bool) self::getDatabaseConnection()
+      ->delete('simpletest')
       ->condition('message_id', $message_id)
       ->execute();
   }
@@ -435,10 +469,10 @@ abstract class DrupalTestCase {
   }
 
   /**
-   * Logs verbose message in a text file.
+   * Logs a verbose message in a text file.
    *
-   * The a link to the vebose message will be placed in the test results via
-   * as a passing assertion with the text '[verbose message]'.
+   * The link to the verbose message will be placed in the test results as a
+   * passing assertion with the text '[verbose message]'.
    *
    * @param $message
    *   The verbose message to be stored.
@@ -447,8 +481,12 @@ abstract class DrupalTestCase {
    */
   protected function verbose($message) {
     if ($id = simpletest_verbose($message)) {
-      $url = file_create_url($this->originalFileDirectory . '/simpletest/verbose/' . get_class($this) . '-' . $id . '.html');
-      $this->error(l(t('Verbose message'), $url, array('attributes' => array('target' => '_blank'))), 'User notice');
+      $class_safe = str_replace('\\', '_', get_class($this));
+      $url = $this->verboseDirectoryUrl . '/' . $class_safe . '-' . $id . '.html';
+      // Not using l() to avoid invoking the theme system, so that unit tests
+      // can use verbose() as well.
+      $link = '<a href="' . $url . '" target="_blank">' . t('Verbose message') . '</a>';
+      $this->error($link, 'User notice');
     }
   }
 
@@ -466,7 +504,8 @@ abstract class DrupalTestCase {
    */
   public function run(array $methods = array()) {
     // Initialize verbose debugging.
-    simpletest_verbose(NULL, variable_get('file_public_path', conf_path() . '/files'), get_class($this));
+    $class = get_class($this);
+    simpletest_verbose(NULL, variable_get('file_public_path', conf_path() . '/files'), str_replace('\\', '_', $class));
 
     // HTTP auth settings (<username>:<password>) for the simpletest browser
     // when sending requests to the test site.
@@ -478,7 +517,6 @@ abstract class DrupalTestCase {
     }
 
     set_error_handler(array($this, 'errorHandler'));
-    $class = get_class($this);
     // Iterate through all the methods in this class, unless a specific list of
     // methods to run was passed.
     $class_methods = get_class_methods($class);
@@ -539,6 +577,15 @@ abstract class DrupalTestCase {
         E_USER_NOTICE => 'User notice',
         E_RECOVERABLE_ERROR => 'Recoverable error',
       );
+
+      // PHP 5.3 adds new error logging constants. Add these conditionally for
+      // backwards compatibility with PHP 5.2.
+      if (defined('E_DEPRECATED')) {
+        $error_map += array(
+          E_DEPRECATED => 'Deprecated',
+          E_USER_DEPRECATED => 'User deprecated',
+        );
+      }
 
       $backtrace = debug_backtrace();
       $this->error($message, $error_map[$severity], _drupal_get_last_caller($backtrace));
@@ -632,7 +679,7 @@ abstract class DrupalTestCase {
    *   'one' => array(0, 1),
    *   'two' => array(2, 3),
    * );
-   * $permutations = $this->permute($parameters);
+   * $permutations = DrupalTestCase::generatePermutations($parameters)
    * // Result:
    * $permutations == array(
    *   array('one' => 0, 'two' => 2),
@@ -696,10 +743,17 @@ class DrupalUnitTestCase extends DrupalTestCase {
    * method.
    */
   protected function setUp() {
-    global $conf;
+    global $conf, $language;
 
     // Store necessary current values before switching to the test environment.
     $this->originalFileDirectory = variable_get('file_public_path', conf_path() . '/files');
+    $this->verboseDirectoryUrl = file_create_url($this->originalFileDirectory . '/simpletest/verbose');
+
+    // Set up English language.
+    $this->originalLanguage = $language;
+    $this->originalLanguageDefault = variable_get('language_default');
+    unset($conf['language_default']);
+    $language = language_default();
 
     // Reset all statics so that test is performed with a clean environment.
     drupal_static_reset();
@@ -729,6 +783,10 @@ class DrupalUnitTestCase extends DrupalTestCase {
     // subsequently will fail as the database is not accessible.
     $module_list = module_list();
     if (isset($module_list['locale'])) {
+      // Transform the list into the format expected as input to module_list().
+      foreach ($module_list as &$module) {
+        $module = array('filename' => drupal_get_filename('module', $module));
+      }
       $this->originalModuleList = $module_list;
       unset($module_list['locale']);
       module_list(TRUE, FALSE, FALSE, $module_list);
@@ -737,7 +795,7 @@ class DrupalUnitTestCase extends DrupalTestCase {
   }
 
   protected function tearDown() {
-    global $conf;
+    global $conf, $language;
 
     // Get back to the original connection.
     Database::removeConnection('default');
@@ -747,6 +805,12 @@ class DrupalUnitTestCase extends DrupalTestCase {
     // Restore modules if necessary.
     if (isset($this->originalModuleList)) {
       module_list(TRUE, FALSE, FALSE, $this->originalModuleList);
+    }
+
+    // Reset language.
+    $language = $this->originalLanguage;
+    if ($this->originalLanguageDefault) {
+      $GLOBALS['conf']['language_default'] = $this->originalLanguageDefault;
     }
   }
 }
@@ -825,6 +889,13 @@ class DrupalWebTestCase extends DrupalTestCase {
    * but we still need cookie handling, so we set the jar to NULL.
    */
   protected $cookieFile = NULL;
+
+  /**
+   * The cookies of the page currently loaded in the internal browser.
+   *
+   * @var array
+   */
+  protected $cookies = array();
 
   /**
    * Additional cURL options.
@@ -915,7 +986,6 @@ class DrupalWebTestCase extends DrupalTestCase {
   protected function drupalCreateNode($settings = array()) {
     // Populate defaults array.
     $settings += array(
-      'body'      => array(LANGUAGE_NONE => array(array())),
       'title'     => $this->randomName(8),
       'comment'   => 2,
       'changed'   => REQUEST_TIME,
@@ -928,6 +998,12 @@ class DrupalWebTestCase extends DrupalTestCase {
       'type'      => 'page',
       'revisions' => NULL,
       'language'  => LANGUAGE_NONE,
+    );
+
+    // Add the body after the language is defined so that it may be set
+    // properly.
+    $settings += array(
+      'body' => array($settings['language'] => array(array())),
     );
 
     // Use the original node's created time for existing nodes.
@@ -988,9 +1064,7 @@ class DrupalWebTestCase extends DrupalTestCase {
       'description' => '',
       'help' => '',
       'title_label' => 'Title',
-      'body_label' => 'Body',
       'has_title' => 1,
-      'has_body' => 1,
     );
     // Imposed values for a custom type.
     $forced = array(
@@ -1040,7 +1114,7 @@ class DrupalWebTestCase extends DrupalTestCase {
       $lines = array(16, 256, 1024, 2048, 20480);
       $count = 0;
       foreach ($lines as $line) {
-        simpletest_generate_file('text-' . $count++, 64, $line);
+        simpletest_generate_file('text-' . $count++, 64, $line, 'text');
       }
 
       // Copy other test files from simpletest.
@@ -1131,7 +1205,7 @@ class DrupalWebTestCase extends DrupalTestCase {
   }
 
   /**
-   * Internal helper function; Create a role with specified permissions.
+   * Creates a role with specified permissions.
    *
    * @param $permissions
    *   Array of permission names to assign to role.
@@ -1217,28 +1291,28 @@ class DrupalWebTestCase extends DrupalTestCase {
    *   $account->pass_raw = $pass_raw;
    * @endcode
    *
-   * @param $user
+   * @param $account
    *   User object representing the user to log in.
    *
    * @see drupalCreateUser()
    */
-  protected function drupalLogin(stdClass $user) {
+  protected function drupalLogin(stdClass $account) {
     if ($this->loggedInUser) {
       $this->drupalLogout();
     }
 
     $edit = array(
-      'name' => $user->name,
-      'pass' => $user->pass_raw
+      'name' => $account->name,
+      'pass' => $account->pass_raw
     );
     $this->drupalPost('user', $edit, t('Log in'));
 
     // If a "log out" link appears on the page, it is almost certainly because
     // the login was successful.
-    $pass = $this->assertLink(t('Log out'), 0, t('User %name successfully logged in.', array('%name' => $user->name)), t('User login'));
+    $pass = $this->assertLink(t('Log out'), 0, t('User %name successfully logged in.', array('%name' => $account->name)), t('User login'));
 
     if ($pass) {
-      $this->loggedInUser = $user;
+      $this->loggedInUser = $account;
     }
   }
 
@@ -1337,12 +1411,14 @@ class DrupalWebTestCase extends DrupalTestCase {
    * @see DrupalWebTestCase::tearDown()
    */
   protected function prepareEnvironment() {
-    global $user, $language, $conf;
+    global $user, $language, $language_url, $conf;
 
     // Store necessary current values before switching to prefixed database.
     $this->originalLanguage = $language;
+    $this->originalLanguageUrl = $language_url;
     $this->originalLanguageDefault = variable_get('language_default');
     $this->originalFileDirectory = variable_get('file_public_path', conf_path() . '/files');
+    $this->verboseDirectoryUrl = file_create_url($this->originalFileDirectory . '/simpletest/verbose');
     $this->originalProfile = drupal_get_profile();
     $this->originalCleanUrl = variable_get('clean_url', 0);
     $this->originalUser = $user;
@@ -1350,7 +1426,7 @@ class DrupalWebTestCase extends DrupalTestCase {
     // Set to English to prevent exceptions from utf8_truncate() from t()
     // during install if the current language is not 'en'.
     // The following array/object conversion is copied from language_default().
-    $language = (object) array('language' => 'en', 'name' => 'English', 'native' => 'English', 'direction' => 0, 'enabled' => 1, 'plurals' => 0, 'formula' => '', 'domain' => '', 'prefix' => '', 'weight' => 0, 'javascript' => '');
+    $language_url = $language = (object) array('language' => 'en', 'name' => 'English', 'native' => 'English', 'direction' => 0, 'enabled' => 1, 'plurals' => 0, 'formula' => '', 'domain' => '', 'prefix' => '', 'weight' => 0, 'javascript' => '');
 
     // Save and clean the shutdown callbacks array because it is static cached
     // and will be changed by the test run. Otherwise it will contain callbacks
@@ -1387,6 +1463,159 @@ class DrupalWebTestCase extends DrupalTestCase {
   }
 
   /**
+   * Copies the cached tables and files for a cached installation setup.
+   *
+   * @param string $cache_key_prefix
+   *   (optional) Additional prefix for the cache key.
+   *
+   * @return bool
+   *   TRUE when the cache was usable and loaded, FALSE when cache was not
+   *   available.
+   *
+   * @see DrupalWebTestCase::setUp()
+   */
+  protected function loadSetupCache($cache_key_prefix = '') {
+    $cache_key = $this->getSetupCacheKey($cache_key_prefix);
+    $cache_file = $this->originalFileDirectory . '/simpletest/' . $cache_key . '/simpletest-cache-setup';
+
+    if (file_exists($cache_file)) {
+      return $this->copySetupCache($cache_key, substr($this->databasePrefix, 10));
+    }
+
+    return FALSE;
+  }
+
+  /**
+   * Returns the cache key used for the setup caching.
+   *
+   * @param string $cache_key_prefix
+   *   (optional) Additional prefix for the cache key.
+   *
+   * @return string
+   *   The cache key to use, by default only based on the profile used by the
+   *   test.
+   */
+  protected function getSetupCacheKey($cache_key_prefix = '') {
+    // The cache key needs to start with a numeric character, so that the cached
+    // installation gets cleaned up properly.
+    $cache_key_prefix = hash('crc32b', $cache_key_prefix . $this->profile);
+    return '1c' . $cache_key_prefix;
+  }
+
+  /**
+   * Store the installation setup to a cache.
+   *
+   * @param string $cache_key_prefix
+   *   (optional) Additional prefix for the cache key.
+   *
+   * @return bool
+   *   TRUE if the installation was stored in the cache, FALSE otherwise.
+   */
+  protected function storeSetupCache($cache_key_prefix = '') {
+    $cache_key = $this->getSetupCacheKey($cache_key_prefix);
+    $lock_key = 'simpletest_store_cache_' . $cache_key . '_' . $this->testId;
+
+    // All concurrent tests share the same test id. Therefore it is possible to
+    // use the lock to ensure that only one process will store the cache. This
+    // is important as else DB tables created by one process could be deleted
+    // by another as the cache copying is idempotent.
+    if (! lock_acquire($lock_key)) {
+      return FALSE;
+    }
+
+    // Try to copy the installation to the setup cache - now that we have a
+    // lock to do so.
+    if (!$this->copySetupCache(substr($this->databasePrefix, 10), $cache_key)) {
+      // It is non-fatal if the cache cannot be copied as the next test run
+      // will try it again.
+      $this->assert('debug', t('Storing cache with key @key failed', array('@key' => $cache_key)), 'storeSetupCache');
+
+      lock_release($lock_key);
+      return FALSE;
+    }
+
+    // Inform others that this cache is usable now.
+    $cache_file = $this->originalFileDirectory . '/simpletest/' . $cache_key . '/simpletest-cache-setup';
+    file_put_contents($cache_file, time());
+
+    lock_release($lock_key);
+    return TRUE;
+  }
+
+  /**
+   * Copy the setup cache from/to another table and files directory.
+   *
+   * @param string $from
+   *   The prefix_id / cache_key from where to copy.
+   * @param string $to
+   *   The prefix_id / cache_key to where to copy.
+   *
+   * @return bool
+   *   TRUE if the setup cache was copied to the current installation, FALSE
+   *   otherwise.
+   */
+  protected function copySetupCache($from, $to) {
+    $from_prefix = 'simpletest' . $from;
+    $to_prefix = 'simpletest' . $to;
+
+    try {
+       $tables = db_query("SHOW TABLES LIKE :prefix", array(':prefix' => db_like($from_prefix) . '%' ))->fetchCol();
+
+       if (count($tables) == 0) {
+         return FALSE;
+       }
+
+       foreach ($tables as $from_table) {
+         $table = substr($from_table, strlen($from_prefix));
+         $to_table = $to_prefix . $table;
+
+         // Remove the table in case the copying process was interrupted.
+         db_query('DROP TABLE IF EXISTS ' . $to_table);
+         db_query('CREATE TABLE ' . $to_table . ' LIKE ' . $from_table);
+         db_query('ALTER TABLE ' . $to_table . ' DISABLE KEYS');
+         db_query('INSERT ' . $to_table . ' SELECT * FROM ' . $from_table);
+         db_query('ALTER TABLE ' . $to_table . ' ENABLE KEYS');
+       }
+    }
+    catch (Exception $e) {
+      return FALSE;
+    }
+
+    $from_dir = $this->originalFileDirectory . '/simpletest/' . $from;
+    $to_dir = $this->originalFileDirectory . '/simpletest/' . $to;
+    $this->recursiveDirectoryCopy($from_dir, $to_dir);
+
+    return TRUE;
+  }
+
+  /**
+   * Recursively copy one directory to another.
+   *
+   * @param $src
+   *   The source directory.
+   * @param $dest
+   *   The destination directory.
+   */
+  protected function recursiveDirectoryCopy($src, $dst) {
+    $dir = opendir($src);
+
+    if (!file_exists($dst)){
+      mkdir($dst);
+    }
+    while (($file = readdir($dir)) !== FALSE) {
+      if ($file != '.' && $file != '..') {
+        if (is_dir($src . '/' . $file)) {
+          $this->recursiveDirectoryCopy($src . '/' . $file, $dst . '/' . $file);
+        }
+        else {
+          copy($src . '/' . $file, $dst . '/' . $file);
+        }
+      }
+    }
+    closedir($dir);
+  }
+
+  /**
    * Sets up a Drupal site for running functional and integration tests.
    *
    * Generates a random database prefix and installs Drupal with the specified
@@ -1408,7 +1637,7 @@ class DrupalWebTestCase extends DrupalTestCase {
    * @see DrupalWebTestCase::prepareEnvironment()
    */
   protected function setUp() {
-    global $user, $language, $conf;
+    global $user, $language, $language_url, $conf;
 
     // Create the database prefix for this test.
     $this->prepareDatabasePrefix();
@@ -1439,57 +1668,108 @@ class DrupalWebTestCase extends DrupalTestCase {
     // profile's hook_install() and other hook implementations are never invoked.
     $conf['install_profile'] = $this->profile;
 
-    // Perform the actual Drupal installation.
-    include_once DRUPAL_ROOT . '/includes/install.inc';
-    drupal_install_system();
+    $has_installation_cache = FALSE;
+    $has_modules_cache = FALSE;
 
-    $this->preloadRegistry();
+    if ($this->useSetupModulesCache) {
+      $modules = func_get_args();
+      // Modules can be either one parameter or multiple.
+      if (isset($modules[0]) && is_array($modules[0])) {
+        $modules = $modules[0];
+      }
+      $modules = array_unique($modules);
+      sort($modules);
 
-    // Set path variables.
-    variable_set('file_public_path', $this->public_files_directory);
-    variable_set('file_private_path', $this->private_files_directory);
-    variable_set('file_temporary_path', $this->temp_files_directory);
-
-    // Set the 'simpletest_parent_profile' variable to add the parent profile's
-    // search path to the child site's search paths.
-    // @see drupal_system_listing()
-    // @todo This may need to be primed like 'install_profile' above.
-    variable_set('simpletest_parent_profile', $this->originalProfile);
-
-    // Include the testing profile.
-    variable_set('install_profile', $this->profile);
-    $profile_details = install_profile_info($this->profile, 'en');
-
-    // Install the modules specified by the testing profile.
-    module_enable($profile_details['dependencies'], FALSE);
-
-    // Install modules needed for this test. This could have been passed in as
-    // either a single array argument or a variable number of string arguments.
-    // @todo Remove this compatibility layer in Drupal 8, and only accept
-    // $modules as a single array argument.
-    $modules = func_get_args();
-    if (isset($modules[0]) && is_array($modules[0])) {
-      $modules = $modules[0];
-    }
-    if ($modules) {
-      $success = module_enable($modules, TRUE);
-      $this->assertTrue($success, t('Enabled modules: %modules', array('%modules' => implode(', ', $modules))));
+      $modules_cache_key_prefix = hash('crc32b', serialize($modules)) . '_';
+      $has_modules_cache = $this->loadSetupCache($modules_cache_key_prefix);
     }
 
-    // Run the profile tasks.
-    $install_profile_module_exists = db_query("SELECT 1 FROM {system} WHERE type = 'module' AND name = :name", array(
-      ':name' => $this->profile,
-    ))->fetchField();
-    if ($install_profile_module_exists) {
-      module_enable(array($this->profile), FALSE);
+    if (!$has_modules_cache && $this->useSetupInstallationCache) {
+      $has_installation_cache = $this->loadSetupCache();
     }
 
-    // Reset/rebuild all data structures after enabling the modules.
-    $this->resetAll();
+    if ($has_modules_cache || $has_installation_cache) {
+      // Reset path variables.
+      variable_set('file_public_path', $this->public_files_directory);
+      variable_set('file_private_path', $this->private_files_directory);
+      variable_set('file_temporary_path', $this->temp_files_directory);
+      $this->refreshVariables();
 
-    // Run cron once in that environment, as install.php does at the end of
-    // the installation process.
-    drupal_cron_run();
+      // Load all enabled modules
+      module_load_all();
+
+      $this->pass(t('Using cache: @cache (@key)', array(
+        '@cache' => $has_modules_cache ? t('Modules Cache') : t('Installation Cache'),
+        '@key' => $this->getSetupCacheKey($has_modules_cache ? $modules_cache_key_prefix : ''),
+      )));
+    }
+    else {
+      // Perform the actual Drupal installation.
+      include_once DRUPAL_ROOT . '/includes/install.inc';
+      drupal_install_system();
+
+      $this->preloadRegistry();
+
+      // Set path variables.
+      variable_set('file_public_path', $this->public_files_directory);
+      variable_set('file_private_path', $this->private_files_directory);
+      variable_set('file_temporary_path', $this->temp_files_directory);
+
+      // Set the 'simpletest_parent_profile' variable to add the parent profile's
+      // search path to the child site's search paths.
+      // @see drupal_system_listing()
+      // @todo This may need to be primed like 'install_profile' above.
+      variable_set('simpletest_parent_profile', $this->originalProfile);
+
+      // Include the testing profile.
+      variable_set('install_profile', $this->profile);
+      $profile_details = install_profile_info($this->profile, 'en');
+
+      // Install the modules specified by the testing profile.
+      module_enable($profile_details['dependencies'], FALSE);
+
+      if ($this->useSetupInstallationCache) {
+        $this->storeSetupCache();
+      }
+    }
+
+    if (!$has_modules_cache) {
+      // Install modules needed for this test. This could have been passed in as
+      // either a single array argument or a variable number of string arguments.
+      // @todo Remove this compatibility layer in Drupal 8, and only accept
+      // $modules as a single array argument.
+      $modules = func_get_args();
+      if (isset($modules[0]) && is_array($modules[0])) {
+        $modules = $modules[0];
+      }
+      if ($modules) {
+        $success = module_enable($modules, TRUE);
+        $this->assertTrue($success, t('Enabled modules: %modules', array('%modules' => implode(', ', $modules))));
+      }
+
+      // Run the profile tasks.
+      $install_profile_module_exists = db_query("SELECT 1 FROM {system} WHERE type = 'module' AND name = :name", array(
+        ':name' => $this->profile,
+      ))->fetchField();
+      if ($install_profile_module_exists) {
+        module_enable(array($this->profile), FALSE);
+      }
+
+      // Reset/rebuild all data structures after enabling the modules.
+      $this->resetAll();
+
+      // Run cron once in that environment, as install.php does at the end of
+      // the installation process.
+      drupal_cron_run();
+
+      if ($this->useSetupModulesCache) {
+        $this->storeSetupCache($modules_cache_key_prefix);
+      }
+    }
+    else {
+      // Reset/rebuild all data structures after enabling the modules.
+      $this->resetAll();
+    }
 
     // Ensure that the session is not written to the new environment and replace
     // the global $user session with uid 1 from the new test site.
@@ -1505,7 +1785,7 @@ class DrupalWebTestCase extends DrupalTestCase {
 
     // Set up English language.
     unset($conf['language_default']);
-    $language = language_default();
+    $language_url = $language = language_default();
 
     // Use the test mail class instead of the default mail handler class.
     variable_set('mail_system', array('default-system' => 'TestingMailSystem'));
@@ -1599,7 +1879,7 @@ class DrupalWebTestCase extends DrupalTestCase {
    * and reset the database prefix.
    */
   protected function tearDown() {
-    global $user, $language;
+    global $user, $language, $language_url;
 
     // In case a fatal error occurred that was not in the test process read the
     // log to pick up any fatal errors.
@@ -1615,15 +1895,12 @@ class DrupalWebTestCase extends DrupalTestCase {
     file_unmanaged_delete_recursive($this->originalFileDirectory . '/simpletest/' . substr($this->databasePrefix, 10));
 
     // Remove all prefixed tables.
-    $tables = db_find_tables($this->databasePrefix . '%');
-    $connection_info = Database::getConnectionInfo('default');
-    $tables = db_find_tables($connection_info['default']['prefix']['default'] . '%');
+    $tables = db_find_tables_d8('%');
     if (empty($tables)) {
       $this->fail('Failed to find test tables to drop.');
     }
-    $prefix_length = strlen($connection_info['default']['prefix']['default']);
     foreach ($tables as $table) {
-      if (db_drop_table(substr($table, $prefix_length))) {
+      if (db_drop_table($table)) {
         unset($tables[$table]);
       }
     }
@@ -1631,8 +1908,14 @@ class DrupalWebTestCase extends DrupalTestCase {
       $this->fail('Failed to drop all prefixed tables.');
     }
 
+    // In PHP 8 some tests encounter problems when shutdown code tries to
+    // access the database connection after it's been explicitly closed, for
+    // example the destructor of DrupalCacheArray. We avoid this by not fully
+    // destroying the test database connection.
+    $close = \PHP_VERSION_ID < 80000;
+
     // Get back to the original connection.
-    Database::removeConnection('default');
+    Database::removeConnection('default', $close);
     Database::renameConnection('simpletest_original_default', 'default');
 
     // Restore original shutdown callbacks array to prevent original
@@ -1664,12 +1947,15 @@ class DrupalWebTestCase extends DrupalTestCase {
 
     // Reset language.
     $language = $this->originalLanguage;
+    $language_url = $this->originalLanguageUrl;
     if ($this->originalLanguageDefault) {
       $GLOBALS['conf']['language_default'] = $this->originalLanguageDefault;
     }
 
-    // Close the CURL handler.
+    // Close the CURL handler and reset the cookies array so test classes
+    // containing multiple tests are not polluted.
     $this->curlClose();
+    $this->cookies = array();
   }
 
   /**
@@ -1685,13 +1971,20 @@ class DrupalWebTestCase extends DrupalTestCase {
 
     if (!isset($this->curlHandle)) {
       $this->curlHandle = curl_init();
+
+      // Some versions/configurations of cURL break on a NULL cookie jar, so
+      // supply a real file.
+      if (empty($this->cookieFile)) {
+        $this->cookieFile = $this->public_files_directory . '/cookie.jar';
+      }
+
       $curl_options = array(
         CURLOPT_COOKIEJAR => $this->cookieFile,
         CURLOPT_URL => $base_url,
         CURLOPT_FOLLOWLOCATION => FALSE,
         CURLOPT_RETURNTRANSFER => TRUE,
-        CURLOPT_SSL_VERIFYPEER => FALSE, // Required to make the tests run on https.
-        CURLOPT_SSL_VERIFYHOST => FALSE, // Required to make the tests run on https.
+        CURLOPT_SSL_VERIFYPEER => FALSE, // Required to make the tests run on HTTPS.
+        CURLOPT_SSL_VERIFYHOST => FALSE, // Required to make the tests run on HTTPS.
         CURLOPT_HEADERFUNCTION => array(&$this, 'curlHeaderCallback'),
         CURLOPT_USERAGENT => $this->databasePrefix,
       );
@@ -1699,7 +1992,12 @@ class DrupalWebTestCase extends DrupalTestCase {
         $curl_options[CURLOPT_HTTPAUTH] = $this->httpauth_method;
         $curl_options[CURLOPT_USERPWD] = $this->httpauth_credentials;
       }
-      curl_setopt_array($this->curlHandle, $this->additionalCurlOptions + $curl_options);
+      // curl_setopt_array() returns FALSE if any of the specified options
+      // cannot be set, and stops processing any further options.
+      $result = curl_setopt_array($this->curlHandle, $this->additionalCurlOptions + $curl_options);
+      if (!$result) {
+        throw new Exception('One or more cURL options could not be set.');
+      }
 
       // By default, the child session name should be the same as the parent.
       $this->session_name = session_name();
@@ -1730,14 +2028,24 @@ class DrupalWebTestCase extends DrupalTestCase {
   protected function curlExec($curl_options, $redirect = FALSE) {
     $this->curlInitialize();
 
-    // cURL incorrectly handles URLs with a fragment by including the
-    // fragment in the request to the server, causing some web servers
-    // to reject the request citing "400 - Bad Request". To prevent
-    // this, we strip the fragment from the request.
-    // TODO: Remove this for Drupal 8, since fixed in curl 7.20.0.
-    if (!empty($curl_options[CURLOPT_URL]) && strpos($curl_options[CURLOPT_URL], '#')) {
-      $original_url = $curl_options[CURLOPT_URL];
-      $curl_options[CURLOPT_URL] = strtok($curl_options[CURLOPT_URL], '#');
+    if (!empty($curl_options[CURLOPT_URL])) {
+      // Forward XDebug activation if present.
+      if (isset($_COOKIE['XDEBUG_SESSION'])) {
+        $options = drupal_parse_url($curl_options[CURLOPT_URL]);
+        $options += array('query' => array());
+        $options['query'] += array('XDEBUG_SESSION_START' => $_COOKIE['XDEBUG_SESSION']);
+        $curl_options[CURLOPT_URL] = url($options['path'], $options);
+      }
+
+      // cURL incorrectly handles URLs with a fragment by including the
+      // fragment in the request to the server, causing some web servers
+      // to reject the request citing "400 - Bad Request". To prevent
+      // this, we strip the fragment from the request.
+      // TODO: Remove this for Drupal 8, since fixed in curl 7.20.0.
+      if (strpos($curl_options[CURLOPT_URL], '#')) {
+        $original_url = $curl_options[CURLOPT_URL];
+        $curl_options[CURLOPT_URL] = strtok($curl_options[CURLOPT_URL], '#');
+      }
     }
 
     $url = empty($curl_options[CURLOPT_URL]) ? curl_getinfo($this->curlHandle, CURLINFO_EFFECTIVE_URL) : $curl_options[CURLOPT_URL];
@@ -2029,7 +2337,14 @@ class DrupalWebTestCase extends DrupalTestCase {
             foreach ($upload as $key => $file) {
               $file = drupal_realpath($file);
               if ($file && is_file($file)) {
-                $post[$key] = '@' . $file;
+                // Use the new CurlFile class for file uploads when using PHP
+                // 5.5 or higher.
+                if (class_exists('CurlFile')) {
+                  $post[$key] = curl_file_create($file);
+                }
+                else {
+                  $post[$key] = '@' . $file;
+                }
               }
             }
           }
@@ -2165,6 +2480,7 @@ class DrupalWebTestCase extends DrupalTestCase {
 
     // Submit the POST request.
     $return = drupal_json_decode($this->drupalPost(NULL, $edit, array('path' => $ajax_path, 'triggering_element' => $triggering_element), $options, $headers, $form_html_id, $extra_post));
+    $this->assertIdentical($this->drupalGetHeader('X-Drupal-Ajax-Token'), '1', 'Ajax response header found.');
 
     // Change the page content by applying the returned commands.
     if (!empty($ajax_settings) && !empty($return)) {
@@ -2201,8 +2517,13 @@ class DrupalWebTestCase extends DrupalTestCase {
             if ($wrapperNode) {
               // ajax.js adds an enclosing DIV to work around a Safari bug.
               $newDom = new DOMDocument();
+              // DOM can load HTML soup. But, HTML soup can throw warnings,
+              // suppress them.
               $newDom->loadHTML('<div>' . $command['data'] . '</div>');
-              $newNode = $dom->importNode($newDom->documentElement->firstChild->firstChild, TRUE);
+              // Suppress warnings thrown when duplicate HTML IDs are
+              // encountered. This probably means we are replacing an element
+              // with the same ID.
+              $newNode = @$dom->importNode($newDom->documentElement->firstChild->firstChild, TRUE);
               $method = isset($command['method']) ? $command['method'] : $ajax_settings['method'];
               // The "method" is a jQuery DOM manipulation function. Emulate
               // each one using PHP's DOMNode API.
@@ -2236,6 +2557,13 @@ class DrupalWebTestCase extends DrupalTestCase {
             }
             break;
 
+          case 'updateBuildId':
+            $buildId = $xpath->query('//input[@name="form_build_id" and @value="' . $command['old'] . '"]')->item(0);
+            if ($buildId) {
+              $buildId->setAttribute('value', $command['new']);
+            }
+            break;
+
           // @todo Add suitable implementations for these commands in order to
           //   have full test coverage of what ajax.js can do.
           case 'remove':
@@ -2248,12 +2576,22 @@ class DrupalWebTestCase extends DrupalTestCase {
             break;
           case 'restripe':
             break;
+          case 'add_css':
+            break;
         }
       }
       $content = $dom->saveHTML();
     }
     $this->drupalSetContent($content);
     $this->drupalSetSettings($drupal_settings);
+
+    $verbose = 'AJAX POST request to: ' . $path;
+    $verbose .= '<br />AJAX callback path: ' . $ajax_path;
+    $verbose .= '<hr />Ending URL: ' . $this->getUrl();
+    $verbose .= '<hr />' . $this->content;
+
+    $this->verbose($verbose);
+
     return $return;
   }
 
@@ -2337,9 +2675,16 @@ class DrupalWebTestCase extends DrupalTestCase {
       if (isset($edit[$name])) {
         switch ($type) {
           case 'text':
+          case 'tel':
           case 'textarea':
+          case 'url':
+          case 'number':
+          case 'range':
+          case 'color':
           case 'hidden':
           case 'password':
+          case 'email':
+          case 'search':
             $post[$name] = $edit[$name];
             unset($edit[$name]);
             break;
@@ -2500,6 +2845,11 @@ class DrupalWebTestCase extends DrupalTestCase {
    *
    * @param $xpath
    *   The xpath string to use in the search.
+   * @param array $arguments
+   *   An array of arguments with keys in the form ':name' matching the
+   *   placeholders in the query. The values may be either strings or numeric
+   *   values.
+   *
    * @return
    *   The return value of the xpath search. For details on the xpath string
    *   format and return values see the SimpleXML documentation,
@@ -2569,8 +2919,6 @@ class DrupalWebTestCase extends DrupalTestCase {
    *
    * @param $label
    *   Text between the anchor tags.
-   * @param $index
-   *   Link position counting from zero.
    * @param $message
    *   Message to display.
    * @param $group
@@ -2627,31 +2975,28 @@ class DrupalWebTestCase extends DrupalTestCase {
   /**
    * Follows a link by name.
    *
-   * Will click the first link found with this link text by default, or a
-   * later one if an index is given. Match is case insensitive with
-   * normalized space. The label is translated label. There is an assert
-   * for successful click.
+   * Will click the first link found with this link text by default, or a later
+   * one if an index is given. Match is case sensitive with normalized space.
+   * The label is translated label.
+   *
+   * If the link is discovered and clicked, the test passes. Fail otherwise.
    *
    * @param $label
    *   Text between the anchor tags.
    * @param $index
    *   Link position counting from zero.
    * @return
-   *   Page on success, or FALSE on failure.
+   *   Page contents on success, or FALSE on failure.
    */
   protected function clickLink($label, $index = 0) {
     $url_before = $this->getUrl();
     $urls = $this->xpath('//a[normalize-space(text())=:label]', array(':label' => $label));
-
     if (isset($urls[$index])) {
       $url_target = $this->getAbsoluteUrl($urls[$index]['href']);
-    }
-
-    $this->assertTrue(isset($urls[$index]), t('Clicked link %label (@url_target) from @url_before', array('%label' => $label, '@url_target' => $url_target, '@url_before' => $url_before)), t('Browser'));
-
-    if (isset($url_target)) {
+      $this->pass(t('Clicked link %label (@url_target) from @url_before', array('%label' => $label, '@url_target' => $url_target, '@url_before' => $url_before)), 'Browser');
       return $this->drupalGet($url_target);
     }
+    $this->fail(t('Link %label does not exist on @url_before', array('%label' => $label, '@url_before' => $url_before)), 'Browser');
     return FALSE;
   }
 
@@ -2676,7 +3021,7 @@ class DrupalWebTestCase extends DrupalTestCase {
         $path = substr($path, $length);
       }
       // Ensure that we have an absolute path.
-      if ($path[0] !== '/') {
+      if (empty($path) || $path[0] !== '/') {
         $path = '/' . $path;
       }
       // Finally, prepend the $base_url.
@@ -2686,10 +3031,10 @@ class DrupalWebTestCase extends DrupalTestCase {
   }
 
   /**
-   * Get the current url from the cURL handler.
+   * Get the current URL from the cURL handler.
    *
    * @return
-   *   The current url.
+   *   The current URL.
    */
   protected function getUrl() {
     return $this->url;
@@ -2888,7 +3233,7 @@ class DrupalWebTestCase extends DrupalTestCase {
     if (!$message) {
       $message = t('Raw "@raw" found', array('@raw' => $raw));
     }
-    return $this->assert(strpos($this->drupalGetContent(), $raw) !== FALSE, $message, $group);
+    return $this->assert(strpos($this->drupalGetContent(), (string) $raw) !== FALSE, $message, $group);
   }
 
   /**
@@ -2908,7 +3253,7 @@ class DrupalWebTestCase extends DrupalTestCase {
     if (!$message) {
       $message = t('Raw "@raw" not found', array('@raw' => $raw));
     }
-    return $this->assert(strpos($this->drupalGetContent(), $raw) === FALSE, $message, $group);
+    return $this->assert(strpos($this->drupalGetContent(), (string) $raw) === FALSE, $message, $group);
   }
 
   /**
@@ -2963,7 +3308,7 @@ class DrupalWebTestCase extends DrupalTestCase {
    * @return
    *   TRUE on pass, FALSE on fail.
    */
-  protected function assertTextHelper($text, $message = '', $group, $not_exists) {
+  protected function assertTextHelper($text, $message, $group, $not_exists) {
     if ($this->plainTextContent === FALSE) {
       $this->plainTextContent = filter_xss($this->drupalGetContent(), array());
     }
@@ -3029,7 +3374,7 @@ class DrupalWebTestCase extends DrupalTestCase {
    * @return
    *   TRUE on pass, FALSE on fail.
    */
-  protected function assertUniqueTextHelper($text, $message = '', $group, $be_unique) {
+  protected function assertUniqueTextHelper($text, $message, $group, $be_unique) {
     if ($this->plainTextContent === FALSE) {
       $this->plainTextContent = filter_xss($this->drupalGetContent(), array());
     }
@@ -3130,12 +3475,50 @@ class DrupalWebTestCase extends DrupalTestCase {
   }
 
   /**
+   * Asserts themed output.
+   *
+   * @param $callback
+   *   The name of the theme function to invoke; e.g. 'links' for theme_links().
+   * @param $variables
+   *   An array of variables to pass to the theme function.
+   * @param $expected
+   *   The expected themed output string.
+   * @param $message
+   *   (optional) A message to display with the assertion. Do not translate
+   *   messages: use format_string() to embed variables in the message text, not
+   *   t(). If left blank, a default message will be displayed.
+   * @param $group
+   *   (optional) The group this message is in, which is displayed in a column
+   *   in test output. Use 'Debug' to indicate this is debugging output. Do not
+   *   translate this string. Defaults to 'Other'; most tests do not override
+   *   this default.
+   *
+   * @return
+   *   TRUE on pass, FALSE on fail.
+   */
+  protected function assertThemeOutput($callback, array $variables, $expected, $message = '', $group = 'Other') {
+    $output = theme($callback, $variables);
+    $this->verbose('Variables:' . '<pre>' .  check_plain(var_export($variables, TRUE)) . '</pre>'
+      . '<hr />' . 'Result:' . '<pre>' .  check_plain(var_export($output, TRUE)) . '</pre>'
+      . '<hr />' . 'Expected:' . '<pre>' .  check_plain(var_export($expected, TRUE)) . '</pre>'
+      . '<hr />' . $output
+    );
+    if (!$message) {
+      $message = '%callback rendered correctly.';
+    }
+    $message = format_string($message, array('%callback' => 'theme_' . $callback . '()'));
+    return $this->assertIdentical($output, $expected, $message, $group);
+  }
+
+  /**
    * Asserts that a field exists in the current page by the given XPath.
    *
    * @param $xpath
    *   XPath used to find the field.
    * @param $value
-   *   (optional) Value of the field to assert.
+   *   (optional) Value of the field to assert. You may pass in NULL (default)
+   *   to skip checking the actual value, while still checking that the field
+   *   exists.
    * @param $message
    *   (optional) Message to display.
    * @param $group
@@ -3203,12 +3586,14 @@ class DrupalWebTestCase extends DrupalTestCase {
   }
 
   /**
-   * Asserts that a field does not exist in the current page by the given XPath.
+   * Asserts that a field doesn't exist or its value doesn't match, by XPath.
    *
    * @param $xpath
    *   XPath used to find the field.
    * @param $value
-   *   (optional) Value of the field to assert.
+   *   (optional) Value for the field, to assert that the field's value on the
+   *   page doesn't match it. You may pass in NULL to skip checking the
+   *   value, while still checking that the field doesn't exist.
    * @param $message
    *   (optional) Message to display.
    * @param $group
@@ -3241,7 +3626,9 @@ class DrupalWebTestCase extends DrupalTestCase {
    * @param $name
    *   Name of field to assert.
    * @param $value
-   *   Value of the field to assert.
+   *   (optional) Value of the field to assert. You may pass in NULL (default)
+   *   to skip checking the actual value, while still checking that the field
+   *   exists.
    * @param $message
    *   Message to display.
    * @param $group
@@ -3272,9 +3659,12 @@ class DrupalWebTestCase extends DrupalTestCase {
    * @param $name
    *   Name of field to assert.
    * @param $value
-   *   Value of the field to assert.
+   *   (optional) Value for the field, to assert that the field's value on the
+   *   page doesn't match it. You may pass in NULL to skip checking the
+   *   value, while still checking that the field doesn't exist. However, the
+   *   default value ('') asserts that the field value is not an empty string.
    * @param $message
-   *   Message to display.
+   *   (optional) Message to display.
    * @param $group
    *   The group this message belongs to.
    * @return
@@ -3285,14 +3675,17 @@ class DrupalWebTestCase extends DrupalTestCase {
   }
 
   /**
-   * Asserts that a field exists in the current page with the given id and value.
+   * Asserts that a field exists in the current page with the given ID and value.
    *
    * @param $id
-   *   Id of field to assert.
+   *   ID of field to assert.
    * @param $value
-   *   Value of the field to assert.
+   *   (optional) Value for the field to assert. You may pass in NULL to skip
+   *   checking the value, while still checking that the field exists.
+   *   However, the default value ('') asserts that the field value is an empty
+   *   string.
    * @param $message
-   *   Message to display.
+   *   (optional) Message to display.
    * @param $group
    *   The group this message belongs to.
    * @return
@@ -3303,14 +3696,17 @@ class DrupalWebTestCase extends DrupalTestCase {
   }
 
   /**
-   * Asserts that a field does not exist with the given id and value.
+   * Asserts that a field does not exist with the given ID and value.
    *
    * @param $id
-   *   Id of field to assert.
+   *   ID of field to assert.
    * @param $value
-   *   Value of the field to assert.
+   *   (optional) Value for the field, to assert that the field's value on the
+   *   page doesn't match it. You may pass in NULL to skip checking the value,
+   *   while still checking that the field doesn't exist. However, the default
+   *   value ('') asserts that the field value is not an empty string.
    * @param $message
-   *   Message to display.
+   *   (optional) Message to display.
    * @param $group
    *   The group this message belongs to.
    * @return
@@ -3324,9 +3720,9 @@ class DrupalWebTestCase extends DrupalTestCase {
    * Asserts that a checkbox field in the current page is checked.
    *
    * @param $id
-   *   Id of field to assert.
+   *   ID of field to assert.
    * @param $message
-   *   Message to display.
+   *   (optional) Message to display.
    * @return
    *   TRUE on pass, FALSE on fail.
    */
@@ -3339,9 +3735,9 @@ class DrupalWebTestCase extends DrupalTestCase {
    * Asserts that a checkbox field in the current page is not checked.
    *
    * @param $id
-   *   Id of field to assert.
+   *   ID of field to assert.
    * @param $message
-   *   Message to display.
+   *   (optional) Message to display.
    * @return
    *   TRUE on pass, FALSE on fail.
    */
@@ -3354,11 +3750,11 @@ class DrupalWebTestCase extends DrupalTestCase {
    * Asserts that a select option in the current page is checked.
    *
    * @param $id
-   *   Id of select field to assert.
+   *   ID of select field to assert.
    * @param $option
    *   Option to assert.
    * @param $message
-   *   Message to display.
+   *   (optional) Message to display.
    * @return
    *   TRUE on pass, FALSE on fail.
    *
@@ -3373,11 +3769,11 @@ class DrupalWebTestCase extends DrupalTestCase {
    * Asserts that a select option in the current page is not checked.
    *
    * @param $id
-   *   Id of select field to assert.
+   *   ID of select field to assert.
    * @param $option
    *   Option to assert.
    * @param $message
-   *   Message to display.
+   *   (optional) Message to display.
    * @return
    *   TRUE on pass, FALSE on fail.
    */
@@ -3387,12 +3783,12 @@ class DrupalWebTestCase extends DrupalTestCase {
   }
 
   /**
-   * Asserts that a field exists with the given name or id.
+   * Asserts that a field exists with the given name or ID.
    *
    * @param $field
-   *   Name or id of field to assert.
+   *   Name or ID of field to assert.
    * @param $message
-   *   Message to display.
+   *   (optional) Message to display.
    * @param $group
    *   The group this message belongs to.
    * @return
@@ -3403,12 +3799,12 @@ class DrupalWebTestCase extends DrupalTestCase {
   }
 
   /**
-   * Asserts that a field does not exist with the given name or id.
+   * Asserts that a field does not exist with the given name or ID.
    *
    * @param $field
-   *   Name or id of field to assert.
+   *   Name or ID of field to assert.
    * @param $message
-   *   Message to display.
+   *   (optional) Message to display.
    * @param $group
    *   The group this message belongs to.
    * @return

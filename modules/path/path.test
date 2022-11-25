@@ -21,7 +21,7 @@ class PathTestCase extends DrupalWebTestCase {
     parent::setUp('path');
 
     // Create test user and login.
-    $web_user = $this->drupalCreateUser(array('create page content', 'edit own page content', 'administer url aliases', 'create url aliases'));
+    $web_user = $this->drupalCreateUser(array('create page content', 'edit own page content', 'administer url aliases', 'create url aliases', 'access content overview'));
     $this->drupalLogin($web_user);
   }
 
@@ -42,12 +42,12 @@ class PathTestCase extends DrupalWebTestCase {
     // created.
     cache_clear_all('*', 'cache_path', TRUE);
     $this->drupalGet($edit['source']);
-    $this->assertTrue(cache_get($edit['source'], 'cache_path'), t('Cache entry was created.'));
+    $this->assertTrue(cache_get($edit['source'], 'cache_path'), 'Cache entry was created.');
 
     // Visit the alias for the node and confirm a cache entry is created.
     cache_clear_all('*', 'cache_path', TRUE);
     $this->drupalGet($edit['alias']);
-    $this->assertTrue(cache_get($edit['source'], 'cache_path'), t('Cache entry was created.'));
+    $this->assertTrue(cache_get($edit['source'], 'cache_path'), 'Cache entry was created.');
   }
 
   /**
@@ -107,6 +107,55 @@ class PathTestCase extends DrupalWebTestCase {
     $this->drupalGet($edit['alias']);
     $this->assertNoText($node1->title, 'Alias was successfully deleted.');
     $this->assertResponse(404);
+
+    // Create third and fourth test node.
+    $node3 = $this->drupalCreateNode();
+    $node4 = $this->drupalCreateNode();
+
+    // Give the node aliases a common first part.
+    $name = $this->randomName(4);
+
+    // Create aliases containing a slash.
+    $edit = array();
+    $edit['source'] = 'node/' . $node3->nid;
+    $alias3 = $name . '/' . $this->randomName(5);
+    $edit['alias'] = $alias3;
+    $this->drupalPost('admin/config/search/path/add', $edit, t('Save'));
+    $edit['source'] = 'node/' . $node4->nid;
+    $alias4 = $name . '/' . $this->randomName(4);
+    $edit['alias'] = $alias4;
+    $this->drupalPost('admin/config/search/path/add', $edit, t('Save'));
+
+    // Confirm that the aliases work.
+    $this->drupalGet($alias3);
+    $this->assertText($node3->title, 'Alias works.');
+    $this->assertResponse(200);
+    $this->drupalGet($alias4);
+    $this->assertText($node4->title, 'Alias works.');
+    $this->assertResponse(200);
+
+    // Confirm that filters containing slashes work.
+    $this->drupalGet('admin/config/search/path/list/' . $alias3);
+    $this->assertFieldByName('filter', $alias3);
+    $this->assertText($alias3, 'Searched-for alias with slash found.');
+    $this->assertNoText($alias4, 'Different alias with slash not found.');
+    $this->assertResponse(200);
+
+    // Delete aliases.
+    $pid = $this->getPID($alias3);
+    $this->drupalPost('admin/config/search/path/edit/' . $pid, array(), t('Delete'));
+    $this->drupalPost(NULL, array(), t('Confirm'));
+    $pid = $this->getPID($alias4);
+    $this->drupalPost('admin/config/search/path/edit/' . $pid, array(), t('Delete'));
+    $this->drupalPost(NULL, array(), t('Confirm'));
+
+    // Confirm that the aliases no longer work.
+    $this->drupalGet($alias3);
+    $this->assertNoText($node3->title, 'Alias was successfully deleted.');
+    $this->assertResponse(404);
+    $this->drupalGet($alias4);
+    $this->assertNoText($node4->title, 'Alias was successfully deleted.');
+    $this->assertResponse(404);
   }
 
   /**
@@ -159,6 +208,34 @@ class PathTestCase extends DrupalWebTestCase {
     // Confirm that the alias no longer works.
     $this->drupalGet($edit['path[alias]']);
     $this->assertNoText($node1->title, 'Alias was successfully deleted.');
+    $this->assertResponse(404);
+
+    // Create third test node.
+    $node3 = $this->drupalCreateNode();
+
+    // Create an invalid alias with a leading slash and verify that the slash
+    // is removed when the link is generated. This ensures that URL aliases
+    // cannot be used to inject external URLs.
+    // @todo The user interface should either display an error message or
+    //   automatically trim these invalid aliases, rather than allowing them to
+    //   be silently created, at which point the functional aspects of this
+    //   test will need to be moved elsewhere and switch to using a
+    //   programmatically-created alias instead.
+    $alias = $this->randomName(8);
+    $edit = array('path[alias]' => '/' . $alias);
+    $this->drupalPost('node/' . $node3->nid . '/edit', $edit, t('Save'));
+    $this->drupalGet('admin/content');
+    // This checks the link href before clicking it, rather than using
+    // DrupalWebTestCase::assertUrl() after clicking it, because the test
+    // browser does not always preserve the correct number of slashes in the
+    // URL when it visits internal links; using DrupalWebTestCase::assertUrl()
+    // would actually make the test pass unconditionally on the testbot (or
+    // anywhere else where Drupal is installed in a subdirectory).
+    $link_xpath = $this->xpath('//a[normalize-space(text())=:label]', array(':label' => $node3->title));
+    $link_href = (string) $link_xpath[0]['href'];
+    $link_prefix = base_path() . (variable_get('clean_url', 0) ? '' : '?q=');
+    $this->assertEqual($link_href, $link_prefix . $alias);
+    $this->clickLink($node3->title);
     $this->assertResponse(404);
   }
 
@@ -334,7 +411,7 @@ class PathLanguageTestCase extends DrupalWebTestCase {
     drupal_static_reset('locale_url_outbound_alter');
     $languages = language_list();
     $url = url('node/' . $french_node->nid, array('language' => $languages[$french_node->language]));
-    $this->assertTrue(strpos($url, $edit['path[alias]']), t('URL contains the path alias.'));
+    $this->assertTrue(strpos($url, $edit['path[alias]']), 'URL contains the path alias.');
 
     // Confirm that the alias works even when changing language negotiation
     // options. Enable User language detection and selection over URL one.
@@ -378,23 +455,23 @@ class PathLanguageTestCase extends DrupalWebTestCase {
     // situation only aliases in the default language and language neutral ones
     // should keep working.
     $this->drupalGet($french_alias);
-    $this->assertResponse(404, t('Alias for French translation is unavailable when URL language negotiation is disabled.'));
+    $this->assertResponse(404, 'Alias for French translation is unavailable when URL language negotiation is disabled.');
 
     // drupal_lookup_path() has an internal static cache. Check to see that
     // it has the appropriate contents at this point.
     drupal_lookup_path('wipe');
     $french_node_path = drupal_lookup_path('source', $french_alias, $french_node->language);
-    $this->assertEqual($french_node_path, 'node/' . $french_node->nid, t('Normal path works.'));
+    $this->assertEqual($french_node_path, 'node/' . $french_node->nid, 'Normal path works.');
     // Second call should return the same path.
     $french_node_path = drupal_lookup_path('source', $french_alias, $french_node->language);
-    $this->assertEqual($french_node_path, 'node/' . $french_node->nid, t('Normal path is the same.'));
+    $this->assertEqual($french_node_path, 'node/' . $french_node->nid, 'Normal path is the same.');
 
     // Confirm that the alias works.
     $french_node_alias = drupal_lookup_path('alias', 'node/' . $french_node->nid, $french_node->language);
-    $this->assertEqual($french_node_alias, $french_alias, t('Alias works.'));
+    $this->assertEqual($french_node_alias, $french_alias, 'Alias works.');
     // Second call should return the same alias.
     $french_node_alias = drupal_lookup_path('alias', 'node/' . $french_node->nid, $french_node->language);
-    $this->assertEqual($french_node_alias, $french_alias, t('Alias is the same.'));
+    $this->assertEqual($french_node_alias, $french_alias, 'Alias is the same.');
   }
 }
 
@@ -508,8 +585,8 @@ class PathMonolingualTestCase extends DrupalWebTestCase {
     $this->drupalPost('admin/config/regional/language', $edit, t('Save configuration'));
 
     // Verify that French is the only language.
-    $this->assertFalse(drupal_multilingual(), t('Site is mono-lingual'));
-    $this->assertEqual(language_default('language'), 'fr', t('French is the default language'));
+    $this->assertFalse(drupal_multilingual(), 'Site is mono-lingual');
+    $this->assertEqual(language_default('language'), 'fr', 'French is the default language');
 
     // Set language detection to URL.
     $edit = array('language[enabled][locale-url]' => TRUE);

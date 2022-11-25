@@ -56,6 +56,22 @@ class PagerFunctionalWebTestCase extends DrupalWebTestCase {
   }
 
   /**
+   * Tests theme_pager() when an empty quantity is passed.
+   */
+  public function testThemePagerQuantityNotSet() {
+    $variables = array(
+      'element' => 0,
+      'parameters' => array(),
+      'quantity' => '',
+      'tags' => '',
+    );
+    pager_default_initialize(100, 10);
+    $rendered_output = theme_pager($variables);
+    $this->assertNotIdentical(stripos($rendered_output, 'next'), FALSE);
+    $this->assertNotIdentical(stripos($rendered_output, 'last'), FALSE);
+  }
+
+  /**
    * Asserts pager items and links.
    *
    * @param int $current_page
@@ -101,24 +117,24 @@ class PagerFunctionalWebTestCase extends DrupalWebTestCase {
 
     // Verify first/previous and next/last items and links.
     if (isset($first)) {
-      $this->assertClass($first, 'pager-first', "Item for first page has .pager-first class.");
-      $this->assertTrue($first->a, "Link to first page found.");
-      $this->assertNoClass($first->a, 'active', "Link to first page is not active.");
+      $this->assertClass($first, 'pager-first', 'Item for first page has .pager-first class.');
+      $this->assertTrue($first->a, 'Link to first page found.');
+      $this->assertNoClass($first->a, 'active', 'Link to first page is not active.');
     }
     if (isset($previous)) {
-      $this->assertClass($previous, 'pager-previous', "Item for first page has .pager-previous class.");
-      $this->assertTrue($previous->a, "Link to previous page found.");
-      $this->assertNoClass($previous->a, 'active', "Link to previous page is not active.");
+      $this->assertClass($previous, 'pager-previous', 'Item for first page has .pager-previous class.');
+      $this->assertTrue($previous->a, 'Link to previous page found.');
+      $this->assertNoClass($previous->a, 'active', 'Link to previous page is not active.');
     }
     if (isset($next)) {
-      $this->assertClass($next, 'pager-next', "Item for next page has .pager-next class.");
-      $this->assertTrue($next->a, "Link to next page found.");
-      $this->assertNoClass($next->a, 'active', "Link to next page is not active.");
+      $this->assertClass($next, 'pager-next', 'Item for next page has .pager-next class.');
+      $this->assertTrue($next->a, 'Link to next page found.');
+      $this->assertNoClass($next->a, 'active', 'Link to next page is not active.');
     }
     if (isset($last)) {
-      $this->assertClass($last, 'pager-last', "Item for last page has .pager-last class.");
-      $this->assertTrue($last->a, "Link to last page found.");
-      $this->assertNoClass($last->a, 'active', "Link to last page is not active.");
+      $this->assertClass($last, 'pager-last', 'Item for last page has .pager-last class.');
+      $this->assertTrue($last->a, 'Link to last page found.');
+      $this->assertNoClass($last->a, 'active', 'Link to last page is not active.');
     }
   }
 
@@ -153,7 +169,6 @@ class PagerFunctionalWebTestCase extends DrupalWebTestCase {
     if (!isset($message)) {
       $message = "Class .$class not found.";
     }
-    $this->assertTrue(strpos($element['class'], $class) === FALSE, $message);
+    $this->assertTrue(strpos((string) $element['class'], $class) === FALSE, $message);
   }
 }
-

@@ -71,7 +71,7 @@ define('UPDATE_MAX_FETCH_ATTEMPTS', 2);
 /**
  * Maximum number of seconds to try fetching available update data at a time.
  */
-define('UPDATE_MAX_FETCH_TIME', 5);
+define('UPDATE_MAX_FETCH_TIME', 30);
 
 /**
  * Implements hook_help().
@@ -139,10 +139,10 @@ function update_init() {
       if (!empty($verbose)) {
         if (isset($status[$type]['severity'])) {
           if ($status[$type]['severity'] == REQUIREMENT_ERROR) {
-            drupal_set_message($status[$type]['description'], 'error');
+            drupal_set_message($status[$type]['description'], 'error', FALSE);
           }
           elseif ($status[$type]['severity'] == REQUIREMENT_WARNING) {
-            drupal_set_message($status[$type]['description'], 'warning');
+            drupal_set_message($status[$type]['description'], 'warning', FALSE);
           }
         }
       }
@@ -152,7 +152,7 @@ function update_init() {
         if (isset($status[$type])
             && isset($status[$type]['reason'])
             && $status[$type]['reason'] === UPDATE_NOT_SECURE) {
-          drupal_set_message($status[$type]['description'], 'error');
+          drupal_set_message($status[$type]['description'], 'error', FALSE);
         }
       }
     }
@@ -278,12 +278,15 @@ function update_theme() {
     ),
     'update_report' => array(
       'variables' => array('data' => NULL),
+      'file' => 'update.report.inc',
     ),
     'update_version' => array(
       'variables' => array('version' => NULL, 'tag' => NULL, 'class' => array()),
+      'file' => 'update.report.inc',
     ),
     'update_status_label' => array(
       'variables' => array('status' => NULL),
+      'file' => 'update.report.inc',
     ),
   );
 }
@@ -364,8 +367,9 @@ function update_cache_clear_submit($form, &$form_state) {
  */
 function _update_no_data() {
   $destination = drupal_get_destination();
+  $cron_token = array('token' => drupal_get_token('run-cron'));
   return t('No update information available. <a href="@run_cron">Run cron</a> or <a href="@check_manually">check manually</a>.', array(
-    '@run_cron' => url('admin/reports/status/run-cron', array('query' => $destination)),
+    '@run_cron' => url('admin/reports/status/run-cron', array('query' => $cron_token + $destination)),
     '@check_manually' => url('admin/reports/updates/check', array('query' => $destination)),
   ));
 }

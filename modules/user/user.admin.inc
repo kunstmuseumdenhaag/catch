@@ -5,6 +5,21 @@
  * Admin page callback file for the user module.
  */
 
+/**
+ * Page callback: Generates the appropriate user administration form.
+ *
+ * This function generates the user registration, multiple user cancellation,
+ * or filtered user list admin form, depending on the argument and the POST
+ * form values.
+ *
+ * @param string $callback_arg
+ *   (optional) Indicates which form to build. Defaults to '', which will
+ *   trigger the user filter form. If the POST value 'op' is present, this
+ *   function uses that value as the callback argument.
+ *
+ * @return string
+ *   A renderable form array for the respective request.
+ */
 function user_admin($callback_arg = '') {
   $op = isset($_POST['op']) ? $_POST['op'] : $callback_arg;
 
@@ -46,7 +61,7 @@ function user_filter_form() {
     if ($type == 'permission') {
       // Merge arrays of module permissions into one.
       // Slice past the first element '[any]' whose value is not an array.
-      $options = call_user_func_array('array_merge', array_slice($filters[$type]['options'], 1));
+      $options = call_user_func_array('array_merge', array_values(array_slice($filters[$type]['options'], 1)));
       $value = $options[$value];
     }
     else {
@@ -152,6 +167,7 @@ function user_admin_account() {
     'status' => array('data' => t('Status'), 'field' => 'u.status'),
     'roles' => array('data' => t('Roles')),
     'member_for' => array('data' => t('Member for'), 'field' => 'u.created', 'sort' => 'desc'),
+    'changed' => array('data' => t('Last changed'), 'field' => 'u.changed', 'sort' => 'desc'),
     'access' => array('data' => t('Last access'), 'field' => 'u.access'),
     'operations' => array('data' => t('Operations')),
   );
@@ -165,7 +181,7 @@ function user_admin_account() {
 
   $query = $query->extend('PagerDefault')->extend('TableSort');
   $query
-    ->fields('u', array('uid', 'name', 'status', 'created', 'access'))
+    ->fields('u', array('uid', 'name', 'status', 'created', 'changed', 'access'))
     ->limit(50)
     ->orderByHeader($header)
     ->setCountQuery($count_query);
@@ -211,6 +227,7 @@ function user_admin_account() {
       'status' =>  $status[$account->status],
       'roles' => theme('item_list', array('items' => $users_roles)),
       'member_for' => format_interval(REQUEST_TIME - $account->created),
+      'changed' => t('@time ago', array('@time' => format_interval(REQUEST_TIME - $account->changed))),
       'access' =>  $account->access ? t('@time ago', array('@time' => format_interval(REQUEST_TIME - $account->access))) : t('never'),
       'operations' => array('data' => array('#type' => 'link', '#title' => t('edit'), '#href' => "user/$account->uid/edit", '#options' => array('query' => $destination))),
     );
@@ -391,7 +408,7 @@ function user_admin_settings() {
     $form['personalization']['pictures']['settings']['user_picture_style'] = array(
       '#type' => 'select',
       '#title' => t('Picture display style'),
-      '#options' => image_style_options(TRUE),
+      '#options' => image_style_options(TRUE, PASS_THROUGH),
       '#default_value' => variable_get('user_picture_style', ''),
       '#description' => t('The style selected will be used on display, while the original image is retained. Styles may be configured in the <a href="!url">Image styles</a> administration area.', array('!url' => url('admin/config/media/image-styles'))),
     );
@@ -420,6 +437,18 @@ function user_admin_settings() {
     '#title' => t('Picture guidelines'),
     '#default_value' => variable_get('user_picture_guidelines', ''),
     '#description' => t("This text is displayed at the picture upload form in addition to the default guidelines. It's useful for helping or instructing your users."),
+  );
+
+  $form['privacy'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Privacy'),
+  );
+  $form['privacy']['user_password_reset_text'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Password reset text'),
+    '#default_value' => variable_get('user_password_reset_text', t('If %identifier is a valid account, an email will be sent with instructions to reset your password.')),
+    '#description' => t('The text that appears when a user successfully submits the password reset form. Due to privacy concerns, it should not contain any information about previously registered users. %identifier will be replaced with what the user entered into the form field.'),
+    '#required' => TRUE,
   );
 
   $form['email_title'] = array(
@@ -828,27 +857,26 @@ function theme_user_permission_description($variables) {
  */
 function user_admin_roles($form, $form_state) {
   $roles = user_roles();
+  $role_weights = db_query('SELECT r.rid, r.weight FROM {role} r')->fetchAllKeyed();
 
   $form['roles'] = array(
     '#tree' => TRUE,
   );
-  $order = 0;
   foreach ($roles as $rid => $name) {
     $form['roles'][$rid]['#role'] = (object) array(
       'rid' => $rid,
       'name' => $name,
-      'weight' => $order,
+      'weight' => $role_weights[$rid],
     );
-    $form['roles'][$rid]['#weight'] = $order;
+    $form['roles'][$rid]['#weight'] = $role_weights[$rid];
     $form['roles'][$rid]['weight'] = array(
       '#type' => 'textfield',
       '#title' => t('Weight for @title', array('@title' => $name)),
       '#title_display' => 'invisible',
       '#size' => 4,
-      '#default_value' => $order,
+      '#default_value' => $role_weights[$rid],
       '#attributes' => array('class' => array('role-weight')),
     );
-    $order++;
   }
 
   $form['name'] = array(
@@ -1035,4 +1063,3 @@ function user_admin_role_delete_confirm_submit($form, &$form_state) {
   drupal_set_message(t('The role has been deleted.'));
   $form_state['redirect'] = 'admin/people/permissions/roles';
 }
-
