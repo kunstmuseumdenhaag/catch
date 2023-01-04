@@ -20,4 +20,121 @@
    <dynamicField name="tos_de_*" type="text_de" indexed="true" stored="true" multiValued="false" termVectors="true" omitNorms="true"/>
    <dynamicField name="tom_de_*" type="text_de" indexed="true" stored="true" multiValued="true" termVectors="true" omitNorms="true"/>
 -->
+  <!-- MuS search specific fields -->
+  <field name="object_number" type="string" multiValued="false" indexed="true" stored="true" required="false" />
+  <field name="object_name" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="creator" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="production_place" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="material" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="technique" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="title" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="production_date_start" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="production_date_end" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="production_period" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="inscription_date" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="inscription_maker" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="documentation_title" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="documentation_title_lref" type="string" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="reproduction_reference" type="string" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="part_of_reference" type="string" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="part_of_title" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="parts_reference" type="string" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="related_object_reference" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="parts_title" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="related_object_title" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="production_reason" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="edit_date" type="string" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="institution_name" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="reproduction_identifier_URL" type="string" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="chronicle_title" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="chronicle_title_lref" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="title_short_description" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="creation_presentation" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="production_place_presentation" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="production_date_presentation" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="dimensions_presentation" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="material_technique_presentation" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="credit_line" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="description_paragraph_presentation" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="description_qualification_presentation" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="description" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="tags" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="ss_title" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="publication_access" type="string" multiValued="false" indexed="true" stored="true" required="false" />
+  <field name="PIDnumber" type="string" multiValued="false" indexed="true" stored="true" required="false" />
+  <field name="alternative_number" type="string" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="alternative_number_type" type="string" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="title_english" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="title_short_description_english" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="creation_presentation_english" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="production_place_presentation_english" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="production_date_presentation_english" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="material_technique_presentation_english" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="dimensions_presentation_english" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="credit_line_english" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="description_english" type="text" multiValued="true" indexed="true" stored="true" required="false" />
+
+  <field name="how" type="text" multiValued="false" indexed="false" stored="true" required="false" />
+  <field name="what" type="text" multiValued="false" indexed="false" stored="true" required="false" />
+  <field name="when" type="text" multiValued="false" indexed="false" stored="true" required="false" />
+  <field name="where" type="text" multiValued="false" indexed="false" stored="true" required="false" />
+  <field name="who" type="text" multiValued="false" indexed="false" stored="true" required="false" />
+  <field name="raw" type="text" multiValued="false" indexed="false" stored="true" required="false" />
+
+  <!-- Fields for use with copyField-->
+  <field name="what_search"                            type="text" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="who_search"                             type="text" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="where_search"                           type="text" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="when_search"                            type="text" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="how_search"                             type="text" multiValued="true" indexed="true" stored="true" required="false" />
+  <field name="fulltext"                               type="text" multiValued="true" indexed="true" stored="true" required="false" />
+
+  <!-- Copy fields for the aggregated fields-->
+  <copyField source="title" dest="what_search" />
+  <copyField source="title" dest="fulltext" />
+  <copyField source="title_short_description" dest="what_search" />
+  <copyField source="title_short_description" dest="fulltext" />
+  <copyField source="description" dest="what_search" />
+  <copyField source="description" dest="fulltext" />
+  <copyField source="object_name" dest="what_search" />
+  <copyField source="object_name" dest="fulltext" />
+
+  <copyField source="creation_presentation" dest="who_search" />
+  <copyField source="creation_presentation" dest="fulltext" />
+  <copyField source="creator" dest="who_search" />
+  <copyField source="creator" dest="fulltext" />
+  <copyField source="inscription_maker" dest="who_search" />
+  <copyField source="inscription_maker" dest="fulltext" />
+  <copyField source="institution_name" dest="who_search" />
+  <copyField source="institution_name" dest="fulltext" />
+
+  <copyField source="production_place" dest="where_search" />
+  <copyField source="production_place" dest="fulltext" />
+  <copyField source="production_place_presentation" dest="where_search" />
+  <copyField source="production_place_presentation" dest="fulltext" />
+
+  <copyField source="production_date_presentation" dest="when_search" />
+  <copyField source="production_date_presentation" dest="fulltext" />
+  <copyField source="production_period" dest="when_search" />
+  <copyField source="production_period" dest="fulltext" />
+  <copyField source="production_date_start" dest="when_search" />
+  <copyField source="production_date_start" dest="fulltext" />
+  <copyField source="production_date_end" dest="when_search" />
+  <copyField source="production_date_end" dest="fulltext" />
+  <copyField source="inscription_date" dest="when_search" />
+  <copyField source="inscription_date" dest="fulltext" />
+
+  <copyField source="material_technique_presentation" dest="how_search" />
+  <copyField source="material_technique_presentation" dest="fulltext" />
+  <copyField source="material" dest="how_search" />
+  <copyField source="material" dest="fulltext" />
+  <copyField source="technique" dest="how_search" />
+  <copyField source="technique" dest="fulltext" />
+  <copyField source="dimensions_presentation" dest="how_search" />
+  <copyField source="dimensions_presentation" dest="fulltext" />
+
+  <!-- score is a field that is added by solr itself. We need it in the schema.xml because our custom component
+
+  -->
+  <field name="score" type="float" multiValued="false" indexed="false" stored="false" required="false" />
 </fields>

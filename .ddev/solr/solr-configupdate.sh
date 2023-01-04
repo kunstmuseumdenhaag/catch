@@ -10,3 +10,9 @@ if [ -d /opt/solr/server/solr/mycores/${CORENAME}/conf ]; then
     rm -r /opt/solr/server/solr/mycores/${CORENAME}/conf
     cp -r /solr-conf/conf /opt/solr/server/solr/mycores/${CORENAME}/conf
 fi
+
+if [ -d /opt/solr/server/solr/lib ]; then
+    # Replace existing lib dir entirely to ensure deleted lib files are removed.
+    rm -r /opt/solr/server/solr/lib
+    cp -r /solr-conf/lib /opt/solr/server/solr/lib
+fi

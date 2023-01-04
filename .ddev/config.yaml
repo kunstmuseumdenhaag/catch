@@ -257,3 +257,7 @@ nodejs_version: "16"
 #hooks:
 #  post-import-db:
 #    - exec: drush cc all
+
+hooks:
+  post-start:
+    - exec: mysql -uroot -proot -hdb -e "CREATE DATABASE IF NOT EXISTS key_db; GRANT ALL ON key_db.* TO 'db'@'%';"
