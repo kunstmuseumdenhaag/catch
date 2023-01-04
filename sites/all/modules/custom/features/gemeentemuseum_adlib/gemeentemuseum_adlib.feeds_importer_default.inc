@@ -21,7 +21,7 @@ function gemeentemuseum_adlib_feeds_importer_default() {
       'plugin_key' => 'AdlibFetcher',
       'config' => array(
         'database' => 'catch',
-        'changed' => '2013-11-20 10:10',
+        'changed' => '2023-01-04 15:50',
         'items' => '100',
         'fields' => array(
           0 => 'object_number',
@@ -89,7 +89,7 @@ function gemeentemuseum_adlib_feeds_importer_default() {
         'status' => 2,
         'xmltype' => 'grouped',
         'use_custom_query' => 0,
-        'custom_query' => 'routine.entry.step=minimaal',
+        'custom_query' => '(PIDnumber=10918x1y68018 or PIDnumber=10918x1y68019 or PIDnumber=10918x1y68022 or PIDnumber= 10918x1y68021 or PIDnumber= 10918x1y68020)',
       ),
     ),
     'parser' => array(

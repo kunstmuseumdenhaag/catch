@@ -5,7 +5,7 @@
  */
 
 /**
- * Implementation of hook_default_search_api_server().
+ * Implements hook_default_search_api_server().
  */
 function gemeentemuseum_dummy_server_default_search_api_server() {
   $items = array();
@@ -24,7 +24,7 @@ function gemeentemuseum_dummy_server_default_search_api_server() {
       "retrieve_data" : 0,
       "highlight_data" : 0
     },
-    "enabled" : "1",
+    "enabled" : "0",
     "rdf_mapping" : []
   }');
   return $items;
