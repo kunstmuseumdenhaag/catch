@@ -11,7 +11,7 @@ $conf['debug'] = TRUE;
 $conf['mode'] = 'development';
 
 /*
- * Database credentials for the the apikey functionality.
+ * Database credentials for the apikey functionality.
  */
 $conf['db_database'] = 'apikeydb';
 $conf['db_username'] = 'apikeydb_username';
