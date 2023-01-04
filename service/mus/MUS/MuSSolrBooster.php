@@ -43,7 +43,7 @@ class MusSolrBooster {
    */
   protected function initTokens() {
     // Add the keys of parsed advanced as tokens
-    if (sizeof($this->parsedAdvanced) > 0) {
+    if (is_array($this->parsedAdvanced) && sizeof($this->parsedAdvanced) > 0) {
       foreach ($this->parsedAdvanced as $token => $value) {
         $key = '[' . $token . ']';
         $this->tokens[$key] = $value;
