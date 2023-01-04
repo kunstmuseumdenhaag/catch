@@ -8,7 +8,7 @@ search already included and set up.
 
 ##Getting started##
 You can start by [downloading](https://github.com/gemeentemuseum/catch/zipball/master)
-this project. 
+this project.
 
 ##Documentation##
 You can read more about the technical aspects on our [wiki](https://github.com/gemeentemuseum/catch/wiki).
