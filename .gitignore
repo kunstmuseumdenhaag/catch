@@ -5,3 +5,7 @@ sites/*/settings*.php
 # Ignore paths that contain user-generated content.
 sites/*/files
 sites/*/private
+
+# Files to Ignore for Slim app
+service/mus/vendor
+service/mus/environment/conf.php
