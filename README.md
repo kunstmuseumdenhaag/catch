@@ -1,7 +1,7 @@
 #Catch#
 -
 
-Catch is the search engine built by gemeentemuseum the Hague. 
+Catch is the search engine built by [Kunstmuseum Den Haag](https://www.kunstmuseum.nl/).
 
 Catch tries to simplify starting a search engine for collections having the most common
 search already included and set up.
