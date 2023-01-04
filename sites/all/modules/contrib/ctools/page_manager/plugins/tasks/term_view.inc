@@ -16,12 +16,12 @@
 function page_manager_term_view_page_manager_tasks() {
   if (module_exists('taxonomy')) {
     return array(
-      // This is a 'page' task and will fall under the page admin UI
+      // This is a 'page' task and will fall under the page admin UI.
       'task type' => 'page',
 
       'title' => t('Taxonomy term template'),
       'admin title' => t('Taxonomy term template'),
-      'admin description' => t('When enabled, this overrides the default Drupal behavior for displaying taxonomy terms at <em>taxonomy/term/%term</em>. If you add variants, you may use selection criteria such as vocabulary or user access to provide different displays of the taxonomy term and associated nodes. If no variant is selected, the default Drupal taxonomy term display will be used. This page only affects items actually displayed ad taxonomy/term/%term. Some taxonomy terms, such as forums, have their displays moved elsewhere. Also please note that if you are using pathauto, aliases may make a taxonomy terms appear somewhere else, but as far as Drupal is concerned, they are still at taxonomy/term/%term.'),
+      'admin description' => t('When enabled, this overrides the default Drupal behavior for displaying taxonomy terms at <em>taxonomy/term/%term</em>. If you add variants, you may use selection criteria such as vocabulary or user access to provide different displays of the taxonomy term and associated nodes. If no variant is selected, the default Drupal taxonomy term display will be used. This page only affects items actually displayed at taxonomy/term/%term. Some taxonomy terms, such as forums, have their displays moved elsewhere. Also please note that if you are using pathauto, aliases may make a taxonomy terms appear somewhere else, but as far as Drupal is concerned, they are still at taxonomy/term/%term.'),
       'admin path' => 'taxonomy/term/%taxonomy_term',
       'admin summary' => 'page_manager_term_view_admin_summary',
 
@@ -29,7 +29,7 @@ function page_manager_term_view_page_manager_tasks() {
       'hook menu' => 'page_manager_term_view_menu',
       'hook menu alter' => 'page_manager_term_view_menu_alter',
 
-      // Provide a setting to the primary settings UI for Panels
+      // Provide a setting to the primary settings UI for Panels.
       'admin settings' => 'page_manager_term_view_admin_settings',
       // Even though we don't have subtasks, this allows us to save our settings.
       'save subtask callback' => 'page_manager_term_view_save',
@@ -48,7 +48,7 @@ function page_manager_term_view_page_manager_tasks() {
       'enable callback' => 'page_manager_term_view_enable',
       'access callback' => 'page_manager_term_view_access_check',
 
-      // Allow additional operations
+      // Allow additional operations.
       'operations' => array(
         'settings' => array(
           'title' => t('Settings'),
@@ -79,7 +79,7 @@ function page_manager_term_view_menu_alter(&$items, $task) {
     $items['taxonomy/term/%taxonomy_term']['file'] = $task['file'];
   }
   else {
-    // automatically disable this task if it cannot be enabled.
+    // Automatically disable this task if it cannot be enabled.
     variable_set('page_manager_term_view_disabled', TRUE);
 
     if (isset($items['taxonomy/term/%taxonomy_term']['page callback'])) {
@@ -87,7 +87,7 @@ function page_manager_term_view_menu_alter(&$items, $task) {
     }
     // Because Views changes %taxonomy_term to %views_arg, check to see if that
     // is why we can't enable:
-    else if (isset($items['taxonomy/term/%views_arg']['page callback'])) {
+    elseif (isset($items['taxonomy/term/%views_arg']['page callback'])) {
       $callback = $items['taxonomy/term/%views_arg']['page callback'];
     }
     else {
@@ -106,44 +106,88 @@ function page_manager_term_view_menu_alter(&$items, $task) {
  * to run with it. If no one does, it passes through to Drupal core's
  * term view, which is term_page_view().
  */
-function page_manager_term_view_page($term) {
-  // Assign the term name as the page title, just as the original page
-  // callback did.
+function page_manager_term_view_page($term, $depth = NULL) {
+  // Prep the term to be displayed so all of the regular hooks are triggered.
+  // Rather than calling taxonomy_term_page() directly, as it that would
+  // potentially load nodes that were not necessary, execute some of the code
+  // prior to identifying the correct CTools or Page Manager task handler and
+  // only proceed with the rest of the code if necessary.
+  // Assign the term name as the page title.
   drupal_set_title($term->name);
 
-  // While we ordinarily should never actually get feeds through here,
-  // just in case
-  // Load my task plugin
+  // If there is a menu link to this term, the link becomes the last part
+  // of the active trail, and the link name becomes the page title.
+  // Thus, we must explicitly set the page title to be the node title.
+  $uri = entity_uri('taxonomy_term', $term);
+
+  // Set the term path as the canonical URL to prevent duplicate content.
+  drupal_add_html_head_link(array('rel' => 'canonical', 'href' => url($uri['path'], $uri['options'])), TRUE);
+  // Set the non-aliased path as a default shortlink.
+  drupal_add_html_head_link(array('rel' => 'shortlink', 'href' => url($uri['path'], array_merge($uri['options'], array('alias' => TRUE)))), TRUE);
+
+  // Trigger the main.
+  $build = taxonomy_term_show($term);
+
+  // Load my task plugin.
   $task = page_manager_get_task('term_view');
 
   // Load the term into a context.
   ctools_include('context');
   ctools_include('context-task-handler');
-  $contexts = ctools_context_handler_get_task_contexts($task, '', array($term));
+  $contexts = ctools_context_handler_get_task_contexts($task, '', array($term, $depth));
 
   if (empty($contexts)) {
-    return drupal_not_found();
+    return MENU_NOT_FOUND;
   }
 
+  // Build the full output using the configured CTools plugin.
   $output = ctools_context_handler_render($task, '', $contexts, array($term->tid));
   if ($output !== FALSE) {
     return $output;
   }
 
-  $function = 'taxonomy_term_page';
+  // Try loading an override plugin.
   foreach (module_implements('page_manager_override') as $module) {
     $call = $module . '_page_manager_override';
     if (($rc = $call('term_view')) && function_exists($rc)) {
-      $function = $rc;
-      break;
+      return $rc($term, $depth);
     }
   }
 
-  // Otherwise, fall back.
-  if ($function == 'taxonomy_term_page') {
-    module_load_include('inc', 'taxonomy', 'taxonomy.pages');
+  // Otherwise, fall back to replicating the output normally generated by
+  // taxonomy_term_page().
+  // Build breadcrumb based on the hierarchy of the term.
+  $current = (object) array(
+    'tid' => $term->tid,
+  );
+  // @todo This overrides any other possible breadcrumb and is a pure hard-coded
+  //   presumption. Make this behavior configurable per vocabulary or term.
+  $breadcrumb = array();
+  while ($parents = taxonomy_get_parents($current->tid)) {
+    $current = array_shift($parents);
+    $breadcrumb[] = l($current->name, 'taxonomy/term/' . $current->tid);
   }
-  return $function($term);
+  $breadcrumb[] = l(t('Home'), NULL);
+  $breadcrumb = array_reverse($breadcrumb);
+  drupal_set_breadcrumb($breadcrumb);
+  drupal_add_feed('taxonomy/term/' . $term->tid . '/feed', 'RSS - ' . $term->name);
+
+  if ($nids = taxonomy_select_nodes($term->tid, TRUE, variable_get('default_nodes_main', 10))) {
+    $nodes = node_load_multiple($nids);
+    $build += node_view_multiple($nodes);
+    $build['pager'] = array(
+      '#theme' => 'pager',
+      '#weight' => 5,
+    );
+  }
+  else {
+    $build['no_content'] = array(
+      '#prefix' => '<p>',
+      '#markup' => t('There is currently no content classified with this term.'),
+      '#suffix' => '</p>',
+    );
+  }
+  return $build;
 }
 
 /**
@@ -250,7 +294,6 @@ function page_manager_term_view_enable($cache, $status) {
 }
 
 function page_manager_term_view_get_type() {
-//  $view_type = variable_get('page_manager_term_view_type', 'multiple');
   // Revert to just allowing single.
   $view_type = 'single';
 
@@ -323,7 +366,8 @@ function page_manager_term_view_admin_summary($task, $subtask) {
  *   The subtask id
  * @param $contexts
  *   The contexts loaded for the task.
- * @return
+ *
+ * @return bool
  *   TRUE if the current user can access the page.
  */
 function page_manager_term_view_access_check($task, $subtask_id, $contexts) {

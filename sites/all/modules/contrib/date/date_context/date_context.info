@@ -3,14 +3,13 @@ description = Adds an option to the Context module to set a context condition ba
 package = Date/Time
 core = 7.x
 
-dependencies[] = date
-dependencies[] = context
+dependencies[] = date:date
+dependencies[] = context:context
 
-files[] = date_context.module
 files[] = plugins/date_context_date_condition.inc
-; Information added by drupal.org packaging script on 2012-08-13
-version = "7.x-2.6"
+
+; Information added by Drupal.org packaging script on 2022-08-04
+version = "7.x-2.13"
 core = "7.x"
 project = "date"
-datestamp = "1344850024"
-
+datestamp = "1659633190"

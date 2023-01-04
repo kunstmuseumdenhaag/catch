@@ -2,13 +2,17 @@
 
 /**
  * @file
- * Test case for path alias mapper path.inc.
+ * Contains FeedsMapperPathTestCase.
  */
 
 /**
- * Class for testing Feeds <em>path</em> mapper.
+ * Test case for path alias mapper path.inc.
  */
 class FeedsMapperPathTestCase extends FeedsMapperTestCase {
+
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Mapper: Path',
@@ -17,6 +21,9 @@ class FeedsMapperPathTestCase extends FeedsMapperTestCase {
     );
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function setUp() {
     parent::setUp(array('path'));
   }
@@ -25,7 +32,6 @@ class FeedsMapperPathTestCase extends FeedsMapperTestCase {
    * Basic test loading a single entry CSV file.
    */
   public function testNodeAlias() {
-
     // Create importer configuration.
     $this->createImporterConfiguration($this->randomName(), 'path_test');
     $this->setPlugin('path_test', 'FeedsFileFetcher');
@@ -80,7 +86,6 @@ class FeedsMapperPathTestCase extends FeedsMapperTestCase {
    * Test support for term aliases.
    */
   public function testTermAlias() {
-
     // Create importer configuration.
     $this->createImporterConfiguration($this->randomName(), 'path_test');
     $this->setPlugin('path_test', 'FeedsFileFetcher');
@@ -94,10 +99,7 @@ class FeedsMapperPathTestCase extends FeedsMapperTestCase {
     );
     $this->drupalPost('admin/structure/taxonomy/add', $edit, t('Save'));
 
-    $this->setSettings('path_test', 'FeedsTermProcessor', array('vocabulary' => 'addams'));
-    
-    // Turn on update existing.
-    $this->setSettings('path_test', 'FeedsTermProcessor', array('update_existing' => 2));
+    $this->setSettings('path_test', 'FeedsTermProcessor', array('bundle' => 'addams', 'update_existing' => 2));
 
     // Add mappings.
     $this->addMappings('path_test', array(
@@ -143,6 +145,9 @@ class FeedsMapperPathTestCase extends FeedsMapperTestCase {
     $this->assertAliasCount($aliases);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function assertAliasCount($aliases) {
     $in_db = db_select('url_alias', 'a')
       ->fields('a')
@@ -152,12 +157,17 @@ class FeedsMapperPathTestCase extends FeedsMapperTestCase {
 
     $this->assertEqual(count($in_db), count($aliases), 'Correct number of aliases in db.');
   }
+
 }
 
 /**
  * Class for testing Feeds <em>path</em> mapper with pathauto.module.
  */
 class FeedsMapperPathPathautoTestCase extends FeedsMapperTestCase {
+
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Mapper: Path with pathauto',
@@ -167,6 +177,9 @@ class FeedsMapperPathPathautoTestCase extends FeedsMapperTestCase {
     );
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function setUp() {
     parent::setUp(array('pathauto'));
   }
@@ -175,7 +188,6 @@ class FeedsMapperPathPathautoTestCase extends FeedsMapperTestCase {
    * Basic for allowing pathauto to override the alias.
    */
   public function test() {
-
     // Create importer configuration.
     $this->createImporterConfiguration($this->randomName(), 'path_test');
     $this->setPlugin('path_test', 'FeedsFileFetcher');
@@ -208,7 +220,7 @@ class FeedsMapperPathPathautoTestCase extends FeedsMapperTestCase {
     $aliases = array();
 
     for ($i = 1; $i <= 9; $i++) {
-      $aliases[] = "path$i";
+      $aliases[] = "content/pathauto$i";
     }
 
     $this->assertAliasCount($aliases);
@@ -228,13 +240,12 @@ class FeedsMapperPathPathautoTestCase extends FeedsMapperTestCase {
     $this->assertAliasCount($aliases);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function assertAliasCount($aliases) {
-    $in_db = db_select('url_alias', 'a')
-      ->fields('a')
-      ->condition('a.alias', $aliases)
-      ->execute()
-      ->fetchAll();
-
+    $in_db = db_query("SELECT * FROM {url_alias} WHERE alias IN (:aliases)", array(':aliases' => $aliases))->fetchAll();
     $this->assertEqual(count($in_db), count($aliases), 'Correct number of aliases in db.');
   }
+
 }

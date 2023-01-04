@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  */
@@ -32,6 +33,14 @@ function feeds_ui_menu() {
     'page callback' => 'drupal_get_form',
     'page arguments' => array('feeds_ui_create_form'),
     'access arguments' => array('administer feeds'),
+    'file' => 'feeds_ui.admin.inc',
+    'type' => MENU_LOCAL_ACTION,
+  );
+  $items['admin/structure/feeds/import'] = array(
+    'title' => 'Import importer',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('feeds_ui_importer_import'),
+    'access callback' => 'feeds_importer_import_access',
     'file' => 'feeds_ui.admin.inc',
     'type' => MENU_LOCAL_ACTION,
   );

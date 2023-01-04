@@ -29,8 +29,10 @@ Drupal.behaviors.horizontalTabs = {
 
       // Transform each fieldset into a tab.
       $fieldsets.each(function (i) {
+        var $legend = $('> legend', this);
+        $('.element-invisible', $legend).remove();
         var horizontal_tab = new Drupal.horizontalTab({
-          title: $('> legend', this).text(),
+          title: $legend.text(),
           fieldset: $(this)
         });
         horizontal_tab.item.addClass('horizontal-tab-button-' + i);
@@ -50,8 +52,11 @@ Drupal.behaviors.horizontalTabs = {
       if (!tab_focus) {
         // If the current URL has a fragment and one of the tabs contains an
         // element that matches the URL fragment, activate that tab.
-        if (window.location.hash && $(window.location.hash, this).length) {
-          tab_focus = $(window.location.hash, this).closest('.horizontal-tabs-pane');
+        // Before we filter out all unwanted characters that might crash with
+        // jQuery
+        var hash = window.location.hash.replace(/[^a-zA-Z0-9-_]/g, "");
+        if (hash !== '#' && $(hash, this).length) {
+          tab_focus = $(hash, this).closest('.horizontal-tabs-pane');
         }
         else {
           tab_focus = $('> .horizontal-tabs-pane:first', this);
@@ -92,21 +97,13 @@ Drupal.horizontalTab = function (settings) {
     }
   });
 
-  // Pressing the Enter key lets you leave the tab again.
-  this.fieldset.keydown(function(event) {
-    // Enter key should not trigger inside <textarea> to allow for multi-line entries.
-    if (event.keyCode == 13 && event.target.nodeName != "TEXTAREA") {
-      // Set focus on the selected tab button again.
-      $(".horizontal-tab-button.selected a").focus();
-      return false;
-    }
-  });
-
-  this.fieldset
-    .bind('summaryUpdated', function () {
+  // Only bind update summary on forms.
+  if (this.fieldset.drupalGetSummary) {
+    this.fieldset.bind('summaryUpdated', function() {
       self.updateSummary();
-    })
-    .trigger('summaryUpdated');
+    }).trigger('summaryUpdated');
+  }
+
 };
 
 Drupal.horizontalTab.prototype = {
@@ -193,12 +190,18 @@ Drupal.horizontalTab.prototype = {
  */
 Drupal.theme.prototype.horizontalTab = function (settings) {
   var tab = {};
+  var idAttr = settings.fieldset.attr('id');
+
   tab.item = $('<li class="horizontal-tab-button" tabindex="-1"></li>')
-    .append(tab.link = $('<a href="#"></a>')
-      .append(tab.title = $('<strong></strong>').text(settings.title))
-      .append(tab.summary = $('<span class="summary"></span>')
-    )
-  );
+    .append(tab.link = $('<a href="#' + idAttr + '"></a>')
+    .append(tab.title = $('<strong></strong>').text(settings.title))
+    );
+
+  // No need to add summary on frontend.
+  if (settings.fieldset.drupalGetSummary) {
+    tab.link.append(tab.summary = $('<span class="summary"></span>'))
+    }
+
   return tab;
 };
 

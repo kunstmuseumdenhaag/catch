@@ -36,20 +36,22 @@ Drupal.behaviors.CToolsAutoSubmit = {
   attach: function(context) {
     // 'this' references the form element
     function triggerSubmit (e) {
-      var $this = $(this);
-      if (!$this.hasClass('ctools-ajaxing')) {
-        $this.find('.ctools-auto-submit-click').click();
+      if ($.contains(document.body, this)) {
+        var $this = $(this);
+        if (!$this.hasClass('ctools-ajaxing')) {
+          $this.find('.ctools-auto-submit-click').click();
+        }
       }
     }
 
     // the change event bubbles so we only need to bind it to the outer form
     $('form.ctools-auto-submit-full-form', context)
       .add('.ctools-auto-submit', context)
-      .filter('form, select, input:not(:text, :submit, .ctools-auto-submit-exclude)')
+      .filter('form, select, input:not(:text, :submit)')
       .once('ctools-auto-submit')
       .change(function (e) {
         // don't trigger on text change for full-form
-        if ($(e.target).is(':not(:text, :submit)')) {
+        if ($(e.target).is(':not(:text, :submit, .ctools-auto-submit-exclude)')) {
           triggerSubmit.call(e.target.form);
         }
       });
@@ -88,8 +90,13 @@ Drupal.behaviors.CToolsAutoSubmit = {
             if ($.inArray(e.keyCode, discardKeyCode) === -1) {
               timeoutID = setTimeout($.proxy(triggerSubmit, this.form), 500);
             }
+          })
+          .bind('change', function (e) {
+            if ($.inArray(e.keyCode, discardKeyCode) === -1) {
+              timeoutID = setTimeout($.proxy(triggerSubmit, this.form), 500);
+            }
           });
       });
   }
-}
+};
 })(jQuery);

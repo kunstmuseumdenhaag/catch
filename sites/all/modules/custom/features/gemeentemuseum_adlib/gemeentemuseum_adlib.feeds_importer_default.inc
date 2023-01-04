@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * gemeentemuseum_adlib.feeds_importer_default.inc
@@ -15,14 +16,17 @@ function gemeentemuseum_adlib_feeds_importer_default() {
   $feeds_importer->api_version = 1;
   $feeds_importer->id = 'adlib_object_importer';
   $feeds_importer->config = array(
-    'name' => 'Adlib Object Importer',
+    'content_type' => '',
     'description' => '',
+    'expire_period' => 3600,
     'fetcher' => array(
-      'plugin_key' => 'AdlibFetcher',
       'config' => array(
+        'batch_results' => 4177,
+        'batch_startfrom' => 101,
+        'changed' => '2022-11-23 20:26',
+        'custom_query' => '(PIDnumber=10918x1y68018 or PIDnumber=10918x1y68019 or PIDnumber=10918x1y68022 or PIDnumber= 10918x1y68021 or PIDnumber= 10918x1y68020)',
         'database' => 'catch',
-        'changed' => '2023-01-04 15:50',
-        'items' => '100',
+        'datesort' => 'modification',
         'fields' => array(
           0 => 'object_number',
           1 => 'alternative_number',
@@ -83,27 +87,25 @@ function gemeentemuseum_adlib_feeds_importer_default() {
           56 => 'material_technique_presentation_english',
           57 => 'credit_line.english',
         ),
-        'datesort' => 'modification',
-        'batch_results' => 0,
-        'batch_startfrom' => 0,
-        'status' => 2,
-        'xmltype' => 'grouped',
+        'items' => '100',
+        'status' => 1,
         'use_custom_query' => 0,
-        'custom_query' => '(PIDnumber=10918x1y68018 or PIDnumber=10918x1y68019 or PIDnumber=10918x1y68022 or PIDnumber= 10918x1y68021 or PIDnumber= 10918x1y68020)',
+        'xmltype' => 'grouped',
       ),
+      'plugin_key' => 'AdlibFetcher',
     ),
+    'import_on_create' => 1,
+    'import_period' => '0',
+    'name' => 'Adlib Object Importer',
     'parser' => array(
-      'plugin_key' => 'FeedsAdlibParser',
       'config' => array(
+        'language' => array(
+          'list' => 'nl-NL,1,neutral',
+        ),
+        'rawXML' => array(),
         'sources' => array(
           'adlibparser:0' => '[object_number]',
           'adlibparser:1' => '[title: | ]',
-          'adlibparser:2' => '[title.short_description]',
-          'adlibparser:3' => '[description]',
-          'adlibparser:4' => '[object_name]',
-          'adlibparser:6' => '[creation_presententation]',
-          'adlibparser:7' => '[creator]',
-          'adlibparser:9' => '[inscription.maker]',
           'adlibparser:10' => '[institution.name]',
           'adlibparser:11' => '[production.place_presentation]',
           'adlibparser:12' => '[production.place]',
@@ -111,6 +113,7 @@ function gemeentemuseum_adlib_feeds_importer_default() {
           'adlibparser:15' => '[material]',
           'adlibparser:16' => '[technique]',
           'adlibparser:17' => '[dimensions_presentation]',
+          'adlibparser:2' => '[title.short_description]',
           'adlibparser:20' => '[related_object.title]',
           'adlibparser:21' => '[related_object.reference]',
           'adlibparser:22' => '[documentation.title]',
@@ -119,11 +122,13 @@ function gemeentemuseum_adlib_feeds_importer_default() {
           'adlibparser:26' => '[part_of_reference]',
           'adlibparser:27' => '[parts_reference]',
           'adlibparser:29' => '[documentation.title.lref]',
+          'adlibparser:3' => '[description]',
           'adlibparser:30' => '[production.date_presentation]',
           'adlibparser:34' => '[production.period]',
           'adlibparser:36' => '[raw_xml]',
           'adlibparser:37' => '[production.date.start]',
           'adlibparser:38' => '[production.date.end]',
+          'adlibparser:4' => '[object_name]',
           'adlibparser:40' => '[inscription.date]',
           'adlibparser:41' => '[edit.date]',
           'adlibparser:42' => '[reproduction.identifier_URL]',
@@ -158,6 +163,7 @@ function gemeentemuseum_adlib_feeds_importer_default() {
           'adlibparser:57' => '[object_number]',
           'adlibparser:58' => '[routine.entry.step]',
           'adlibparser:59' => '[PIDnumber]',
+          'adlibparser:6' => '[creation_presententation]',
           'adlibparser:60' => '[alternative_number]',
           'adlibparser:61' => '[alternative_number.type]',
           'adlibparser:62' => '[chronicle.title.lref]',
@@ -168,21 +174,22 @@ function gemeentemuseum_adlib_feeds_importer_default() {
           'adlibparser:67' => '[production.date_presentation_english]',
           'adlibparser:68' => '[material_technique_presentation_english]',
           'adlibparser:69' => '[dimensions_presentation_english]',
+          'adlibparser:7' => '[creator]',
           'adlibparser:70' => '[credit_line.english]',
           'adlibparser:71' => '[description_english]',
-        ),
-        'rawXML' => array(),
-        'language' => array(
-          'list' => 'nl-NL,1,neutral',
+          'adlibparser:9' => '[inscription.maker]',
         ),
       ),
+      'plugin_key' => 'FeedsAdlibParser',
     ),
+    'process_in_background' => 1,
     'processor' => array(
-      'plugin_key' => 'FeedsNodeProcessor',
       'config' => array(
-        'content_type' => 'adlib_object',
-        'expire' => '-1',
         'author' => 0,
+        'authorize' => 1,
+        'bundle' => 'adlib_object',
+        'expire' => '-1',
+        'input_format' => 'plain_text',
         'mappings' => array(
           0 => array(
             'source' => 'adlibparser:0',
@@ -485,18 +492,12 @@ function gemeentemuseum_adlib_feeds_importer_default() {
             'unique' => FALSE,
           ),
         ),
-        'update_existing' => '1',
-        'input_format' => 'plain_text',
-        'authorize' => 1,
         'skip_hash_check' => 1,
+        'update_existing' => '1',
       ),
+      'plugin_key' => 'FeedsNodeProcessor',
     ),
-    'content_type' => '',
     'update' => 0,
-    'import_period' => '0',
-    'expire_period' => 3600,
-    'import_on_create' => 1,
-    'process_in_background' => 1,
   );
   $export['adlib_object_importer'] = $feeds_importer;
 

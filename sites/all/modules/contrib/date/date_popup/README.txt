@@ -18,7 +18,7 @@ Timepicker
 ================================================================================
 
 There are three ways to let users select time in the Date Popup widgets.
-You can choose between them by going to admin/config/content/date_popup.
+You can choose between them by going to admin/config/date/date_popup.
 
 The options are:
 
@@ -35,6 +35,10 @@ download the latest copy and unzip it. You will see files with names like
 jquery.timepicker-1.1.2.js and jquery.timepicker-1.1.2.css. Rename them to
 jquery.timepicker.js and jquery.timepicker.css and copy them into
 'sites/all/libraries/wvega-timepicker'.
+
+The date_popup_timepicker module is also supported:
+* https://www.drupal.org/project/date_popup_timepicker
+
 
 ================================================================================
 Usage
@@ -99,10 +103,10 @@ Example:
 
 $form['date'] = array(
   '#type' => 'date_popup',
-  '#default_value' => '2007-01-01 10:30:00,
+  '#default_value' => '2007-01-01 10:30:00',
   '#date_type' => DATE_DATETIME,
   '#date_timezone' => date_default_timezone(),
-  '#date_format' => 'm/d/Y - H:i',
+  '#date_format' => 'm-d-Y H:i',
   '#date_increment' => 1,
   '#date_year_range' => '-3:+3',
 );

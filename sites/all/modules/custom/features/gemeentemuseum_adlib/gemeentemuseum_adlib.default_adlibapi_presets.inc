@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * gemeentemuseum_adlib.default_adlibapi_presets.inc
