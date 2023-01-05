@@ -57,9 +57,11 @@ class MuSSolrAPIKeySlim extends MuSSolrAPIKey {
     // Get the slim instance
     // @todo refactor this we can pass the app instead or config or whatever.
     $app = $GLOBALS['app'];
+    $container = $app->getContainer();
+    $settings = $container->get('settings');
     // Generate PDO database string
-    $dbConnectString = 'mysql:host=' . $app->config('db_host') . ';port=' . $app->config('db_port') . ';dbname=' . $app->config('db_database');
-    $db = new PDO($dbConnectString, $app->config('db_username'), $app->config('db_password'));
+    $dbConnectString = 'mysql:host=' . $settings['db_host'] . ';port=' . $settings['db_port'] . ';dbname=' . $settings['db_database'];
+    $db = new PDO($dbConnectString, $settings['db_username'], $settings['db_password']);
     $query = $db->prepare('SELECT * FROM musapi WHERE apikey = :apikey');
     $query->execute(array(':apikey' => $apikey));
     $info = $query->fetch(PDO::FETCH_ASSOC);

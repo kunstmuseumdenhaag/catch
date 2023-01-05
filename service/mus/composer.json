@@ -1,6 +1,9 @@
 {
   "require": {
-    "slim/slim": "2.*",
+    "slim/slim": "3.*",
     "twig/twig": "1.*"
+  },
+  "require-dev": {
+    "roave/security-advisories": "dev-latest"
   }
 }
