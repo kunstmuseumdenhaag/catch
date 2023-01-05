@@ -27,6 +27,12 @@ $app->get('/search', function () use ($app) {
   // Add highlighting
   $alterator->addParam('hl','true');
   $alterator->addParam('hl.fl', MuSSolrRequestAlterator::HIGHLIGHT_FIELDS);
+  try {
+    $alterator->addParam('wt', 'xml');
+  }
+  catch (Exception $exception) {
+    // @todo handle this correctly, if the param is already set, let it be.
+  }
 
   $response = $alterator->doSolrRequest();
   $solrHeaders = $response->getHeaderInfo();
@@ -41,6 +47,13 @@ $app->get('/detail/:id', function ($id) use ($app) {
   $query = 'PIDnumber:' . $id;
   $alterator->addParam('q', $query);
   $alterator->addParam('qt', 'detail');
+  try {
+    $alterator->addParam('wt', 'xml');
+  }
+  catch (Exception $exception) {
+    // @todo handle this correctly, if the param is already set, let it be.
+  }
+
   $response = $alterator->doSolrRequest();
   $solrHeaders = $response->getHeaderInfo();
   $appResponse = $app->response();
