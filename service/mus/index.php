@@ -56,12 +56,12 @@ $app->get('/search', function (Request $request, Response $response) {
     $alterator->addParam('wt', 'xml');
   }
   catch (Exception $exception) {
-    // @todo handle this correctly, if the param is already set, let it be.
+    // The parameter has already been set.
   }
 
   $solrResponse = $alterator->doSolrRequest();
   $solrHeaders = $solrResponse->getHeaderInfo();
-  $response->withHeader('Content-type', $solrHeaders['Content-Type']);
+  $response = $response->withHeader('Content-type', $solrHeaders['Content-Type']);
   $response->getBody()->write($solrResponse->getRaw());
   return $response;
 });
@@ -80,12 +80,12 @@ $app->get('/detail/{id}', function (Request $request, Response $response, array 
     $alterator->addParam('wt', 'xml');
   }
   catch (Exception $exception) {
-    // @todo handle this correctly, if the param is already set, let it be.
+    // The parameter has already been set.
   }
 
   $solrResponse = $alterator->doSolrRequest();
   $solrHeaders = $solrResponse->getHeaderInfo();
-  $response->withHeader('Content-type', $solrHeaders['Content-Type']);
+  $response = $response->withHeader('Content-type', $solrHeaders['Content-Type']);
   $response->getBody()->write($solrResponse->getRaw());
   return $response;
 });
