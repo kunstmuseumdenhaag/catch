@@ -1833,9 +1833,80 @@
     </arr>
   </requestHandler>
 
-  <searchComponent name="privateField" class="nl.triquanta.solr.component.PrivateFieldComponent">
-    <str name="allowedFields">PIDnumber, objectnummer</str>
-    <str name="privateField">publication_access</str>
-    <str name="publicValue">volledig</str>
-  </searchComponent>
+  <!-- DisMaxRequestHandler allows easy searching across multiple fields
+       for simple user-entered phrases.  It's implementation is now
+       just the standard SearchHandler with a default query type
+       of "dismax".
+       see http://wiki.apache.org/solr/DisMaxRequestHandler
+   -->
+  <requestHandler name="dismax" class="solr.SearchHandler" default="true">
+    <lst name="defaults">
+      <str name="defType">edismax</str>
+      <str name="echoParams">none</str>
+      <str name="mm">1</str>
+      <float name="tie">0.01</float>
+      <str name="qf">who_search^1 when_search^1 how_search^1 what_search^1 where_search^1</str>
+      <!--<str name="pf">
+             text^0.2 features^1.1 name^1.5 manu^1.4 manu_exact^1.9
+          </str>-->
+      <!--<str name="bf">
+             popularity^0.5 recip(price,1,1000,1000)^0.3
+          </str>-->
+
+      <!--
+           If you want to get more results back from Search API queries, just add the
+           additional fields here (after setting them to "stored" in the schema.xml).
+           schema.xml). These will be returned alongside "id" and "score" in the
+           search results.
+      -->
+      <str name="fl">PIDnumber,score,who,when,how,what,raw,where</str>
+      <!--
+           If you want to allow results where not all keywords are matched, uncomment
+           the following line and insert your own "minimum match" definition.
+      -->
+      <!-- <str name="mm">2&lt;-35%</str> -->
+      <int name="ps">100</int>
+      <str name="q.alt">*:*</str>
+
+      <!-- Highlighting parameters -->
+      <!-- By default, don't highlight. -->
+      <str name="hl">false</str>
+      <!-- Use the spellcheck field for highlighting, as that contains all text
+           data anyways. -->
+      <str name="hl.fl">spell</str>
+      <!-- Use special syntax for highlighting, so we can later strip other HTML
+           tags from the excerpt. -->
+      <str name="hl.simple.pre">[HIGHLIGHT]</str>
+      <str name="hl.simple.post">[/HIGHLIGHT]</str>
+      <!-- Use several shorter snippets and concatenate them. -->
+      <str name="hl.snippets">3</str>
+      <str name="hl.fragsize">70</str>
+      <str name="hl.mergeContiguous">true</str>
+
+      <!-- By default don't spell check. -->
+      <str name="spellcheck">false</str>
+      <!-- Defaults for the spell checker when used. -->
+      <str name="spellcheck.onlyMorePopular">true</str>
+      <str name="spellcheck.extendedResults">false</str>
+      <!-- The number of suggestions to return. -->
+      <str name="spellcheck.count">1</str>
+    </lst>
+    <arr name="components">
+      <str>query</str>
+      <str>facet</str>
+      <str>mlt</str>
+<!--      <str>privateField</str>-->
+      <str>highlight</str>
+      <str>stats</str>
+      <str>debug</str>
+    </arr>
+  </requestHandler>
+
+<!-- This is the custom Field component, form the previous installation, is does not seem to be inuse, but keeping it
+here for reference. -->
+<!--  <searchComponent name="privateField" class="nl.triquanta.solr.component.PrivateFieldComponent">-->
+<!--    <str name="allowedFields">PIDnumber, objectnummer</str>-->
+<!--    <str name="privateField">publication_access</str>-->
+<!--    <str name="publicValue">volledig</str>-->
+<!--  </searchComponent>-->
 </config>
