@@ -46,17 +46,12 @@ class AdlibBaseResponse{
       $this->parse($responseWithHeader);
     }
 
-    if (is_array($httpInfo) && count($httpInfo) > 0) {
+    if (is_array($httpInfo) && count($httpInfo) > 0 && !$this->_error) {
       // if we received any other status then 200 OK we have an error and we assume no valid XML was returned
       if ($httpInfo['http_code'] != 200) {
         $this->_error = true;
         $this->_errorString = $this->_headers['Status-Message'] . ': ' . $this->_headers['Error-Message'];
       }
-    }
-    else {
-      // no $httpHeaders, error = true
-      $this->_error = true;
-      $this->_errorString = $this->_headers['Status-Message'] . ': ' . $this->_headers['Error-Message'];
     }
   }
 
