@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * mus_search_api_settings.features.inc

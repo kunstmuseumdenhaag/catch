@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8ae265befa7c3a944a87157f799d2974",
+    "content-hash": "66bdb0fed31684b7401617375c8a55c6",
     "packages": [
         {
             "name": "composer/installers",
@@ -2266,6 +2266,54 @@
             "homepage": "https://www.drupal.org/project/search_api",
             "support": {
                 "source": "https://git.drupalcode.org/project/search_api"
+            }
+        },
+        {
+            "name": "drupal/search_api_override",
+            "version": "1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://git.drupalcode.org/project/search_api_override.git",
+                "reference": "7.x-1.1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://ftp.drupal.org/files/projects/search_api_override-7.x-1.1.zip",
+                "reference": "7.x-1.1",
+                "shasum": "b2fc6b8cef4c9d62b367825c14a8bcd844507d38"
+            },
+            "require": {
+                "drupal/drupal": "~7.0"
+            },
+            "type": "drupal-module",
+            "extra": {
+                "drupal": {
+                    "version": "7.x-1.1",
+                    "datestamp": "1589226897",
+                    "security-coverage": {
+                        "status": "covered",
+                        "message": "Covered by Drupal's security advisory policy"
+                    }
+                }
+            },
+            "notification-url": "https://packages.drupal.org/7/downloads",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "derhasi",
+                    "homepage": "https://www.drupal.org/user/83474"
+                },
+                {
+                    "name": "vuil",
+                    "homepage": "https://www.drupal.org/user/3568458"
+                }
+            ],
+            "description": "Helper module to make search api server configuration possible in the settings.php",
+            "homepage": "https://www.drupal.org/project/search_api_override",
+            "support": {
+                "source": "https://git.drupalcode.org/project/search_api_override"
             }
         },
         {
