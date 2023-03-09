@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "66bdb0fed31684b7401617375c8a55c6",
+    "content-hash": "fb6173334148a4799c2ed865a43bc81d",
     "packages": [
         {
             "name": "composer/installers",
@@ -836,17 +836,17 @@
         },
         {
             "name": "drupal/date",
-            "version": "2.13.0",
+            "version": "2.14.0",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/date.git",
-                "reference": "7.x-2.13"
+                "reference": "7.x-2.14"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/date-7.x-2.13.zip",
-                "reference": "7.x-2.13",
-                "shasum": "a5907cddf403c1fc2f0a7f68f582d61b50e212cb"
+                "url": "https://ftp.drupal.org/files/projects/date-7.x-2.14.zip",
+                "reference": "7.x-2.14",
+                "shasum": "d830082188308a13d9c914e527e6d37b5668153a"
             },
             "require": {
                 "drupal/date_api": "*",
@@ -864,8 +864,8 @@
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "7.x-2.13",
-                    "datestamp": "1659633187",
+                    "version": "7.x-2.14",
+                    "datestamp": "1673711075",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -930,7 +930,7 @@
         },
         {
             "name": "drupal/date_api",
-            "version": "2.13.0",
+            "version": "2.14.0",
             "require": {
                 "drupal/date": "^2",
                 "drupal/drupal": "~7.0"
@@ -938,8 +938,8 @@
             "type": "metapackage",
             "extra": {
                 "drupal": {
-                    "version": "7.x-2.13",
-                    "datestamp": "1659633187",
+                    "version": "7.x-2.14",
+                    "datestamp": "1673711075",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -5011,7 +5011,8 @@
         "ext-json": "*",
         "ext-openssl": "*",
         "ext-pdo": "*",
-        "ext-xml": "*"
+        "ext-xml": "*",
+        "ext-simplexml": "*"
     },
     "platform-dev": [],
     "plugin-api-version": "2.3.0"
