@@ -58,7 +58,8 @@ class AdlibParser extends FeedsParser {
     $mappings = $this->filterMappings(feeds_importer($this->id)->processor->config['mappings']);
     $next = 0;
     if (!empty($mappings)) {
-      $last_mapping = end(array_keys($mappings));
+      $mappingsKeys = array_keys($mappings);
+      $last_mapping = end($mappingsKeys);
       $next = explode(':', $last_mapping);
       $next = $next[1] + 1;
     }
@@ -285,6 +286,9 @@ class AdlibParser extends FeedsParser {
         // check if we have multiple values
         $children = $this->getGroupedFieldByXpath($result, $field);
         // $children = $result->{$field}->children();
+        if(empty($children)) {
+          continue;
+        }
         if (count($children) > 1) {
           $field_array = array();
           // get all values
@@ -301,8 +305,8 @@ class AdlibParser extends FeedsParser {
         }
         else {
           // single value
-          // First try if we there is a result without value
-          if ((string) $children[0] != '' && (string) $children[0] != 'Array') {
+          // First try if there is a result without value.
+          if ((string) $children[0] !== '' && (string) $children[0] !== 'Array') {
             $doc[$field] = $this->replaceTokenCharacters((string) $children[0]);
           }
           else {

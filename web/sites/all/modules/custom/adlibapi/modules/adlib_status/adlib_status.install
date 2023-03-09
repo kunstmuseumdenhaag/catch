@@ -1,19 +1,23 @@
 <?php
 /**
  * Implements hook_requirements.
+ *
  * @param $phase
- * @return $requirements
+ *
+ * @return array $requirements
  *  Array with status information.
  */
-function adlib_status_requirements($phase) {
+function adlib_status_requirements($phase): array {
   $requirements = array();
-  if ($phase == 'runtime') {
+  if ($phase === 'runtime') {
     // Connection status of Adlib servers.
     // First get implemented servers.
+    include_once(DRUPAL_ROOT . '/includes/install.inc');
     module_load_include('inc', 'ctools', 'includes/export');
     $adlib_items = ctools_export_crud_load_all('adlibapi_databases', false);
     foreach ($adlib_items as $preset) {
       $severity = REQUIREMENT_INFO;
+      $message = '';
       if (isset($preset->config)) {
         _adlibapi_deserialize_config($preset);
         /*
@@ -22,7 +26,7 @@ function adlib_status_requirements($phase) {
         */
         if (isset($preset->url)) {
           $version = adlibapi_api_get_version($preset);
-          if (sizeof($version) == 0) {
+          if (count($version) === 0) {
             $message = t('Unable to connect to OPAC server.');
             $severity = REQUIREMENT_ERROR;
           }
@@ -54,7 +58,7 @@ function adlib_status_requirements($phase) {
     foreach (search_api_index_load_multiple(FALSE) as $index) {
       if ($index->enabled) {
         $status = search_api_index_status($index);
-        $all = ($status['indexed'] == $status['total']);
+        $all = ($status['indexed'] === $status['total']);
         if ($all) {
           $message = t('All items have been indexed (@total / @total).', array('@total' => $status['total']));
           $severity = REQUIREMENT_OK;

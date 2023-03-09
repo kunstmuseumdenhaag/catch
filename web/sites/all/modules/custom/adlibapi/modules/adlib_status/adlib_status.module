@@ -12,13 +12,14 @@
  */
 function adlib_status_cron() {
   // Run requirements function
+  include_once(DRUPAL_ROOT . '/includes/install.inc');
   module_load_include('install', 'adlib_status');
   $statuses = adlib_status_requirements('runtime');
   $params = array();
 
   // Store statuses and check for errors.
   foreach ($statuses  as $index => $status) {
-    if (isset($status['severity']) && ($status['severity'] == REQUIREMENT_ERROR)) {
+    if (isset($status['severity']) && ($status['severity'] === REQUIREMENT_ERROR)) {
       $params[] = $status;
     }
   }
