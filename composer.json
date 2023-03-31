@@ -121,22 +121,22 @@
         "type:drupal-theme"
       ]
     },
+    "preserve-paths": [
+      "web/sites/all/modules/contrib",
+      "web/sites/all/libraries",
+      "web/sites/all/modules/custom",
+      "web/sites/all/drush",
+      "web/sites/default/settings.ddev.php",
+      "web/sites/default/settings.local.php",
+      "web/sites/default/settings.php",
+      "web/sites/default/files"
+    ],
     "patches-install-hooks": true,
     "patches": {
       "cweagans/composer-patches": {
         "Call the preserve paths hooks": "https://github.com/jcnventura/composer-patches/compare/1.x...jcnventura:fix-preserve-paths.diff"
       }
-    },
-    "preserve-paths": [
-      "web/sites",
-      "web/sites/all/modules/contrib",
-      "web/sites/all/modules/contrib",
-      "web/sites/all/libraries",
-      "web/sites/all/drush",
-      "web/sites/default/settings.ddev.php",
-      "web/sites/default/settings.local.php",
-      "web/sites/default/files"
-    ]
+    }
   },
   "require-dev": {
     "roave/security-advisories": "dev-latest"
