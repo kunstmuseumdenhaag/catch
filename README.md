@@ -1,9 +1,9 @@
-#Catch#
+#CatchPlus: MuSeUMPlus#
 -
 
-Catch is the search engine built by [Kunstmuseum Den Haag](https://www.kunstmuseum.nl/).
+MuS is the search engine built by [Kunstmuseum Den Haag](https://www.kunstmuseum.nl/) as part of the [MuSeUMPlus-project](http://www.catchplus.nl/index.html%3Fp=1116.html).
 
-Catch tries to simplify starting a search engine for collections having the most common
+MuS tries to simplify starting a search engine for collections having the most common
 search already included and set up.
 
 ##Getting started##
